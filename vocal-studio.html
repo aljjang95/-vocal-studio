@@ -1452,8 +1452,13 @@ function render(){
     var wkBtn=wkOfs?'<button class="btn bg2 bsm" onclick="wkOfs=0;render()">이번 주</button>':'';
     var _activeSt=students.filter(function(s){return s.status==='수강중';});
     var _flexSt=_activeSt.filter(function(s){return s.schedType==='flex';});
+    var _fixedSt=_activeSt.filter(function(s){return s.schedType==='fixed';});
     var _curWk=getWK(getViewMon());
-    var _unassigned=_flexSt.filter(function(s){return !weekOvr[_curWk]||!weekOvr[_curWk][s.id]||weekOvr[_curWk][s.id].length===0;});
+    /* 변동: weekOvr에 배정 없으면 미배정 */
+    var _unassignedFlex=_flexSt.filter(function(s){return !weekOvr[_curWk]||!weekOvr[_curWk][s.id]||weekOvr[_curWk][s.id].length===0;});
+    /* 고정: schedDays가 비어있으면 미배정 */
+    var _unassignedFixed=_fixedSt.filter(function(s){return !s.schedDays||s.schedDays.length===0;});
+    var _unassigned=_unassignedFlex.concat(_unassignedFixed);
     var _infoTxt='수강중 '+_activeSt.length+'명';
     if(_unassigned.length)_infoTxt+=' | <span style="color:var(--r);font-weight:700">⚠️ 미배정 '+_unassigned.length+'명: '+_unassigned.map(function(s){return esc(s.name);}).join(', ')+'</span>';
     ge('ta').innerHTML='<div class="wn-bar"><div class="wn-btn" onclick="wkOfs--;render()">&#8249;</div><div class="wn-lbl" id="wkLbl">&#x22EF;</div><div class="wn-btn" onclick="wkOfs++;render()">&#8250;</div>'+wkBtn+'</div>'
@@ -2063,10 +2068,11 @@ function buildMobileSchedule(){
   var mon=getViewMon(),now=new Date(),todayStr=toDS(now),isThis=wkOfs===0;
   var sched=getWeekSched(mon);
   var flexS=students.filter(function(s){return s.status==='수강중'&&s.schedType==='flex';});
+  var _fixedUnassigned=students.filter(function(s){return s.status==='수강중'&&s.schedType==='fixed'&&(!s.schedDays||s.schedDays.length===0);});
   var unassignedFlex=flexS.filter(function(s){
     var wk2=getWK(mon);
     return !weekOvr[wk2]||!weekOvr[wk2][s.id]||weekOvr[wk2][s.id].length===0;
-  });
+  }).concat(_fixedUnassigned);
   var d=ALL7[mobileSchedDay];
   var dd=addDays(mon,mobileSchedDay);
   var ddStr=toDS(dd);
@@ -2308,8 +2314,8 @@ function lbClick(el){
     ?'<img src="'+s.photo+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover">'
     :'<div style="width:48px;height:48px;border-radius:8px;background:'+c+'33;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:'+c+'">'+esc(s.name.slice(0,1))+'</div>';
   var html='<div class="modal" style="max-width:300px">'
-    +'<div class="mh"><div style="display:flex;align-items:center;gap:12px">'+av
-    +'<div><div class="mt">'+esc(s.name)+'</div>'
+    +'<div class="mh"><div style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="closeLbOpt();setTimeout(function(){openSModal(\'' +sid+ '\')},100)" title="레슨생 수정">'+av
+    +'<div><div class="mt" style="color:var(--a)">'+esc(s.name)+' ✏️</div>'
     +'<div style="font-size:12px;color:var(--tm)">'+date+' '+time+'</div></div></div>'
     +'<div class="mc" onclick="closeLbOpt()">&#x2715;</div></div>';
   html+='<div class="mb" style="display:flex;flex-direction:column;gap:8px">';
