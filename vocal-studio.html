@@ -2073,7 +2073,7 @@ function buildMobileWeekView(mon,sched,todayStr,isThis,flexS,unassignedFlex){
       nowIndicator:true,
       timeZone:'Asia/Seoul',
       contentHeight:'auto',
-      stickyHeaderDates:false,
+      stickyHeaderDates:true,
       events:events,
       eventClick:function(info){
         var p=info.event.extendedProps;
@@ -2113,7 +2113,7 @@ function buildMobileWeekView(mon,sched,todayStr,isThis,flexS,unassignedFlex){
       style.id='fcStyle';
       style.textContent='.fc{color:var(--t)!important;font-family:"DM Sans",sans-serif!important}'+
         '.fc-theme-standard td,.fc-theme-standard th,.fc-theme-standard .fc-scrollgrid{border-color:var(--b)!important}'+
-        '.fc-timegrid-slot{height:44px!important;min-height:44px!important}'+
+        '.fc-timegrid-slot{height:36px!important;min-height:36px!important}'+
         '.fc-col-header-cell-cushion{color:var(--tm)!important;font-size:10px!important;padding:3px 1px!important;font-weight:600!important}'+
         '.fc-timegrid-slot-label-cushion{color:var(--ts)!important;font-size:10px!important;padding:0 2px!important;font-weight:500!important}'+
         '.fc-day-today{background:rgba(200,169,110,.05)!important}'+
@@ -2126,7 +2126,9 @@ function buildMobileWeekView(mon,sched,todayStr,isThis,flexS,unassignedFlex){
         '.fc-col-header{background:var(--s1)!important}'+
         '.fc-col-header-cell{height:52px!important}'+
         '.fc-timegrid-axis{width:44px!important}'+
-        '.fc-timegrid-col{min-width:40px!important}';
+        '.fc-timegrid-col{min-width:40px!important}'+
+        '.fc-timegrid-axis{position:sticky!important;left:0!important;z-index:3!important;background:var(--bg)!important}'+
+        '.fc-timegrid-slot-label{position:sticky!important;left:0!important;z-index:3!important;background:var(--bg)!important}';
       document.head.appendChild(style);
     }
   },100);
