@@ -2791,6 +2791,13 @@ function lbClick(el){
   var JSDOW2={0:'일',1:'월',2:'화',3:'수',4:'목',5:'금',6:'토'};
   var dayStr2=JSDOW2[day2];
   html+='<button class="btn bg2" style="justify-content:center;padding:12px" data-day="'+dayStr2+'" data-time="'+time+'" data-date="'+date+'" onclick="closeLbOpt();cellClick(this.dataset.day,this.dataset.time,this.dataset.date)">➕ 이 슬롯에 레슨생 추가</button>';
+  /* 전화/문자 버튼 */
+  if(s.ph){
+    html+='<div style="display:flex;gap:8px">';
+    html+='<a href="tel:'+s.ph+'" class="btn" style="flex:1;justify-content:center;padding:12px;background:rgba(100,200,120,.1);color:#6dc8a2;border:1px solid rgba(100,200,120,.2);text-decoration:none">📞 전화</a>';
+    html+='<a href="sms:'+s.ph+'" class="btn" style="flex:1;justify-content:center;padding:12px;background:rgba(110,163,200,.1);color:#6ea3c8;border:1px solid rgba(110,163,200,.2);text-decoration:none">💬 문자</a>';
+    html+='</div>';
+  }
   html+='<button class="btn bp" style="justify-content:center;padding:12px" data-sid="'+sid+'" data-time="'+time+'" data-date="'+date+'" onclick="closeLbOpt();openLessonRecord(this.dataset.sid,this.dataset.time,this.dataset.date)">✍️ 레슨 기록 작성</button>';
   html+='<button class="btn bm" style="justify-content:center;padding:12px" data-sid="'+sid+'" data-time="'+time+'" data-date="'+date+'" onclick="closeLbOpt();openTempReschedule(this.dataset.sid,this.dataset.time,this.dataset.date)">📅 이번 주 일정 변경</button>';
   html+='<button class="btn bd" style="justify-content:center;padding:12px" data-sid="'+sid+'" data-time="'+time+'" data-date="'+date+'" onclick="closeLbOpt();removeSlotFromMenu(this.dataset.sid,this.dataset.time,this.dataset.date)">🗑 이 슬롯 비우기</button>';
@@ -3128,7 +3135,7 @@ function buildStudents(filter, schedFilter){
       o+='<div style="font-size:12.5px;color:var(--tm);display:flex;gap:12px;flex-wrap:wrap">';
       if(ageStr)o+='<span>'+ageStr+'</span>';if(unpaidBadge)o+=unpaidBadge;
       if(_du>0)o+='<span style="font-size:11px;color:var(--a);background:rgba(200,169,110,.1);border-radius:4px;padding:1px 5px">연기 '+_du+'/'+_dm+'회 사용</span>';
-      if(s.ph)o+='<span>📞 '+esc(s.ph)+'</span>';
+      if(s.ph)o+='<span style="display:inline-flex;align-items:center;gap:4px">'+'<a href="tel:'+esc(s.ph)+'" onclick="event.stopPropagation()" style="font-size:11px;background:rgba(100,200,120,.1);color:#6dc8a2;border:1px solid rgba(100,200,120,.2);border-radius:5px;padding:2px 7px;text-decoration:none">📞 전화</a>'+'<a href="sms:'+esc(s.ph)+'" onclick="event.stopPropagation()" style="font-size:11px;background:rgba(110,163,200,.1);color:#6ea3c8;border:1px solid rgba(110,163,200,.2);border-radius:5px;padding:2px 7px;text-decoration:none">💬 문자</a>'+'<span style="font-size:11px;color:var(--tm)">'+esc(s.ph)+'</span>'+'</span>';
       o+='</div>';
       o+='<div style="font-size:12px;color:var(--ts)">'+esc(timeStr)+'</div>';
       o+='<div style="margin-top:auto;padding-top:6px;border-top:1px solid var(--b)">';
