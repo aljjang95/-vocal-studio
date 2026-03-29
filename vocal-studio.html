@@ -668,12 +668,13 @@ body.is-mobile .mobile-tab-bar{display:flex!important;}
 <div class="toast" id="toast"><span id="t-ic">&#x2713;</span><span id="t-msg"></span></div>
 
 <script>
-var ST={};var LG={};var WO={};var CO={};var PM={};
+var ST={};var LG={};var WO={};var CO={};var PM={};var IQ=[];
 try{ST=JSON.parse(localStorage.getItem('vsC_s')||'[]');}catch(e){ST=[];}
 try{LG=JSON.parse(localStorage.getItem('vsC_l')||'[]');}catch(e){LG=[];}
 try{WO=JSON.parse(localStorage.getItem('vsC_wo')||'{}');}catch(e){WO={};}
 try{CO=JSON.parse(localStorage.getItem('vsC_c')||'[]');}catch(e){CO=[];}
 try{PM=JSON.parse(localStorage.getItem('vsC_p')||'[]');}catch(e){PM=[];}
+try{IQ=JSON.parse(localStorage.getItem('vsC_iq')||'[]');}catch(e){IQ=[];}
 /* 디버그용 콘솔 로그 추가 */
 if(typeof window!=='undefined'){
   window._vsDebug=function(){
@@ -685,7 +686,7 @@ if(typeof window!=='undefined'){
   };
 }
 
-var students=ST,logs=LG,weekOvr=WO,consults=CO,payments=PM;
+var students=ST,logs=LG,weekOvr=WO,consults=CO,payments=PM,inquiries=IQ;
 var currentStudentTab='all';
 
 
@@ -702,6 +703,7 @@ function saveAll(){
   localStorage.setItem('vsC_wo',JSON.stringify(weekOvr));
   localStorage.setItem('vsC_c',JSON.stringify(consults));
   localStorage.setItem('vsC_p',JSON.stringify(payments));
+  localStorage.setItem('vsC_iq',JSON.stringify(inquiries));
 }
 
 /* === FIREBASE + FIRESTORE 실시간 동기화 === */
@@ -854,7 +856,9 @@ function initFirebase(){
     try{weekOvr=d.weekOvr||{};localStorage.setItem('vsC_wo',JSON.stringify(weekOvr));}catch(e){}
     try{consults=d.consults||[];localStorage.setItem('vsC_c',JSON.stringify(consults));}catch(e){}
     try{payments=d.payments||[];localStorage.setItem('vsC_p',JSON.stringify(payments));}catch(e){}
+    try{inquiries=d.inquiries||[];localStorage.setItem('vsC_iq',JSON.stringify(inquiries));}catch(e){}
     _fbReady=true;
+    _injectInitialInquiries(); /* 문의자 초기 데이터 주입 */
     /* UI 갱신 */
     renderSidebarToday();
     if(typeof render==='function'&&_skipRenderCount<=0){
@@ -983,7 +987,7 @@ function updateAge(el){
   if(yr<1920||yr>thisYear){var d3=document.getElementById('s-age-display');if(d3)d3.textContent='';return;}
   var age=thisYear-yr;
   var d=document.getElementById('s-age-display');
-  if(d)d.textContent=age+'세 ('+yr+'년생)';
+  if(d)d.textContent='만 '+age+'세 ('+yr+'년생)';
 }
 
 /* ── 비밀번호 잠금 ── */
@@ -1442,9 +1446,11 @@ function sbLessonClick(el){
 
 /* NAV */
 var page='consult',wkOfs=0;
+var _consultTab='consult';
 var PT={dashboard:'대시보드',consult:'신규 상담',students:'레슨생 관리',logs:'레슨 기록',payment:'입금 관리',today:'오늘 스케줄',schedule:'주간 스케줄'};
 function go(p){
   page=p;wkOfs=0;
+  if(p==='consult') _consultTab='consult';
   /* 모바일 스케줄 선택 요일 오늘로 리셋 */
   if(p==='schedule') mobileSchedDay=(new Date().getDay()===0)?6:(new Date().getDay()-1);
   document.querySelectorAll('.ni[data-p]').forEach(function(n){n.classList.toggle('on',n.dataset.p===p);});
@@ -1504,7 +1510,17 @@ function render(){
   } else if(page==='consult'){
     if(!ge('ta')||!ge('content')) return;
     ge('ta').innerHTML='<button class="btn bp" onclick="showConsultForm()">＋ 신규 상담 작성</button>';
-    ge('content').innerHTML=buildConsultList();
+    /* 상담 탭 = 상담신청자 + 문의자 탭 */
+    var consultTab=_consultTab||'consult';
+    var tabHtml='<div style="display:flex;gap:6px;margin-bottom:14px">';
+    tabHtml+='<button class="btn bsm '+(consultTab!=='inquiry'?'bp':'')+'" onclick="setConsultTab(\'consult\')">📋 상담신청자</button>';
+    tabHtml+='<button class="btn bsm '+(consultTab==='inquiry'?'bp':'')+'" onclick="setConsultTab(\'inquiry\')">❓ 문의자</button>';
+    tabHtml+='</div>';
+    if(consultTab==='inquiry'){
+      ge('content').innerHTML=tabHtml+buildInquiryList();
+    } else {
+      ge('content').innerHTML=tabHtml+buildConsultList();
+    }
   }
   renderSidebarToday();
 }
@@ -2020,6 +2036,307 @@ function resetDeferral(sid){
   saveAll();toast('연기 횟수 초기화: '+s.name);
   if(page==='students') render();
 }
+
+/* ── 문의자 관리 ── */
+
+
+/* ── 변동 스케줄 한달치 일정 등록 ── */
+function openBulkSchedule(sid){
+  var s=students.find(function(x){return x.id===sid;});
+  if(!s) return;
+  var m=document.createElement('div');
+  m.id='mBulkSched';m.className='ov open';
+  var now=new Date();
+  var yr=now.getFullYear(),mo=now.getMonth();
+  /* 현재달+다음달 날짜 목록 생성 */
+  var dates=[];
+  for(var mm=0;mm<=1;mm++){
+    var dm=new Date(yr,mo+mm,1);
+    while(dm.getMonth()===mo+mm){
+      var dow=dm.getDay();
+      if(dow!==0||(window._cfg&&!window._cfg.monOff)||(dow!==0)){
+        dates.push(new Date(dm));
+      }
+      dm.setDate(dm.getDate()+1);
+    }
+  }
+  var html='<div class="modal wide"><div class="mh"><div class="mt">📅 '+esc(s.name)+' 일정 등록</div><div class="mc" onclick="document.getElementById(\'mBulkSched\').remove()">&#x2715;</div></div><div class="mb">';
+  html+='<div style="font-size:12px;color:var(--tm);margin-bottom:10px">날짜를 선택하고 시간을 입력하세요. 여러 날짜 선택 가능합니다.</div>';
+  html+='<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">';
+  var DAYS=['일','월','화','수','목','금','토'];
+  var months={};
+  dates.forEach(function(d){
+    var mk=d.getFullYear()+'-'+(d.getMonth()+1);
+    if(!months[mk]) months[mk]=[];
+    months[mk].push(d);
+  });
+  Object.keys(months).forEach(function(mk){
+    html+='<div style="flex:1;min-width:140px">';
+    html+='<div style="font-size:12px;font-weight:700;color:var(--a);margin-bottom:6px">'+mk.split('-')[1]+'월</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">';
+    ['일','월','화','수','목','금','토'].forEach(function(d){
+      html+='<div style="font-size:9px;text-align:center;color:var(--tm);padding:2px">'+d+'</div>';
+    });
+    var first=new Date(parseInt(mk.split('-')[0]),parseInt(mk.split('-')[1])-1,1);
+    for(var pad=0;pad<first.getDay();pad++) html+='<div></div>';
+    months[mk].forEach(function(d){
+      var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      var dow=d.getDay();
+      var color=dow===0?'var(--r)':dow===6?'#6ea3c8':'var(--t)';
+      html+='<div class="bulk-date" data-date="'+ds+'" onclick="toggleBulkDate(this)" style="text-align:center;padding:3px 1px;border-radius:4px;cursor:pointer;font-size:11px;color:'+color+'">'+d.getDate()+'</div>';
+    });
+    html+='</div></div>';
+  });
+  html+='</div>';
+  html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;background:var(--ag);padding:10px;border-radius:8px">';
+  html+='<label style="font-size:12px;color:var(--tm);white-space:nowrap">선택 날짜 시간:</label>';
+  html+='<select id="bulk-time" class="fi" style="max-width:120px">';
+  ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'].forEach(function(t){
+    html+='<option>'+t+'</option>';
+  });
+  html+='</select>';
+  html+='<button class="btn bsm bp" onclick="applyBulkTime()">선택 날짜 적용</button>';
+  html+='</div>';
+  html+='<div id="bulk-preview" style="font-size:12px;color:var(--tm);min-height:30px;margin-bottom:12px"></div>';
+  html+='<div style="display:flex;gap:8px;justify-content:flex-end">';
+  html+='<button class="btn bg2" onclick="document.getElementById(\'mBulkSched\').remove()">취소</button>';
+  html+='<button class="btn bp" data-sid="'+sid+'" onclick="saveBulkSchedule(this.dataset.sid)">💾 일정 저장</button>';
+  html+='</div></div></div>';
+  m.innerHTML=html;
+  document.body.appendChild(m);
+  window._bulkSelections={};
+}
+
+function toggleBulkDate(el){
+  el.classList.toggle('sel');
+  el.style.background=el.classList.contains('sel')?'rgba(200,169,110,.25)':'';
+  el.style.fontWeight=el.classList.contains('sel')?'700':'';
+  updateBulkPreview();
+}
+
+function applyBulkTime(){
+  var t=document.getElementById('bulk-time');
+  if(!t) return;
+  var time=t.value;
+  document.querySelectorAll('.bulk-date.sel').forEach(function(el){
+    window._bulkSelections[el.dataset.date]=time;
+  });
+  updateBulkPreview();
+}
+
+function updateBulkPreview(){
+  var sel=document.querySelectorAll('.bulk-date.sel');
+  var p=document.getElementById('bulk-preview');
+  if(!p) return;
+  if(!sel.length){p.textContent='날짜를 선택하세요';return;}
+  var list=[];
+  sel.forEach(function(el){
+    var t=window._bulkSelections[el.dataset.date]||'시간미설정';
+    list.push(el.dataset.date+' '+t);
+  });
+  p.innerHTML='<span style="color:var(--a);font-weight:600">'+list.length+'개 선택됨:</span> '+list.slice(0,5).join(', ')+(list.length>5?'... 외 '+(list.length-5)+'개':'');
+}
+
+function saveBulkSchedule(sid){
+  var sel=document.querySelectorAll('.bulk-date.sel');
+  if(!sel.length){toast('날짜를 선택해주세요','⚠️');return;}
+  var t=document.getElementById('bulk-time');
+  var defTime=t?t.value:'10:00';
+  var added=0;
+  sel.forEach(function(el){
+    var ds=el.dataset.date;
+    var time=window._bulkSelections[ds]||defTime;
+    var d=new Date(ds);
+    var dow=d.getDay();
+    var JSDOW2={0:'일',1:'월',2:'화',3:'수',4:'목',5:'금',6:'토'};
+    var dayStr=JSDOW2[dow];
+    var wk=getWK(getMonday(d));
+    if(!weekOvr[wk]) weekOvr[wk]={};
+    if(!weekOvr[wk][sid]) weekOvr[wk][sid]=[];
+    /* 중복 제거 후 추가 */
+    var exists=weekOvr[wk][sid].some(function(x){return x.day===dayStr&&x.time===time;});
+    if(!exists){
+      weekOvr[wk][sid].push({day:dayStr,time:time,absent:false});
+      added++;
+    }
+  });
+  saveAll();
+  document.getElementById('mBulkSched').remove();
+  toast(added+'개 일정 저장됨 📅');
+  if(page==='schedule') render();
+}
+
+function getMonday(d){
+  var day=d.getDay();
+  var diff=d.getDate()-(day===0?6:day-1);
+  var m=new Date(d);
+  m.setDate(diff);
+  m.setHours(0,0,0,0);
+  return m;
+}
+function setConsultTab(tab){
+  _consultTab=tab;
+  render();
+}
+function buildInquiryList(){
+  var o='<div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">';
+  o+='<div style="font-size:13px;color:var(--tm)">문의자 '+inquiries.length+'명</div>';
+  o+='<button class="btn bp bsm" onclick="openAddInquiry()">＋ 문의자 추가</button>';
+  o+='</div>';
+  if(!inquiries.length){
+    o+='<div style="text-align:center;padding:40px;color:var(--tm);font-size:14px">등록된 문의자가 없습니다</div>';
+    return o;
+  }
+  inquiries.forEach(function(q){
+    o+='<div style="background:var(--ag);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px">';
+    o+='<div style="width:36px;height:36px;border-radius:50%;background:rgba(100,120,200,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">❓</div>';
+    o+='<div style="flex:1;min-width:0">';
+    o+='<div style="font-size:15px;font-weight:700;color:var(--t)">'+esc(q.phone||q.name)+'</div>';
+    o+='<div style="font-size:11.5px;color:var(--tm);margin-top:2px">'+(q.name!==q.phone?esc(q.name)+' · ':'')+(q.memo?esc(q.memo):'')+'</div>';
+    o+='<div style="font-size:11px;color:var(--tm);opacity:.6;margin-top:1px">'+esc(q.date||'')+'</div>';
+    o+='</div>';
+    o+='<div style="display:flex;gap:6px;flex-shrink:0">';
+    if(q.phone) o+='<a href="sms:'+esc(q.phone)+'" class="btn bsm" style="background:rgba(100,200,120,.1);color:#6dc8a2;border:1px solid rgba(100,200,120,.2);font-size:11px;text-decoration:none;padding:4px 8px;border-radius:6px">문자</a>';
+    o+='<button class="btn bsm" style="font-size:11px" data-qid="'+q.id+'" onclick="deleteInquiry(this.dataset.qid)">삭제</button>';
+    o+='</div>';
+    o+='</div>';
+  });
+  return o;
+}
+
+
+function switchIqTab(tab){
+  var one=document.getElementById('iq-one');
+  var bulk=document.getElementById('iq-bulk');
+  var t1=document.getElementById('iq-tab-one');
+  var t2=document.getElementById('iq-tab-bulk');
+  if(!one||!bulk) return;
+  if(tab==='bulk'){
+    one.style.display='none'; bulk.style.display='';
+    if(t1){t1.classList.remove('bp');} if(t2){t2.classList.add('bp');}
+    setTimeout(function(){var el=document.getElementById('iq-bulk-text');if(el)el.focus();},100);
+  } else {
+    one.style.display=''; bulk.style.display='none';
+    if(t1){t1.classList.add('bp');} if(t2){t2.classList.remove('bp');}
+    setTimeout(function(){var el=document.getElementById('iq-ph');if(el)el.focus();},100);
+  /* 일괄 입력 미리보기 */
+  setTimeout(function(){
+    var ta=document.getElementById('iq-bulk-text');
+    if(ta) ta.addEventListener('input',function(){
+      var nums=parsePhoneNumbers(ta.value);
+      var p=document.getElementById('iq-bulk-preview');
+      if(p) p.innerHTML=nums.length?'<span style="color:var(--a);font-weight:600">'+nums.length+'개 인식됨:</span> '+nums.slice(0,5).join(', ')+(nums.length>5?'...':''):'번호 없음';
+    });
+  },200);
+  }
+}
+
+function parsePhoneNumbers(text){
+  /* 번호 파싱: 줄바꿈, 쉼표, 공백, 탭 구분자 모두 처리 */
+  var raw=text.replace(/[,\t\n\r]+/g,' ').split(' ');
+  var nums=[];
+  raw.forEach(function(s){
+    var cleaned=s.replace(/[^0-9]/g,'');
+    if(cleaned.length>=10&&cleaned.length<=11){
+      /* 포맷: 010-XXXX-XXXX */
+      var fmt=cleaned.length===11?
+        cleaned.slice(0,3)+'-'+cleaned.slice(3,7)+'-'+cleaned.slice(7):
+        cleaned.slice(0,3)+'-'+cleaned.slice(3,7)+'-'+cleaned.slice(7);
+      if(nums.indexOf(fmt)<0) nums.push(fmt);
+    }
+  });
+  return nums;
+}
+
+function saveBulkInquiry(){
+  var ta=document.getElementById('iq-bulk-text');
+  if(!ta||!ta.value.trim()){toast('번호를 입력해주세요','⚠️');return;}
+  var nums=parsePhoneNumbers(ta.value);
+  if(!nums.length){toast('유효한 번호가 없습니다','⚠️');return;}
+  /* 기존 등록된 번호 제외 */
+  var existing=inquiries.map(function(q){return q.phone;});
+  var newNums=nums.filter(function(n){return existing.indexOf(n)<0;});
+  newNums.forEach(function(ph){
+    inquiries.unshift({id:uid(),name:ph,phone:ph,memo:'',date:toDS(new Date())});
+  });
+  saveAll();
+  var m=document.getElementById('mAddInquiry');if(m)m.remove();
+  toast(newNums.length+'명 등록됨'+(nums.length-newNums.length>0?' (중복 '+(nums.length-newNums.length)+'명 제외)':''),'📞');
+  if(page==='consult') render();
+}
+function openAddInquiry(){
+  var m=document.createElement('div');
+  m.id='mAddInquiry';m.className='ov open';
+  m.innerHTML='<div class="modal"><div class="mh"><div class="mt">📞 문의자 추가</div><div class="mc" onclick="document.getElementById(\'mAddInquiry\').remove()">&#x2715;</div></div><div class="mb">'+
+    '<div style="display:flex;gap:6px;margin-bottom:14px">'+
+    '<button class="btn bsm bp" id="iq-tab-one" onclick="switchIqTab(\'one\')">1명 추가</button>'+
+    '<button class="btn bsm" id="iq-tab-bulk" onclick="switchIqTab(\'bulk\')">📋 일괄 등록</button>'+
+    '</div>'+
+    '<div id="iq-one">'+
+    '<div class="fg"><label style="font-size:12px;color:var(--tm)">연락처 <span style="color:var(--r)">*</span></label><input id="iq-ph" class="fi" type="tel" placeholder="010-0000-0000" style="font-size:16px"></div>'+
+    '<div class="fg"><label style="font-size:12px;color:var(--tm)">이름 (선택)</label><input id="iq-nm" class="fi" placeholder="미상"></div>'+
+    '<div class="fg"><label style="font-size:12px;color:var(--tm)">메모 (선택)</label><input id="iq-memo" class="fi" placeholder="문의 내용"></div>'+
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn bg2" onclick="document.getElementById(\'mAddInquiry\').remove()">취소</button><button class="btn bp" onclick="saveInquiry()">저장</button></div>'+
+    '</div>'+
+    '<div id="iq-bulk" style="display:none">'+
+    '<div class="fg"><label style="font-size:12px;color:var(--tm)">번호 목록 붙여넣기</label>'+
+    '<textarea id="iq-bulk-text" class="fi" style="height:140px;resize:vertical;font-size:13px" placeholder="번호를 붙여넣으세요. 줄바꿈, 쉼표, 공백 모두 인식합니다.&#10;예)&#10;010-1234-5678&#10;01098765432, 010-1111-2222"></textarea></div>'+
+    '<div id="iq-bulk-preview" style="font-size:12px;color:var(--tm);margin-top:6px;min-height:20px"></div>'+
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn bg2" onclick="document.getElementById(\'mAddInquiry\').remove()">취소</button><button class="btn bp" onclick="saveBulkInquiry()">일괄 등록</button></div>'+
+    '</div>'+
+    '</div></div>';
+  document.body.appendChild(m);
+  setTimeout(function(){var el=document.getElementById('iq-ph');if(el)el.focus();},100);
+  /* 일괄 입력 미리보기 */
+  setTimeout(function(){
+    var ta=document.getElementById('iq-bulk-text');
+    if(ta) ta.addEventListener('input',function(){
+      var nums=parsePhoneNumbers(ta.value);
+      var p=document.getElementById('iq-bulk-preview');
+      if(p) p.innerHTML=nums.length?'<span style="color:var(--a);font-weight:600">'+nums.length+'개 인식됨:</span> '+nums.slice(0,5).join(', ')+(nums.length>5?'...':''):'번호 없음';
+    });
+  },200);
+}
+
+function saveInquiry(){
+  var nm=(document.getElementById('iq-nm')||{value:''}).value.trim();
+  var ph=(document.getElementById('iq-ph')||{value:''}).value.trim();
+  var memo=(document.getElementById('iq-memo')||{value:''}).value.trim();
+  if(!ph){toast('연락처를 입력해주세요','⚠️');return;}
+  var displayName=nm||ph; /* 이름 없으면 번호로 표시 */
+  inquiries.unshift({id:uid(),name:displayName,phone:ph,memo:memo,date:toDS(new Date())});
+  saveAll();
+  var m=document.getElementById('mAddInquiry');if(m)m.remove();
+  toast('문의자 추가됨 ❓');
+  if(page==='consult') render();
+}
+
+function deleteInquiry(qid){
+  if(!confirm('문의자를 삭제하시겠습니까?')) return;
+  inquiries=inquiries.filter(function(q){return q.id!==qid;});
+  saveAll();toast('삭제됨');
+  if(page==='consult') render();
+}
+
+/* ── 문의자 초기 데이터 자동 주입 (최초 1회) ── */
+function _injectInitialInquiries(){
+  if(localStorage.getItem('vsC_iq_injected')) return; /* 이미 주입됨 */
+  var initData = [{"phone": "010-4833-7394", "memo": "문의"}, {"phone": "010-3517-0987", "memo": "문의"}, {"phone": "010-9291-7146", "memo": "문의"}, {"phone": "010-7914-6111", "memo": "문의"}, {"phone": "010-5531-4695", "memo": "문의"}, {"phone": "010-8701-3474", "memo": "문의"}, {"phone": "010-8977-9215", "memo": "문의"}, {"phone": "010-5792-5168", "memo": "문의"}, {"phone": "010-3915-8221", "memo": "문의"}, {"phone": "010-4075-8990", "memo": "문의"}, {"phone": "010-4581-7302", "memo": "문의"}, {"phone": "010-9111-9053", "memo": "문의"}, {"phone": "010-2415-7302", "memo": "문의"}, {"phone": "010-4063-2945", "memo": "문의"}, {"phone": "010-3913-2708", "memo": "문의"}, {"phone": "010-5188-4486", "memo": "문의"}, {"phone": "010-7744-7770", "memo": "문의"}, {"phone": "010-4100-0804", "memo": "문의"}, {"phone": "010-2344-5305", "memo": "문의"}, {"phone": "010-3974-5810", "memo": "문의"}, {"phone": "010-3090-9659", "memo": "문의"}, {"phone": "010-7207-8858", "memo": "문의"}, {"phone": "010-7114-0660", "memo": "문의"}, {"phone": "010-9327-3735", "memo": "문의"}, {"phone": "010-8944-9999", "memo": "문의"}, {"phone": "010-4254-4422", "memo": "문의"}, {"phone": "010-8956-2064", "memo": "문의"}, {"phone": "010-9045-4291", "memo": "문의"}, {"phone": "010-7791-6224", "memo": "문의"}, {"phone": "010-3617-3910", "memo": "문의"}, {"phone": "010-4826-3062", "memo": "문의"}, {"phone": "010-7246-7930", "memo": "문의"}, {"phone": "010-9091-0880", "memo": "문의"}, {"phone": "010-6642-9539", "memo": "문의"}, {"phone": "010-4860-1820", "memo": "문의"}, {"phone": "010-7549-6765", "memo": "문의"}, {"phone": "010-6676-7425", "memo": "문의"}, {"phone": "010-7134-7688", "memo": "문의"}, {"phone": "010-7321-3936", "memo": "문의"}, {"phone": "010-9245-7787", "memo": "문의"}, {"phone": "010-4517-1488", "memo": "문의"}, {"phone": "010-5117-8586", "memo": "문의"}, {"phone": "010-3534-1922", "memo": "문의"}, {"phone": "010-2244-4823", "memo": "문의"}, {"phone": "010-4219-3688", "memo": "문의"}, {"phone": "010-7454-5245", "memo": "문의"}, {"phone": "010-2418-2533", "memo": "문의"}, {"phone": "010-9404-7496", "memo": "문의"}, {"phone": "010-3361-1896", "memo": "문의"}, {"phone": "010-5599-7272", "memo": "문의"}, {"phone": "010-4129-4786", "memo": "문의"}, {"phone": "010-4309-6665", "memo": "문의"}, {"phone": "010-2297-8600", "memo": "문의"}, {"phone": "010-7791-1606", "memo": "문의"}, {"phone": "010-3364-8561", "memo": "문의"}, {"phone": "010-8664-5520", "memo": "문의"}, {"phone": "010-7227-1444", "memo": "문의"}, {"phone": "010-7317-8404", "memo": "문의"}, {"phone": "010-5402-7858", "memo": "문의"}, {"phone": "010-6699-8714", "memo": "문의"}, {"phone": "010-2381-2750", "memo": "문의"}, {"phone": "010-5649-0357", "memo": "문의"}, {"phone": "010-7247-3032", "memo": "문의"}, {"phone": "010-5962-1001", "memo": "문의"}, {"phone": "010-9000-6616", "memo": "문의"}, {"phone": "010-5129-1830", "memo": "문의"}, {"phone": "010-2450-1811", "memo": "문의"}, {"phone": "010-4920-5225", "memo": "문의"}, {"phone": "010-8858-7392", "memo": "문의"}, {"phone": "010-3590-8823", "memo": "문의"}, {"phone": "010-9625-0424", "memo": "문의"}, {"phone": "010-2627-4176", "memo": "문의"}, {"phone": "010-9008-1015", "memo": "문의"}, {"phone": "010-2766-7183", "memo": "문의"}, {"phone": "010-2992-2875", "memo": "문의"}, {"phone": "010-6835-9317", "memo": "문의"}, {"phone": "010-3320-6006", "memo": "문의"}, {"phone": "010-7441-9035", "memo": "문의"}, {"phone": "010-2114-7987", "memo": "문의"}, {"phone": "010-8385-3514", "memo": "문의"}, {"phone": "010-3696-9605", "memo": "문의"}, {"phone": "010-2102-9501", "memo": "문의"}, {"phone": "010-3665-6858", "memo": "문의"}, {"phone": "010-9988-2576", "memo": "문의"}, {"phone": "010-3256-8220", "memo": "문의"}, {"phone": "010-3477-0131", "memo": "문의"}, {"phone": "010-3688-3474", "memo": "문의"}, {"phone": "010-9950-5636", "memo": "문의"}, {"phone": "010-4866-7997", "memo": "문의"}, {"phone": "010-7453-4114", "memo": "문의"}, {"phone": "010-6803-5987", "memo": "문의"}, {"phone": "010-4005-8451", "memo": "문의"}, {"phone": "010-3564-1141", "memo": "문의"}, {"phone": "010-7133-0354", "memo": "문의"}, {"phone": "010-6361-1256", "memo": "문의"}, {"phone": "010-2374-5550", "memo": "문의"}, {"phone": "010-2958-8602", "memo": "문의"}, {"phone": "010-5618-7865", "memo": "문의"}, {"phone": "010-5885-2008", "memo": "문의"}, {"phone": "010-7373-9185", "memo": "문의"}, {"phone": "010-9789-4770", "memo": "문의"}, {"phone": "010-6398-2402", "memo": "문의"}, {"phone": "010-9617-5002", "memo": "문의"}, {"phone": "010-6628-5531", "memo": "문의"}, {"phone": "010-2912-2532", "memo": "문의"}, {"phone": "010-9152-2274", "memo": "문의"}, {"phone": "010-6307-6868", "memo": "문의"}, {"phone": "010-6420-4272", "memo": "문의"}, {"phone": "010-5699-6262", "memo": "문의"}, {"phone": "010-7595-2022", "memo": "문의"}, {"phone": "010-9515-1601", "memo": "문의"}, {"phone": "010-2301-1341", "memo": "문의"}, {"phone": "010-4994-6877", "memo": "문의"}, {"phone": "010-4816-4678", "memo": "문의 정육점"}, {"phone": "010-3412-9751", "memo": "문의 초5"}, {"phone": "010-8970-2811", "memo": "문화원 특강 초5김다혜"}, {"phone": "010-9901-6427", "memo": "방문상담화6시"}, {"phone": "010-5553-9080", "memo": "고딩문의"}, {"phone": "010-6881-1211", "memo": "그룹문의"}, {"phone": "010-7408-7830", "memo": "그룹문의"}, {"phone": "010-3425-4326", "memo": "당근문의"}, {"phone": "010-4487-7250", "memo": "성우문의"}, {"phone": "010-6540-1104", "memo": "음치문의"}, {"phone": "010-2426-6155", "memo": "축가문의"}, {"phone": "010-5273-0419", "memo": "축가문의"}, {"phone": "010-5602-6612", "memo": "축가문의"}, {"phone": "010-9067-1444", "memo": "축가문의"}, {"phone": "010-8980-2421", "memo": "축가문의"}, {"phone": "010-9115-1058", "memo": "축가문의 수업 11월1 토 11시"}, {"phone": "010-2713-3845", "memo": "10살문의 토5시상담"}, {"phone": "010-9061-1338", "memo": "2시방문상담"}, {"phone": "010-9338-5969", "memo": "3시방문상담"}, {"phone": "010-7646-6618", "memo": "5시방문상담"}, {"phone": "010-2557-1222", "memo": "9시방문상담"}, {"phone": "010-2555-7518", "memo": "고입시문의"}, {"phone": "010-8646-5772", "memo": "세시방문상담"}, {"phone": "010-5900-9753", "memo": "중3 문의"}, {"phone": "010-9049-8057", "memo": "초등생문의"}, {"phone": "010-9402-4733", "memo": "초등생문의"}, {"phone": "010-7450-8122", "memo": "태안 문의"}, {"phone": "010-9008-1520", "memo": "22살딸문의"}, {"phone": "010-6632-3376", "memo": "2시반방문상담"}, {"phone": "010-5083-3358", "memo": "4명그룹문의"}, {"phone": "010-4522-7583", "memo": "8시 방문상담 화"}, {"phone": "010-5698-1266", "memo": "개인레슨문의현수막보고"}, {"phone": "010-9612-4133", "memo": "그룹레슨문의"}, {"phone": "010-4900-4515", "memo": "금5시방문상담"}, {"phone": "010-5409-8311", "memo": "대학생 문의"}, {"phone": "010-8355-8184", "memo": "중학생 문의"}, {"phone": "010-3643-2083", "memo": "초5여 문의"}, {"phone": "010-4126-4410", "memo": "토4시방문상담"}, {"phone": "010-8283-1547", "memo": "토4시방문상담"}, {"phone": "010-9819-8954", "memo": "화3시방문"}, {"phone": "010-6682-7774", "memo": "화9시방문상담"}, {"phone": "010-9412-7850", "memo": "그룹레슨 문의"}, {"phone": "010-5438-6627", "memo": "원포인트 문의"}, {"phone": "010-7510-2013", "memo": "초4 여 문의"}, {"phone": "010-9274-6959", "memo": "토11시방문상담"}, {"phone": "010-3251-1528", "memo": "28금1시방문상담"}, {"phone": "010-5458-0256", "memo": "중1 여학생문의"}, {"phone": "010-7399-0401", "memo": "커플그룹레슨문의"}, {"phone": "010-9293-2847", "memo": "토 5시 방문상담"}, {"phone": "010-9206-1104", "memo": "토10시 방문상담"}, {"phone": "010-9954-2688", "memo": "5시15분 방문상담"}, {"phone": "010-2008-9609", "memo": "금요일12시방문상담초6"}, {"phone": "010-6427-1117", "memo": "토 12시 방문상담"}, {"phone": "010-6674-4714", "memo": "토11시상담방문"}, {"phone": "010-8623-6183", "memo": "화요일6시 방문상담"}, {"phone": "010-2077-2168", "memo": "목요일 2시 방문상담"}, {"phone": "010-7653-9351", "memo": "수요일 6시 방문상담"}, {"phone": "010-2238-5873", "memo": "화요일 9시 방문상담"}, {"phone": "010-4796-4313", "memo": "금요일 9시 그룹문의"}, {"phone": "010-3666-5903", "memo": "녹음. 레슨 상담문의"}, {"phone": "010-8954-2208", "memo": "화요일 11시 방문상담"}, {"phone": "010-3764-5511", "memo": "9월24일 4시20분 방문상담"}];
+  var existing = inquiries||[];
+  var existPhones = existing.map(function(q){return q.phone;});
+  var today = toDS(new Date());
+  var added = 0;
+  initData.forEach(function(d){
+    if(existPhones.indexOf(d.phone) < 0){
+      existing.unshift({id:uid(),name:d.phone,phone:d.phone,memo:d.memo||'',date:today});
+      added++;
+    }
+  });
+  inquiries = existing;
+  saveAll();
+  localStorage.setItem('vsC_iq_injected','1');
+  if(added>0) toast(added+'명 문의자 자동 등록됨 📞');
+}
 function calcAgeStr(s){
   var raw=s&&s.age?String(s.age).trim():'';
   if(!raw) return '';
@@ -2223,7 +2540,7 @@ function buildMobileSchedule(){
         o+=' onclick="event.stopPropagation();lbClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();lbRightClick(this)">';
         o+=avHtml;
         o+='<div style="flex:1"><div style="font-size:14px;font-weight:700;color:'+c+'">'+esc(x.s.name)+(calcAgeStr(x.s)?' <span style="font-size:10px;font-weight:400;opacity:.7">'+calcAgeStr(x.s)+'</span>':'')+'</div>';
-        o+='<div style="font-size:11px;color:'+c+'99;margin-top:2px">'+(x.s.age?x.s.age+'세 · ':'')+esc(x.s.ph||'')+'</div>';
+        o+='<div style="font-size:11px;color:'+c+'99;margin-top:2px">'+(x.s.age?(function(a){var raw=String(a||'').trim();if(!raw)return '';var n=parseInt(raw)||0;var yr=raw.length<=2&&n>=0?(n>=30?1900+n:2000+n):n;var ty=new Date().getFullYear();return (yr>=1920&&yr<=ty)?'만 '+(ty-yr)+'세':'';})(x.s.age)+'  · ':'')+esc(x.s.ph||'')+'</div>';
         o+='<div style="font-size:10px;margin-top:3px;opacity:.7">'+(x.type==='flex-sched'?'🔄 변동':'📌 고정')+'</div></div>';
         o+='<div style="font-size:13px;color:'+c+';font-weight:700;font-family:\'DM Mono\',monospace;background:'+c+'22;padding:3px 8px;border-radius:6px">'+x.time+'</div>';
         o+='</div>';
@@ -2295,7 +2612,7 @@ function buildSchedule(){
         var avHtml=x.s.photo
           ?'<img src="'+x.s.photo+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid '+c+'88">'
           :'<div style="width:40px;height:40px;border-radius:50%;background:'+c+'44;border:2px solid '+c+'88;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:'+c+';flex-shrink:0">'+esc(x.s.name.slice(0,1))+'</div>';
-        var infoHtml='<div style="font-size:10px;color:'+c+'99;margin-top:1px">'+(x.s.age?x.s.age+'세':'')+((x.s.age&&x.s.ph)?' · ':'')+esc(x.s.ph||'')+'</div>';
+        var infoHtml='<div style="font-size:10px;color:'+c+'99;margin-top:1px">'+(x.s.age?(function(a){var raw=String(a||'').trim();if(!raw)return '';var n=parseInt(raw)||0;var yr=raw.length<=2&&n>=0?(n>=30?1900+n:2000+n):n;var ty=new Date().getFullYear();return (yr>=1920&&yr<=ty)?'만 '+(ty-yr)+'세':'';})(x.s.age):'')+((x.s.age&&x.s.ph)?' · ':'')+esc(x.s.ph||'')+'</div>';
         o+='<div class="lb '+x.type+(x.absent?' absent-block':'')+'" style="color:'+c+';border-color:'+c+'55;background:'+c+'1c;gap:7px;padding:7px 9px;min-height:58px"';
         o+=' data-sid="'+x.s.id+'" data-time="'+x.time+'" data-date="'+ddStr+'"';
         o+=' onclick="event.stopPropagation();lbClick(this)" oncontextmenu="event.preventDefault();event.stopPropagation();lbRightClick(this)"';
@@ -2689,7 +3006,7 @@ function buildStudents(filter, schedFilter){
       var _n=parseInt(_rawAge)||0;
       var _yr=_rawAge.length<=2&&_n>=0?(_n>=30?1900+_n:2000+_n):_n;
       var _ty=new Date().getFullYear();
-      var ageStr=_yr>=1920&&_yr<=_ty?(_yr+'년생 · 만 '+(_ty-_yr)+'세'):''; /* 변환 실패 시 빈칸 */
+      var ageStr=_yr>=1920&&_yr<=_ty?('만 '+(_ty-_yr)+'세 ('+_yr+'년생)'):''; /* 나이 우선 표시 */
       var _du=s.deferrals||0,_dm=s.maxDeferrals||1;
       var defStr=' | 연기 '+_du+'/'+_dm+'회';
       var timeStr=s.schedType==='flex'?'🔄 변동 스케줄'
@@ -2721,6 +3038,7 @@ function buildStudents(filter, schedFilter){
       o+='<div style="text-align:center"><div style="font-size:15px;font-weight:700;color:var(--bl)">'+(s.freq===2?'주2':'주1')+'</div><div style="font-size:9px;color:var(--tm)">횟수</div></div>';
       o+='</div>';
       o+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
+      if(s.schedType==='flex') o+='<button class="btn bsm" style="background:rgba(110,163,200,.1);color:#6ea3c8;border:1px solid rgba(110,163,200,.2);font-size:11px" data-sid="'+s.id+'" onclick="event.stopPropagation();openBulkSchedule(this.dataset.sid)">📅 일정 등록</button>';
       o+='<button class="btn bsm" style="background:rgba(200,169,110,.1);color:var(--a);border:1px solid rgba(200,169,110,.2);font-size:11px" data-sid="'+s.id+'" onclick="event.stopPropagation();useDeferral(this.dataset.sid)">연기 사용</button>';
       o+='<button class="btn bsm" style="background:rgba(255,255,255,.05);color:var(--tm);font-size:11px" data-sid="'+s.id+'" onclick="event.stopPropagation();resetDeferral(this.dataset.sid)">초기화</button>';
       o+='<button class="btn bp bsm" data-sid="'+s.id+'" onclick="event.stopPropagation();cm(\'mProfile\');openSModal(this.dataset.sid)">✏️ 수정</button>';
@@ -2944,7 +3262,7 @@ function openLessonRecord(sid,time,dateStr){
   if(s.photo){av.innerHTML='<img src="'+s.photo+'">';av.style.background='transparent';}
   else{av.style.background='linear-gradient(135deg,'+c+','+c2+')';av.textContent=s.name.slice(0,1);}
   ge('lrName').textContent=s.name;
-  ge('lrInfo').textContent=clsL(s.cls)+' · '+(s.gd||'')+(s.age?' · '+s.age+'세':'');
+  ge('lrInfo').textContent=clsL(s.cls)+' · '+(s.gd||'')+(s.age?' · '+(function(a){var raw=String(a||'').trim();if(!raw)return '';var n=parseInt(raw)||0;var yr=raw.length<=2&&n>=0?(n>=30?1900+n:2000+n):n;var ty=new Date().getFullYear();return (yr>=1920&&yr<=ty)?'만 '+(ty-yr)+'세':'';})(s.age):'');
   var wn=logs.filter(function(l){return l.sid===sid&&new Date(l.date)<=new Date(dateStr);}).length+(existing?0:1);
   ge('lrWN').textContent=wn;
   ge('lr-date').value=dateStr;
@@ -3402,7 +3720,7 @@ function openProfile(data,mode){
   left+='</div></div></div>';
   left+='<div class="profile-info-list">';
   left+=pRow('성별',data.gd||data.gender||'');
-  left+=pRow('나이',data.age?data.age+'세':'');
+  left+=pRow('나이',data.age?(function(a){var raw=String(a||'').trim();if(!raw)return '';var n=parseInt(raw)||0;var yr=raw.length<=2&&n>=0?(n>=30?1900+n:2000+n):n;var ty=new Date().getFullYear();return (yr>=1920&&yr<=ty)?'만 '+(ty-yr)+'세':'';})(data.age):'');
   left+=pRow('연락처',data.phone||data.ph||'');
   if(isC){
     left+=pRow('희망 반',data.cls?clsL(data.cls):'');
@@ -3432,7 +3750,7 @@ function openProfile(data,mode){
   var tabs='',panes='';
   if(isC){
     tabs='<div class="tab on" onclick="switchTab(this,0)">신청 정보</div><div class="tab" onclick="switchTab(this,1)">유입 &amp; 목표</div><div class="tab" onclick="switchTab(this,2)">음성 &amp; 건강</div><div class="tab" onclick="switchTab(this,3)">미디어</div>';
-    panes+='<div class="tab-pane on"><div class="fs"><div class="fs-title">기본 정보</div><div class="fs-grid">'+fv('성함',name)+fv('나이',data.age?data.age+'세':'')+fv('성별',data.gd||'')+fv('직업',data.job||'')+fv('연락처',data.phone||'')+fv('희망 반',data.cls?clsL(data.cls):'')+fv('스케줄 희망',(data.schedPref==='flex'?'🔄 변동 희망':'📌 고정 희망')+(data.time?' — '+data.time:''))+'</div></div><div class="fs"><div class="fs-title">레슨 일정</div><div class="fs-grid">'+fv('희망 요일',(data.days||[]).join(', '))+fv('레슨 횟수',data.freq2?'주 2회':'주 1회')+fv('시작 시기',data.when||'')+'</div></div></div>';
+    panes+='<div class="tab-pane on"><div class="fs"><div class="fs-title">기본 정보</div><div class="fs-grid">'+fv('성함',name)+fv('나이',data.age?(function(a){var raw=String(a||'').trim();if(!raw)return '';var n=parseInt(raw)||0;var yr=raw.length<=2&&n>=0?(n>=30?1900+n:2000+n):n;var ty=new Date().getFullYear();return (yr>=1920&&yr<=ty)?'만 '+(ty-yr)+'세':'';})(data.age):'')+fv('성별',data.gd||'')+fv('직업',data.job||'')+fv('연락처',data.phone||'')+fv('희망 반',data.cls?clsL(data.cls):'')+fv('스케줄 희망',(data.schedPref==='flex'?'🔄 변동 희망':'📌 고정 희망')+(data.time?' — '+data.time:''))+'</div></div><div class="fs"><div class="fs-title">레슨 일정</div><div class="fs-grid">'+fv('희망 요일',(data.days||[]).join(', '))+fv('레슨 횟수',data.freq2?'주 2회':'주 1회')+fv('시작 시기',data.when||'')+'</div></div></div>';
     var refStr=esc(data.ref||'')+(data.refDetail?' — '+esc(data.refDetail):'');
     var genreStr=Array.isArray(data.genres)?data.genres.join(', '):(data.genre||'');
     panes+='<div class="tab-pane"><div class="fs"><div class="fs-title">유입 경로</div><div class="fs-grid">'+fv('경로',refStr)+'</div></div><div class="fs"><div class="fs-title">목표 &amp; 동기</div><div class="fs-grid">'+fv('배우러 오게 된 계기',data.why||'','full long')+fv('목표 장르',genreStr)+fv('단기 목표',data.goalS||'')+fv('장기 목표',data.goalL||'')+'</div></div>'+(data.memo?'<div class="fs"><div class="fs-title">추가 메모</div><div class="fs-grid">'+fv('메모',data.memo,'full long')+'</div></div>':'')+(data.prob||data.impr?'<div class="fs" style="border-color:rgba(200,169,110,.2)"><div class="fs-title" style="color:var(--a)">🔒 트레이너 평가 메모</div><div class="fs-grid">'+fv('문제점',data.prob||'')+fv('개선 방향',data.impr||'')+'</div></div>':'')+'</div>';
@@ -3483,14 +3801,16 @@ function openProfile(data,mode){
 
 /* ── 전체 문자 메시지 ── */
 function showBulkSMS(){
-  var studPhones=students.filter(function(s){return s.ph&&s.status==='수강중';}).map(function(s){return s.ph;});
-  /* 상담신청자: 수강생 전화번호 제외, 미등록 상담자만 */
+  /* 상담신청자: 수강중인 사람만 제외 (휴강/수료 포함) */
+  var studActivePhones=students.filter(function(s){return s.ph&&s.status==='수강중';}).map(function(s){return s.ph;});
   var phones=consults.filter(function(c){
-    return c.phone && !c.converted && studPhones.indexOf(c.phone)<0;
+    return c.phone && !c.converted && studActivePhones.indexOf(c.phone)<0;
   }).map(function(c){return{name:c.name,phone:c.phone};});
   var studs=students.filter(function(s){return s.ph&&s.status==='수강중';}).map(function(s){return{name:s.name,phone:s.ph};});
   var allList=phones.concat(studs);
-  window._smsData={phones:phones,studs:studs,all:allList};
+  var inqs=inquiries.filter(function(q){return q.phone;}).map(function(q){return{name:q.name,phone:q.phone};});
+  var allList2=phones.concat(studs).concat(inqs);
+  window._smsData={phones:phones,studs:studs,all:allList2,inqs:inqs};
   var existing=document.getElementById('mSMS');
   if(existing)existing.remove();
   var m=document.createElement('div');
@@ -3501,7 +3821,8 @@ function showBulkSMS(){
   html+='<div style="display:flex;gap:8px;margin-bottom:12px">';
   html+='<div class="ro on" id="sms-t0" onclick="switchSMSTarget(0)">📋 상담신청자 (수강생제외) ('+phones.length+'명)</div>';
   html+='<div class="ro" id="sms-t1" onclick="switchSMSTarget(1)">♬ 수강생 ('+studs.length+'명)</div>';
-  html+='<div class="ro" id="sms-t2" onclick="switchSMSTarget(2)">전체 ('+allList.length+'명)</div>';
+  html+='<div class="ro" id="sms-t2" onclick="switchSMSTarget(2)">전체 ('+allList2.length+'명)</div>';
+  html+='<div class="ro" id="sms-t3" onclick="switchSMSTarget(3)">❓ 문의자 ('+inqs.length+'명)</div>';
   html+='</div>';
   html+='<div class="f1" style="margin-bottom:12px"><label>수신자 연락처</label>';
   html+='<textarea id="sms-phones" rows="3" style="font-size:13px">'+phones.map(function(p){return p.phone;}).join(', ')+'</textarea>';
@@ -3516,9 +3837,9 @@ function showBulkSMS(){
   document.body.appendChild(m);
 }
 function switchSMSTarget(idx){
-  [0,1,2].forEach(function(i){var el=document.getElementById('sms-t'+i);if(el)el.classList.toggle('on',i===idx);});
+  [0,1,2,3].forEach(function(i){var el=document.getElementById('sms-t'+i);if(el)el.classList.toggle('on',i===idx);});
   var d=window._smsData;
-  var list=[d.phones,d.studs,d.all][idx]||[];
+  var list=[d.phones,d.studs,d.all,d.inqs][idx]||[];
   var ta=document.getElementById('sms-phones');
   var nm=document.getElementById('sms-names');
   if(ta)ta.value=list.map(function(p){return p.phone;}).join(', ');
@@ -3547,7 +3868,7 @@ function buildConsultList(){
     var r='<div class="ci" data-cid="'+c.id+'" onclick="openConsultById(this.dataset.cid)">';
     r+='<div class="ci-av">'+(c.photo?'<img src="'+c.photo+'">':(esc((c.name&&c.name.slice(0,1))||'?')))+'</div>';
     r+='<div style="flex:1"><div style="font-size:14.5px;font-weight:600">'+esc(c.name||'이름 없음')+'</div>';
-    r+='<div style="font-size:12.5px;color:var(--tm);margin-top:3px">'+(c.age?c.age+'세 · ':'')+esc(c.phone||'')+' · 접수 '+esc(c.date||'')+'</div>';
+    r+='<div style="font-size:12.5px;color:var(--tm);margin-top:3px">'+(c.age?(function(a){var raw=String(a||'').trim();if(!raw)return '';var n=parseInt(raw)||0;var yr=raw.length<=2&&n>=0?(n>=30?1900+n:2000+n):n;var ty=new Date().getFullYear();return (yr>=1920&&yr<=ty)?'만 '+(ty-yr)+'세':'만 '+a+'세';})(c.age)+' · ':'')+esc(c.phone||'')+' · 접수 '+esc(c.date||'')+'</div>';
     r+='<div style="font-size:12.5px;color:var(--ts);margin-top:2px">'+ref+esc(c.cls?clsL(c.cls):'')+'</div></div>';
     r+=(c.converted?'<span class="bdg bg-g">✓ 등록완료</span>':'<span class="bdg bg-a">대기중</span>');
     r+='</div>';
@@ -4107,7 +4428,7 @@ function ciCalcAge(el){
   if(yr<1920||yr>thisYear){var d3=document.getElementById('ci-age-display');if(d3)d3.textContent='';return;}
   var age=thisYear-yr;
   var d=document.getElementById('ci-age-display');
-  if(d)d.textContent=age+'세 ('+yr+'년생)';
+  if(d)d.textContent='만 '+'만 '+age+'세 ('+yr+'년생)';
 }
 function showConsultForm(){
   var DAYS=['월','화','수','목','금','토','일'];
@@ -4252,7 +4573,6 @@ function toast(msg,ic){
 renderSidebarToday();render();initLock();
 
 </script>
-
 <div id="mobileTabBar" class="mobile-tab-bar" style="position:fixed;bottom:0;left:0;right:0;height:calc(60px + env(safe-area-inset-bottom,20px));padding-bottom:env(safe-area-inset-bottom,20px);background:#10101a;border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:99999;">
   <div id="mTab_consult"  onclick="go('consult')"  style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;cursor:pointer;border-top:2px solid transparent;"><span style="font-size:18px;pointer-events:none">📋</span><span style="font-size:9px;font-weight:600;color:#4d4b55;pointer-events:none">상담</span></div>
   <div id="mTab_students" onclick="go('students')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;cursor:pointer;border-top:2px solid transparent;"><span style="font-size:18px;pointer-events:none">🎵</span><span style="font-size:9px;font-weight:600;color:#4d4b55;pointer-events:none">레슨생</span></div>
@@ -4260,6 +4580,4 @@ renderSidebarToday();render();initLock();
   <div id="mTab_payment"  onclick="go('payment')"  style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;cursor:pointer;border-top:2px solid transparent;"><span style="font-size:18px;pointer-events:none">💰</span><span style="font-size:9px;font-weight:600;color:#4d4b55;pointer-events:none">입금</span></div>
   <div id="mTab_today"    onclick="go('today')"    style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;cursor:pointer;border-top:2px solid transparent;"><span style="font-size:18px;pointer-events:none">⏰</span><span style="font-size:9px;font-weight:600;color:#4d4b55;pointer-events:none">오늘</span></div>
   <div id="mTab_schedule" onclick="go('schedule')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;cursor:pointer;border-top:2px solid transparent;"><span style="font-size:18px;pointer-events:none">📅</span><span style="font-size:9px;font-weight:600;color:#4d4b55;pointer-events:none">스케줄</span></div>
-</div>
-</body>
-</html>
+</div></body></html>
