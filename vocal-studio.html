@@ -3439,7 +3439,7 @@ function saveStudent(){
     }
     pendingConvertId=null;
   }
-  saveAll();cm('mS');toast(editSid?'수정되었습니다':'레슨생이 추가되었습니다');renderSidebarToday();render();
+  saveAll();cm('mS');toast(editSid?'수정되었습니다':'레슨생이 추가되었습니다');renderSidebarToday();if(page==='eval')page='students';render();
 }
 function delStudent(){
   var s=students.find(function(x){return x.id===editSid;});
