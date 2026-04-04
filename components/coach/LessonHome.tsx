@@ -27,7 +27,7 @@ export default function LessonHome() {
 
   const handleReviewStage = useCallback((stageId: number) => {
     const store = useCoachStore.getState();
-    store.startLesson(stageId, store.progress[stageId]?.lastBpm ?? 80);
+    store.startLesson(stageId, 80);
     setPhase('condition');
   }, [setPhase]);
 

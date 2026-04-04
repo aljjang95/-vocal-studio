@@ -111,12 +111,14 @@ export const useCoachStore = create<CoachState>()(
           const existing = s.progress[stageId];
           const newProgress: StageProgress = {
             stageId,
+            status: existing?.status ?? 'in_progress',
             bestScore: existing
               ? Math.max(existing.bestScore, score)
               : score,
             attempts: existing ? existing.attempts + 1 : 1,
             passedAt: existing?.passedAt ?? null,
-            lastBpm: s.currentBpm,
+            lastFeedback: existing?.lastFeedback ?? null,
+            teacherApproved: existing?.teacherApproved ?? false,
           };
           return {
             lastScore: score,
@@ -125,17 +127,19 @@ export const useCoachStore = create<CoachState>()(
           };
         }),
 
-      passStage: (stageId, score, bpm) =>
+      passStage: (stageId, score, _bpm) =>
         set((s) => {
           const existing = s.progress[stageId];
           const newProgress: StageProgress = {
             stageId,
+            status: 'passed',
             bestScore: existing
               ? Math.max(existing.bestScore, score)
               : score,
             attempts: existing ? existing.attempts : 1,
             passedAt: existing?.passedAt ?? new Date().toISOString(),
-            lastBpm: bpm,
+            lastFeedback: existing?.lastFeedback ?? null,
+            teacherApproved: existing?.teacherApproved ?? false,
           };
           return {
             failStreak: 0,

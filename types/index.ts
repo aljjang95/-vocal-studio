@@ -240,16 +240,34 @@ export interface BreathRecord {
 
 // ── 공유: HLB 커리큘럼 ──
 
+export type UserTier = 'free' | 'hobby' | 'pro' | 'teacher';
+export type StageStatus = 'locked' | 'available' | 'in_progress' | 'passed';
+
+export interface EvaluationCriteria {
+  description: string;
+  passingScore: number;
+  metrics: string[];
+}
+
+export interface SomaticFeedback {
+  onSuccess: string;
+  onStruggle: string;
+  observationQuestion: string;
+}
+
 export interface HLBCurriculumStage {
   id: number;
   block: string;
+  blockIcon: string;
   name: string;
   pattern: number[];
   bpmRange: [number, number];
   pronunciation: string;
-  guideText: string;
   scaleType: string;
   isFree: boolean;
+  minTier: UserTier;
+  evaluationCriteria: EvaluationCriteria;
+  somaticFeedback: SomaticFeedback;
 }
 
 export interface PitchData {
@@ -329,10 +347,12 @@ export type CoachPhase = 'home' | 'condition' | 'lesson' | 'judgment' | 'summary
 
 export interface StageProgress {
   stageId: number;
+  status: StageStatus;
   bestScore: number;
   attempts: number;
   passedAt: string | null;
-  lastBpm: number;
+  lastFeedback: string | null;
+  teacherApproved: boolean;
 }
 
 export interface LessonAttempt {
@@ -371,4 +391,58 @@ export interface CoachFeedback {
   suggestion: string;
   encouragement: string;
   shouldLowerBpm: boolean;
+}
+
+// ── AI Cover ──────────────────────────────────
+export interface VoiceModel {
+  id: string;
+  user_id: string;
+  name: string;
+  model_path: string | null;
+  index_path: string | null;
+  status: 'pending' | 'training' | 'completed' | 'failed';
+  epochs: number;
+  created_at: string;
+}
+
+export interface AiCoverSong {
+  id: string;
+  user_id: string;
+  name: string;
+  original_path: string | null;
+  vocals_path: string | null;
+  instrumental_path: string | null;
+  separation_status: 'pending' | 'processing' | 'completed' | 'failed';
+  created_at: string;
+}
+
+export interface AiCoverConversion {
+  id: string;
+  user_id: string;
+  song_id: string;
+  model_id: string;
+  pitch_shift: number;
+  output_path: string | null;
+  status: 'pending' | 'separating' | 'converting' | 'mixing' | 'completed' | 'failed';
+  error_message: string | null;
+  created_at: string;
+}
+
+export type AiCoverStep = 'record' | 'model' | 'convert' | 'result';
+
+// ── 여정 (Journey) ────────────────────────────
+
+export interface EvaluationResult {
+  score: number;
+  pitchAccuracy: number;
+  toneStability: number;
+  tensionDetected: boolean;
+  feedback: string;
+  passed: boolean;
+}
+
+export interface CoachingFeedback {
+  feedback: string;
+  nextExercise: string;
+  encouragement: string;
 }

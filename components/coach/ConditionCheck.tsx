@@ -57,10 +57,7 @@ export default function ConditionCheck() {
     // Determine the stage to start
     const nextStageId = getNextStageId();
     const store = useCoachStore.getState();
-    const existingProgress = store.progress[nextStageId];
-    const bpm = existingProgress?.lastBpm ?? 80;
-
-    store.startLesson(nextStageId, bpm);
+    store.startLesson(nextStageId, 80);
     setPhase('lesson');
   }, [selected, setCondition, setPhase, getNextStageId]);
 
