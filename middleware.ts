@@ -29,8 +29,8 @@ export function middleware(request: NextRequest) {
     : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`;
 
   const connectSrc = isDev
-    ? `connect-src 'self' ws://localhost:* http://localhost:*`
-    : `connect-src 'self'`;
+    ? `connect-src 'self' ws://localhost:* http://localhost:* https://*.supabase.co https://*.modal.run`
+    : `connect-src 'self' https://*.supabase.co https://*.modal.run`;
 
   const csp = [
     `default-src 'self'`,
@@ -65,5 +65,6 @@ export const config = {
   matcher: [
     // _next/static, _next/image, favicon은 제외 — 정적 에셋에 CSP 불필요
     '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/journey/:path*',
   ],
 };

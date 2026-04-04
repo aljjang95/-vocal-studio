@@ -45,6 +45,8 @@ export default function Nav() {
             <li><Link href="/practice">연습실</Link></li>
             <li><Link href="/coach">AI 코치</Link></li>
             <li><Link href="/breathing">호흡</Link></li>
+            <li><Link href="/ai-cover">AI 커버</Link></li>
+            <li><Link href="/journey">소리의 길</Link></li>
             <li><a href="/diagnosis" className={styles.navCta}>무료 시작</a></li>
           </ul>
 
@@ -68,6 +70,8 @@ export default function Nav() {
         <Link href="/practice" onClick={closeMenu}>연습실</Link>
         <Link href="/coach" onClick={closeMenu}>AI 코치</Link>
         <Link href="/breathing" onClick={closeMenu}>호흡</Link>
+        <Link href="/ai-cover" onClick={closeMenu}>AI 커버</Link>
+        <Link href="/journey" onClick={closeMenu}>소리의 길</Link>
         <a href="/diagnosis" onClick={closeMenu}>무료로 시작하기 →</a>
       </div>
     </>
