@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.evaluate import router as evaluate_router
+from routers.coach import router as coach_router
 
 app = FastAPI(title="VocalMind AI Backend", version="0.1.0")
 
@@ -14,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(evaluate_router)
+app.include_router(coach_router)
 
 
 @app.get("/health")
