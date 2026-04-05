@@ -32,12 +32,18 @@ def _get_chroma_context(query: str, n_results: int = 3) -> str:
         logger.warning("ChromaDB 검색 실패: %s", e)
         return ""
 
-def get_coaching_feedback(stage_id: int, user_message: str, score: int, pitch_accuracy: int) -> dict:
-    context = _get_chroma_context(user_message)
+def get_coaching_feedback(stage_id: int, user_message: str, score: int, pitch_accuracy: int, tension_detail: str = "") -> dict:
+    search_query = f"{user_message} {tension_detail}".strip() if tension_detail else user_message
+    context = _get_chroma_context(search_query)
+
+    tension_section = ""
+    if tension_detail:
+        tension_section = f"\n- 긴장 부위/상태: {tension_detail}"
+
     user_prompt = f"""학생 상황:
 - 현재 단계: {stage_id}단계
 - 채점 결과: 총점 {score}/100, 피치 정확도 {pitch_accuracy}/100
-- 학생 메시지: {user_message}
+- 학생 메시지: {user_message}{tension_section}
 
 참고 자료:
 {context}

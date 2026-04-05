@@ -66,6 +66,57 @@ async def test_coach_invalid_body_type(client):
     assert resp.status_code == 422
 
 @pytest.mark.asyncio
+async def test_coach_with_tension_detail(client, monkeypatch):
+    import services.rag_service as rag_svc
+    monkeypatch.setattr(rag_svc, "get_coaching_feedback", lambda **kw: {
+        "feedback": "혀뿌리에 긴장이 들어가면서 연결이 끊기고 있어요.",
+        "next_exercise": "턱을 중력에 의해 떨어트리는 감각을 유지해보세요.",
+        "encouragement": "방향은 맞아요!",
+    })
+    resp = await client.post("/coach", json={
+        "stage_id": 5, "user_message": "고음에서 갈라져요",
+        "score": 55, "pitch_accuracy": 60, "tension_detail": "후두 긴장, 성구전환 끊김"
+    })
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "feedback" in data
+
+@pytest.mark.asyncio
+async def test_coach_tension_detail_passed_to_service(client, monkeypatch):
+    import services.rag_service as rag_svc
+    captured = {}
+    def fake_feedback(**kw):
+        captured.update(kw)
+        return {
+            "feedback": "긴장 피드백",
+            "next_exercise": "연습 제안",
+            "encouragement": "잘하고 있어요!",
+        }
+    monkeypatch.setattr(rag_svc, "get_coaching_feedback", fake_feedback)
+    resp = await client.post("/coach", json={
+        "stage_id": 3, "user_message": "목이 조여요",
+        "score": 70, "pitch_accuracy": 75, "tension_detail": "성대 과압축, 후두 긴장"
+    })
+    assert resp.status_code == 200
+    assert captured["tension_detail"] == "성대 과압축, 후두 긴장"
+
+@pytest.mark.asyncio
+async def test_coach_tension_detail_optional(client, monkeypatch):
+    import services.rag_service as rag_svc
+    captured = {}
+    def fake_feedback(**kw):
+        captured.update(kw)
+        return {
+            "feedback": "기본 피드백",
+            "next_exercise": "연습",
+            "encouragement": "좋아요!",
+        }
+    monkeypatch.setattr(rag_svc, "get_coaching_feedback", fake_feedback)
+    resp = await client.post("/coach", json={"stage_id": 2})
+    assert resp.status_code == 200
+    assert captured["tension_detail"] == ""
+
+@pytest.mark.asyncio
 async def test_coach_low_score_feedback(client, monkeypatch):
     import services.rag_service as rag_svc
     captured = {}

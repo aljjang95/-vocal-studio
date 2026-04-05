@@ -11,6 +11,7 @@ class CoachRequest(BaseModel):
     user_message: str = ""
     score: int = 0
     pitch_accuracy: int = 0
+    tension_detail: str = ""  # 긴장 부위/상태 (선택)
 
 class CoachResponse(BaseModel):
     feedback: str
@@ -22,5 +23,6 @@ async def coach(req: CoachRequest):
     result = rag_service.get_coaching_feedback(
         stage_id=req.stage_id, user_message=req.user_message,
         score=req.score, pitch_accuracy=req.pitch_accuracy,
+        tension_detail=req.tension_detail,
     )
     return CoachResponse(**result)
