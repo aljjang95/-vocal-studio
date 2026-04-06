@@ -6,6 +6,9 @@ import { useScalePracticeStore } from '@/stores/scalePracticeStore';
 import { useTonePlayer } from '@/lib/hooks/useTonePlayer';
 import { useScaleWebSocket } from '@/lib/hooks/useScaleWebSocket';
 import PianoKeyboard from './PianoKeyboard';
+import Button from '@/components/ds/Button';
+import ScoreDisplay from '@/components/ds/ScoreDisplay';
+import MetricBar from '@/components/ds/MetricBar';
 import type { HLBCurriculumStage, LessonPhase, ScalePracticeScore } from '@/types';
 
 interface Props { stage: HLBCurriculumStage }
@@ -114,7 +117,7 @@ export default function AutoLessonFlow({ stage }: Props) {
             <li>올라갈수록 배 아래쪽 압력을 느껴보세요</li>
           </ol>
           <p className="af-question">{stage.somaticFeedback.observationQuestion}</p>
-          <button className="af-btn-primary" onClick={doStart}>시작</button>
+          <Button variant="primary" fullWidth onClick={doStart}>시작</Button>
         </div>
       )}
 
@@ -138,10 +141,10 @@ export default function AutoLessonFlow({ stage }: Props) {
             </p>
           )}
           <PianoKeyboard />
-          <button className="af-btn-stop" onClick={doFinish}>
+          <Button variant="secondary" fullWidth onClick={doFinish}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="2" width="10" height="10" rx="1.5"/></svg>
             종료
-          </button>
+          </Button>
         </div>
       )}
 
@@ -155,26 +158,21 @@ export default function AutoLessonFlow({ stage }: Props) {
       {/* result */}
       {lessonPhase === 'result' && latestScore && (
         <div className="af-section">
-          <div className="af-score-row">
-            <span className={`af-score ${latestScore.passed ? 'af-pass' : 'af-fail'}`}>
-              {latestScore.score}
-            </span>
-            <span className={`af-verdict ${latestScore.passed ? 'af-pass' : 'af-fail'}`}>
-              {latestScore.passed ? '통과' : '재도전'}
-            </span>
+          <div style={{ marginBottom: 24 }}>
+            <ScoreDisplay score={latestScore.score} passed={latestScore.passed} />
           </div>
 
-          <div className="af-metrics">
-            <Bar label="이완" value={Math.round(100 - latestScore.tensionOverall)} />
-            {latestScore.level !== 'beginner' && <Bar label="음정" value={latestScore.pitchAccuracy} />}
-            {latestScore.level === 'advanced' && <Bar label="톤" value={Math.round(latestScore.toneStability)} />}
+          <div style={{ padding: '16px 0', borderTop: '1px solid var(--border-subtle)' }}>
+            <MetricBar label="이완" value={Math.round(100 - latestScore.tensionOverall)} color="var(--success)" />
+            {latestScore.level !== 'beginner' && <MetricBar label="음정" value={latestScore.pitchAccuracy} color="var(--accent)" />}
+            {latestScore.level === 'advanced' && <MetricBar label="톤" value={Math.round(latestScore.toneStability)} color="var(--warning)" />}
           </div>
 
           <p className="af-feedback">{latestScore.feedbackHint}</p>
 
           <div className="af-actions">
-            <button className="af-btn-secondary" onClick={doRetry}>다시</button>
-            {latestScore.passed && <button className="af-btn-primary" onClick={doNext}>다음 단계</button>}
+            <Button variant="secondary" onClick={doRetry} style={{ flex: 1 }}>다시</Button>
+            {latestScore.passed && <Button variant="accent" onClick={doNext} style={{ flex: 1 }}>다음 단계</Button>}
           </div>
           {!latestScore.passed && (
             <button className="af-skip" onClick={doNext}>건너뛰기</button>
@@ -328,18 +326,3 @@ export default function AutoLessonFlow({ stage }: Props) {
   );
 }
 
-function Bar({ label, value }: { label: string; value: number }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <span style={{ fontSize: 12, color: '#555', width: 28, flexShrink: 0 }}>{label}</span>
-      <div style={{ flex: 1, height: 3, background: '#1a1a1a', borderRadius: 2, overflow: 'hidden' }}>
-        <div style={{
-          height: '100%', width: `${Math.max(0, Math.min(100, value))}%`,
-          background: '#888', borderRadius: 2,
-          transition: 'width 0.6s ease',
-        }} />
-      </div>
-      <span style={{ fontSize: 12, color: '#888', width: 24, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>{value}</span>
-    </div>
-  );
-}
