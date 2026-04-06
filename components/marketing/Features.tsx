@@ -1,67 +1,99 @@
-import { FeatMiniWaveform } from '@/components/shared/Waveform';
-import { IconMic, IconChart, IconBot, IconCalendar, IconMusic } from '@/components/shared/Icons';
+'use client';
+
+import { useScrollReveal } from '@/lib/hooks/useScrollReveal';
+import Card from '@/components/ds/Card';
 import styles from './Features.module.css';
 
+const FEATURES = [
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+        <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+      </svg>
+    ),
+    title: '실시간 긴장 감지',
+    desc: 'AI가 후두, 혀뿌리, 턱의 긴장을 실시간으로 분석하고 이완 방법을 안내합니다.',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="6" width="20" height="12" rx="2"/>
+        <path d="M7 6V4M12 6V4M17 6V4"/>
+      </svg>
+    ),
+    title: '피아노 스케일 연습',
+    desc: '그랜드 피아노와 함께 스케일 연습. 3단계 채점으로 실력을 측정합니다.',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M9 18V5l12-2v13"/>
+        <circle cx="6" cy="18" r="3"/>
+        <circle cx="18" cy="16" r="3"/>
+      </svg>
+    ),
+    title: 'AI 커버 생성',
+    desc: '당신의 음성을 학습한 AI 모델로 좋아하는 노래를 커버합니다.',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    ),
+    title: '맞춤형 성장 리포트',
+    desc: '매 세션마다 음역대, 음정 정확도, 긴장도 변화를 추적합니다.',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 6v6l4 2"/>
+      </svg>
+    ),
+    title: '24시간 AI 코치',
+    desc: '실제 보컬 트레이너의 7년 노하우가 담긴 AI가 24시간 맞춤 코칭을 제공합니다.',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+        <line x1="4" y1="22" x2="4" y2="15"/>
+      </svg>
+    ),
+    title: '개인 맞춤 루틴',
+    desc: '목표와 연습 가능 시간을 입력하면 AI가 주간 루틴을 자동으로 설계합니다.',
+  },
+];
+
 export default function Features() {
+  const headRef = useScrollReveal<HTMLDivElement>();
+
   return (
     <section id="features" className={styles.features}>
       <div className="container">
-        <div className={`${styles.sectionHead} reveal`}>
-          <div>
-            <div className="section-kicker">핵심 기능</div>
-            <h2 className="section-title">
-              트레이너의 노하우,<br />
-              <em>AI로 언제든</em>
-            </h2>
-          </div>
+        <div className={styles.head} ref={headRef}>
+          <div className="section-kicker">Features</div>
+          <h2 className="section-title">
+            AI가 당신의 몸을 읽습니다
+          </h2>
           <p className="section-desc">
-            단순한 음정 체크가 아닙니다. 7년간 수천 명을 지도한 보컬 트레이너의 피드백 방식 그대로,
-            AI가 매 순간 당신의 목소리를 분석하고 개선합니다.
+            후두, 혀뿌리, 턱의 긴장을 실시간으로 분석하고, 편안한 발성으로 안내합니다.
           </p>
         </div>
 
-        <div className={styles.featuresWrap}>
-          <div className={`${styles.featCard} ${styles.gv} reveal`}>
-            <div className={`${styles.featIcon} ${styles.fiV}`}><IconMic size={24} /></div>
-            <h3>실시간 음성 분석</h3>
-            <p>노래하는 순간, AI가 음정·호흡·발성을 동시에 분석합니다. 틀린 부분을 즉시 감지하고 수정 방법을 제안합니다.</p>
-            <span className={`${styles.featTag} ${styles.tagV}`}>실시간 처리</span>
-          </div>
-
-          <div className={`${styles.featCard} ${styles.gg} reveal`}>
-            <div className={`${styles.featIcon} ${styles.fiG}`}><IconChart size={24} /></div>
-            <h3>맞춤형 성장 리포트</h3>
-            <p>매 세션마다 음역대, 음정 정확도, 호흡 안정성 변화를 추적합니다. 내 성장 곡선을 눈으로 확인하세요.</p>
-            <span className={`${styles.featTag} ${styles.tagG}`}>데이터 기반</span>
-          </div>
-
-          <div className={`${styles.featCard} ${styles.wide} ${styles.gt} reveal`}>
-            <div>
-              <div className={`${styles.featIcon} ${styles.fiT}`}><IconBot size={24} /></div>
-              <h3>7년 노하우가 담긴 AI 코치</h3>
-              <p>실제 보컬 트레이너가 수천 명을 지도하면서 쌓은 커리큘럼이 그대로 AI 안에 담겨 있습니다. 고음 개선, 호흡 훈련, 발음 교정까지 — 사설 레슨과 동일한 수준의 지도를 24시간 받을 수 있습니다.</p>
-              <span className={`${styles.featTag} ${styles.tagT}`}>전문가 수준</span>
-            </div>
-            <div className={styles.featMiniVisual}>
-              <FeatMiniWaveform />
-              <div className={styles.featMiniLabel}>이번 주 음정 정확도</div>
-              <div className={styles.featMiniScore}>94 / 100</div>
-            </div>
-          </div>
-
-          <div className={`${styles.featCard} ${styles.gt} reveal`}>
-            <div className={`${styles.featIcon} ${styles.fiT}`}><IconCalendar size={24} /></div>
-            <h3>개인 맞춤 루틴</h3>
-            <p>목표(오디션, 음역대 확장, 음정 개선)와 연습 가능 시간을 입력하면 AI가 주간 루틴을 자동으로 설계합니다.</p>
-            <span className={`${styles.featTag} ${styles.tagT}`}>자동 설계</span>
-          </div>
-
-          <div className={`${styles.featCard} ${styles.gr} reveal`}>
-            <div className={`${styles.featIcon} ${styles.fiR}`}><IconMusic size={24} /></div>
-            <h3>장르별 트레이닝</h3>
-            <p>팝, R&B, 클래식, 록, 재즈 등 장르별 발성법과 스타일 분석. 원하는 장르에 최적화된 보이싱을 습득하세요.</p>
-            <span className={`${styles.featTag} ${styles.tagV}`}>장르 특화</span>
-          </div>
+        <div className={styles.grid}>
+          {FEATURES.map((f) => (
+            <Card key={f.title} glow interactive>
+              <div className={styles.iconBox}>
+                {f.icon}
+              </div>
+              <h3 className={styles.cardTitle}>{f.title}</h3>
+              <p className={styles.cardDesc}>{f.desc}</p>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
