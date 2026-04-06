@@ -1,0 +1,15 @@
+.metric { margin-bottom: 16px; }
+.header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.label { font-size: 12px; color: var(--text-muted); }
+.value {
+  font-family: var(--font-mono); font-size: 12px;
+  font-weight: 600; color: var(--text-secondary);
+}
+.bar {
+  height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.04); overflow: hidden;
+}
+.fill {
+  height: 100%; border-radius: 2px;
+  transition: width 1s var(--ease-out-expo);
+}
