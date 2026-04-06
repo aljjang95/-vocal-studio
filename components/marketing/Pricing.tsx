@@ -1,179 +1,147 @@
 'use client';
 
-import { useBillingStore } from '@/stores/billingStore';
 import Button from '@/components/ds/Button';
 import Card from '@/components/ds/Card';
 import styles from './Pricing.module.css';
 
-const PLANS = [
-  {
-    id: 'free',
-    name: '무료',
-    tagline: '가볍게 시작하기',
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    isFeatured: false,
-    ctaLabel: '무료로 시작',
-    ctaVariant: 'secondary' as const,
-    badge: null,
-    features: [
-      { label: '스케일 연습 5단계', included: true },
-      { label: 'AI 코치 채팅 (하루 3회)', included: true },
-      { label: '기본 긴장 감지', included: true },
-      { label: '광고 포함', included: true, note: true },
-      { label: '실시간 음성 분석', included: false },
-      { label: '성장 리포트', included: false },
-      { label: 'AI 커버', included: false },
-    ],
-  },
-  {
-    id: 'hobby',
-    name: '취미반',
-    tagline: '노래가 좋아서 시작하는 당신에게',
-    monthlyPrice: 9900,
-    yearlyPrice: 5900,
-    isFeatured: false,
-    ctaLabel: '취미반 시작',
-    ctaVariant: 'secondary' as const,
-    badge: null,
-    features: [
-      { label: '스케일 연습 전체 28단계', included: true },
-      { label: 'AI 코치 채팅 (무제한)', included: true },
-      { label: '실시간 긴장 감지 + 피드백', included: true },
-      { label: '주간 성장 리포트', included: true },
-      { label: '광고 없음', included: true },
-      { label: 'AI 커버 (월 3곡)', included: true },
-      { label: '1:1 맞춤 커리큘럼', included: false },
-    ],
-  },
-  {
-    id: 'pro',
-    name: '발성전문반',
-    tagline: '진지하게 목소리를 바꾸고 싶다면',
-    monthlyPrice: 24900,
-    yearlyPrice: 14900,
-    isFeatured: true,
-    ctaLabel: '전문반 시작',
-    ctaVariant: 'accent' as const,
-    badge: '추천',
-    features: [
-      { label: '스케일 연습 전체 + 고급 패턴', included: true },
-      { label: 'AI 코치 (무제한 + 심화 분석)', included: true },
-      { label: '4축 긴장 감지 (후두/혀뿌리/턱/성구)', included: true },
-      { label: '일간 + 주간 성장 리포트', included: true },
-      { label: '광고 없음', included: true },
-      { label: 'AI 커버 (무제한)', included: true },
-      { label: '1:1 맞춤 커리큘럼 + 루틴 설계', included: true },
-    ],
-  },
-];
-
-function formatPrice(price: number): string {
-  if (price === 0) return '무료';
-  return price.toLocaleString('ko-KR');
-}
-
 export default function Pricing() {
-  const { yearly, toggle } = useBillingStore();
-
   return (
     <section id="pricing" className={styles.pricing}>
       <div className="container">
         <div className={styles.head}>
           <div className="section-kicker" style={{ justifyContent: 'center' }}>요금제</div>
           <h2 className="section-title" style={{ textAlign: 'center' }}>
-            사설 레슨 1회 비용으로<br />한 달 내내
+            오프라인 레슨 그대로,<br />온라인으로
           </h2>
           <p className={styles.subtitle}>
-            보컬 레슨 1회 평균 5만원. 전문반도 월 24,900원.
+            사설 레슨 1회 평균 5만원. 발성전문반은 한 달 내내 AI 코칭.
           </p>
         </div>
 
-        {/* Billing Toggle */}
-        <div className={styles.toggle}>
-          <span className={`${styles.toggleLabel} ${!yearly ? styles.toggleActive : ''}`}>월간</span>
-          <button
-            className={`${styles.toggleSwitch} ${yearly ? styles.toggleOn : ''}`}
-            onClick={toggle}
-            type="button"
-            role="switch"
-            aria-checked={yearly}
-            aria-label="연간 결제 전환"
-          >
-            <span className={styles.toggleKnob} />
-          </button>
-          <span className={`${styles.toggleLabel} ${yearly ? styles.toggleActive : ''}`}>연간</span>
-          {yearly && <span className={styles.saveBadge}>40% 절약</span>}
-        </div>
-
-        {/* Plan Cards */}
         <div className={styles.grid}>
-          {PLANS.map((plan) => {
-            const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
+          {/* 무료 */}
+          <Card className={styles.planCard}>
+            <div className={styles.planName}>무료</div>
+            <p className={styles.planTagline}>가볍게 시작하기</p>
+            <div className={styles.priceRow}>
+              <span className={styles.priceNum}>무료</span>
+            </div>
+            <div className={styles.pricePeriod}>광고 포함</div>
+            <div className={styles.divider} />
+            <ul className={styles.featureList}>
+              <Feature on>18단계까지 자유 진행</Feature>
+              <Feature on>이완 ~ 두성밸런스 체험</Feature>
+              <Feature on>피아노 스케일 자율 이용</Feature>
+              <Feature on>기본 긴장 감지</Feature>
+              <Feature on>목소리 변환 (내장 프리셋)</Feature>
+              <Feature on note>일정 시간 이용 시 광고</Feature>
+              <Feature off>채점 기반 해금 (19~28단계)</Feature>
+              <Feature off>4축 긴장 상세 분석</Feature>
+              <Feature off>성장 리포트</Feature>
+            </ul>
+            <Button variant="secondary" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+              무료로 시작
+            </Button>
+          </Card>
 
-            return (
-              <Card
-                key={plan.id}
-                variant={plan.isFeatured ? 'active' : 'default'}
-                className={styles.planCard}
-              >
-                {plan.badge && <span className={styles.badge}>{plan.badge}</span>}
+          {/* 정액제 */}
+          <Card className={styles.planCard}>
+            <div className={styles.planName}>정액제</div>
+            <p className={styles.planTagline}>광고 없이 마음껏</p>
+            <div className={styles.priceRow}>
+              <span className={styles.priceCurrency}>₩</span>
+              <span className={styles.priceNum}>19,900</span>
+            </div>
+            <div className={styles.pricePeriod}>/ 월</div>
+            <div className={styles.divider} />
+            <ul className={styles.featureList}>
+              <Feature on>무료 콘텐츠 전부 포함</Feature>
+              <Feature on>광고 완전 제거</Feature>
+              <Feature on>AI 커버 (내 목소리 변환)</Feature>
+              <Feature on>곡 연습 + 구간 분석</Feature>
+              <Feature on>AI 코치 채팅 무제한</Feature>
+              <Feature off>채점 기반 해금 (19~28단계)</Feature>
+              <Feature off>4축 긴장 상세 분석</Feature>
+              <Feature off>맞춤 커리큘럼 설계</Feature>
+            </ul>
+            <Button variant="secondary" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+              정액제 시작
+            </Button>
+          </Card>
 
-                <div className={styles.planName}>{plan.name}</div>
-                <p className={styles.planTagline}>{plan.tagline}</p>
+          {/* 발성전문반 */}
+          <Card variant="active" className={styles.planCard}>
+            <span className={styles.badge}>추천</span>
+            <div className={styles.planName}>발성전문반</div>
+            <p className={styles.planTagline}>발성 매커니즘 기반, 체계적 성장</p>
+            <div className={styles.priceRow}>
+              <span className={styles.priceCurrency}>₩</span>
+              <span className={styles.priceNum}>150,000</span>
+            </div>
+            <div className={styles.pricePeriod}>/ 월</div>
+            <div className={styles.divider} />
+            <ul className={styles.featureList}>
+              <Feature on>정액제 전부 포함</Feature>
+              <Feature on>28단계 채점 기반 해금</Feature>
+              <Feature on>세팅 → 고음 → 가창 코스</Feature>
+              <Feature on>4축 긴장 분석 (후두/혀뿌리/턱/성구)</Feature>
+              <Feature on>단계별 매커니즘 AI 해설</Feature>
+              <Feature on>1:1 맞춤 커리큘럼 + 루틴</Feature>
+              <Feature on>일간 + 주간 성장 리포트</Feature>
+              <Feature on>AI 커버 무제한</Feature>
+            </ul>
+            <Button variant="accent" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+              발성전문반 시작
+            </Button>
+          </Card>
 
-                <div className={styles.priceRow}>
-                  {price === 0 ? (
-                    <span className={styles.priceNum}>무료</span>
-                  ) : (
-                    <>
-                      <span className={styles.priceCurrency}>₩</span>
-                      <span className={styles.priceNum}>{formatPrice(price)}</span>
-                    </>
-                  )}
-                </div>
-                {price > 0 && (
-                  <div className={styles.pricePeriod}>
-                    / 월{yearly ? ' · 연간 결제' : ''}
-                  </div>
-                )}
-
-                <div className={styles.divider} />
-
-                <ul className={styles.featureList}>
-                  {plan.features.map((feat) => (
-                    <li
-                      key={feat.label}
-                      className={`${styles.featureItem} ${!feat.included ? styles.featureOff : ''}`}
-                    >
-                      {feat.included ? (
-                        <svg className={styles.checkIcon} width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M3 7l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      ) : (
-                        <svg className={styles.xIcon} width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-                        </svg>
-                      )}
-                      <span className={(feat as { note?: boolean }).note ? styles.noteText : ''}>
-                        {feat.label}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  variant={plan.ctaVariant}
-                  fullWidth
-                  onClick={() => window.location.href = '/auth/signup'}
-                >
-                  {plan.ctaLabel}
-                </Button>
-              </Card>
-            );
-          })}
+          {/* 유료 피드백 */}
+          <Card className={styles.planCard}>
+            <div className={styles.planName}>유료 피드백</div>
+            <p className={styles.planTagline}>선생님이 직접 듣고 진단</p>
+            <div className={styles.priceRow}>
+              <span className={styles.priceCurrency}>₩</span>
+              <span className={styles.priceNum}>50,000</span>
+            </div>
+            <div className={styles.pricePeriod}>/ 1회</div>
+            <div className={styles.divider} />
+            <ul className={styles.featureList}>
+              <Feature on>녹음 제출 → 선생님 직접 청취</Feature>
+              <Feature on>AI 진단 + 선생님 소견 비교</Feature>
+              <Feature on>구체적 개선 방향 제시</Feature>
+              <Feature on>7년 경력 전문 트레이너</Feature>
+              <Feature on>모든 플랜에서 추가 구매 가능</Feature>
+            </ul>
+            <Button variant="secondary" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+              피드백 신청
+            </Button>
+          </Card>
         </div>
+
+        <p className={styles.fine}>
+          발성전문반 · 정액제는 언제든 해지 가능 · 유료 피드백은 건당 결제
+        </p>
       </div>
     </section>
+  );
+}
+
+function Feature({ on, off, note, children }: {
+  on?: boolean; off?: boolean; note?: boolean; children: React.ReactNode;
+}) {
+  const included = on && !off;
+  return (
+    <li className={`${styles.featureItem} ${!included ? styles.featureOff : ''}`}>
+      {included ? (
+        <svg className={styles.checkIcon} width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 7l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ) : (
+        <svg className={styles.xIcon} width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+        </svg>
+      )}
+      <span className={note ? styles.noteText : ''}>{children}</span>
+    </li>
   );
 }
