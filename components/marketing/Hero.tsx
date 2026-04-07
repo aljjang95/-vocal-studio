@@ -51,13 +51,13 @@ export default function Hero() {
           </div>
           <div className={styles.trustDivider} />
           <div className={styles.trustItem}>
-            <span className={styles.trustNum}>95%</span>
-            <span className={styles.trustLabel}>수강생 만족도</span>
+            <span className={styles.trustNum}>28단계</span>
+            <span className={styles.trustLabel}>체계적 커리큘럼</span>
           </div>
           <div className={styles.trustDivider} />
           <div className={styles.trustItem}>
-            <span className={styles.trustNum}>24/7</span>
-            <span className={styles.trustLabel}>AI 코칭</span>
+            <span className={styles.trustNum}>4축</span>
+            <span className={styles.trustLabel}>긴장 감지 AI</span>
           </div>
         </div>
       </div>

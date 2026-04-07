@@ -29,13 +29,13 @@ export default function Pricing() {
             <div className={styles.pricePeriod}>광고 포함</div>
             <div className={styles.divider} />
             <ul className={styles.featureList}>
-              <Feature on>18단계까지 자유 진행</Feature>
-              <Feature on>이완 ~ 두성밸런스 체험</Feature>
-              <Feature on>피아노 스케일 자율 이용</Feature>
+              <Feature on>18단계까지 채점 기반 진행</Feature>
+              <Feature on>이완 ~ 두성밸런스 코스</Feature>
+              <Feature on>피아노 스케일 연습</Feature>
               <Feature on>기본 긴장 감지</Feature>
               <Feature on>목소리 변환 (내장 프리셋)</Feature>
-              <Feature on note>일정 시간 이용 시 광고</Feature>
-              <Feature off>채점 기반 해금 (19~28단계)</Feature>
+              <Feature on note>광고 포함</Feature>
+              <Feature off>19~28단계 (세팅~가창)</Feature>
               <Feature off>4축 긴장 상세 분석</Feature>
               <Feature off>성장 리포트</Feature>
             </ul>
@@ -88,7 +88,7 @@ export default function Pricing() {
               <Feature on>단계별 매커니즘 AI 해설</Feature>
               <Feature on>1:1 맞춤 커리큘럼 + 루틴</Feature>
               <Feature on>일간 + 주간 성장 리포트</Feature>
-              <Feature on>AI 커버 무제한</Feature>
+              <Feature on>AI 커버 (월 5곡)</Feature>
             </ul>
             <Button variant="accent" fullWidth onClick={() => window.location.href = '/auth/signup'}>
               발성전문반 시작
