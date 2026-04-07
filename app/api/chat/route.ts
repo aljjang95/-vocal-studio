@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { anthropic, Anthropic } from '@/lib/anthropic';
 import { VOCAL_COACH_SYSTEM_PROMPT } from '@/lib/prompts/vocal-coach';
+import { matchFaq } from '@/lib/data/faqDatabase';
 import { ChatResponse, ApiError } from '@/types';
 
 // ── AI 설정 상수 ────────────────────────────────────────────
@@ -174,6 +175,15 @@ export async function POST(
         { error: '유효한 메시지가 없습니다.', code: 'NO_VALID_MESSAGES' },
         { status: 400 }
       );
+    }
+
+    // FAQ 자동 응답 체크 — 매칭되면 API 호출 없이 즉시 응답
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.role === 'user' && typeof lastMsg.content === 'string') {
+      const faqMatch = matchFaq(lastMsg.content);
+      if (faqMatch) {
+        return NextResponse.json({ reply: faqMatch.answer } satisfies ChatResponse);
+      }
     }
 
     const response = await anthropic.messages.create({
