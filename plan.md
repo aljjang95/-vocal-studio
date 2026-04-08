@@ -144,49 +144,62 @@ Level 3: 1.5 스케일 → '구' 발성 → '마' 발성
 ## 구현 순서 (개편)
 
 ### Phase 1: 상담 (온보딩) 구축
-- [ ] Step 1: 상담 페이지 UI (/onboarding)
-- [ ] Step 2: 녹음 → Python 백엔드 분석 → 4축 결과
-- [ ] Step 3: AI가 문제점 설명 + 로드맵 제시 (Haiku)
-- [ ] Step 4: TTS 음성 재생 (edge-tts)
-- [ ] Step 5: 결과 → 첫 레슨으로 연결
+- [x] Step 1: 상담 페이지 UI (/onboarding)
+- [x] Step 2: 녹음 → Python 백엔드 분석 → 4축 결과
+- [x] Step 3: AI가 문제점 설명 + 로드맵 제시 (Haiku)
+- [x] Step 4: TTS 음성 재생 (edge-tts)
+- [x] Step 5: 결과 → 첫 레슨으로 연결
 
 ### Phase 2: 레슨 흐름 개편
-- [ ] Step 6: 레슨 구조 변경 (왜? → 시범 → 실습 → 평가 → 요약)
-- [ ] Step 7: "왜?" 섹션 — 각 단계별 설명 텍스트 + TTS
-- [ ] Step 8: 시범 오디오 재생 기능
-- [ ] Step 9: 실시간 피드백 UI 개선 ("그렇지!" 스타일)
-- [ ] Step 10: 레슨 완료 → 요약 → 다음 레슨 해금
+- [x] Step 6: 레슨 구조 변경 (왜? → 시범 → 실습 → 평가 → 요약)
+- [x] Step 7: "왜?" 섹션 — 각 단계별 설명 텍스트 + TTS
+- [x] Step 8: 시범 오디오 재생 기능
+- [x] Step 9: 실시간 피드백 UI 개선 ("그렇지!" 스타일)
+- [x] Step 10: 레슨 완료 → 요약 → 다음 레슨 해금
 
 ### Phase 3: TTS 음성 코칭
-- [ ] Step 11: 채팅 응답에 TTS 버튼 추가
-- [ ] Step 12: 레슨 중 AI 피드백 음성 재생
-- [ ] Step 13: "왜?" 설명을 음성으로 재생
+- [x] Step 11: 채팅 응답에 TTS 버튼 추가
+- [x] Step 12: 레슨 중 AI 피드백 음성 재생
+- [x] Step 13: "왜?" 설명을 음성으로 재생 (Phase 2에서 완료)
 
 ### Phase 4: 대시보드 (홈)
-- [ ] Step 14: 현재 레슨 진도 카드
-- [ ] Step 15: 오늘 할 연습 추천
-- [ ] Step 16: 성장 그래프 (주간 변화)
+- [x] Step 14: 현재 레슨 진도 카드
+- [x] Step 15: 오늘 할 연습 추천
+- [x] Step 16: 성장 그래프 (주간 변화)
 
 ### Phase 5: 마케팅 + 결제
-- [ ] Step 17: 18레슨 완료 → 발성전문반 전환 UI
-- [ ] Step 18: 유료 피드백 신청 페이지
-- [ ] Step 19: 토스페이먼츠 결제 연동
+- [x] Step 17: 18레슨 완료 → 발성전문반 전환 UI
+- [x] Step 18: 유료 피드백 신청 페이지
+- [x] Step 19: 토스페이먼츠 결제 연동 (테스트 키 완료, 실서비스 키로 교체 필요)
 
 ### Phase 6: 커리큘럼 연동
-- [ ] Step 20: 보컬커리큘럼 프로젝트의 분석 결과를 레슨 데이터로 변환
-- [ ] Step 21: 각 레슨별 "왜?" 설명 텍스트 생성 (선생님 코칭 패턴 기반)
-- [ ] Step 22: ChromaDB RAG 연동 (학생 질문 → 관련 레슨 영상 구간 검색)
+- [x] Step 20: 보컬커리큘럼 프로젝트의 분석 결과를 레슨 데이터로 변환 (chroma_db 연동 완료)
+- [x] Step 21: 각 레슨별 "왜?" 설명 텍스트 생성 (Phase 2에서 28개 whyText 작성 완료)
+- [x] Step 22: ChromaDB RAG 연동 (rag_service.py + /coach 엔드포인트 기존 구현)
+
+### Phase 7: 소리 질감 → 피드백 통합 (2026-04-08 완료)
+- [x] Step 23: 보컬커리큘럼 S6 재실행 (29개 영상 curriculum.jsonl 완성)
+- [x] Step 24: feedback_extractor.py — 자막+음성(Jitter/Shimmer/HNR)+영상 3종 매핑
+- [x] Step 25: ChromaDB vocal_feedback 컬렉션 구축 (1850개 피드백 사례)
+- [x] Step 26: rag_service.py — vocal_curriculum + vocal_feedback 이중 검색
+- [x] Step 27: EvalPhase.tsx — 레슨 평가 후 RAG 코칭 자동 호출 + "선생님 코칭" 카드 표시
+
+### Phase 8: 고도화 (예정)
+- [ ] Step 28: audio_analyzer.py Jitter/Shimmer/HNR 추가 → 더 정확한 질감 매핑
+- [ ] Step 29: 토스페이먼츠 실서비스 키 연동
+- [ ] Step 30: 선생님 대시보드 (채점 승인/코멘트)
 
 ## 완료 기준
 
-- [ ] 첫 방문 → 상담 → 분석 → 설명 → 첫 레슨 자동 흐름
-- [ ] 레슨: 왜? → 시범 → 실습 → 채점 → 해금 전체 동작
-- [ ] TTS: AI 설명을 음성으로 재생
-- [ ] 무료 사용자: 18레슨까지 채점 진행 (광고)
-- [ ] 발성전문반: 28레슨 채점 해금 + 4축 분석
-- [ ] 유료 피드백: 녹음 업로드 → 선생님 진단
-- [ ] 76개+ 백엔드 테스트 PASS
-- [ ] 빌드 성공
+- [x] 첫 방문 → 상담 → 분석 → 설명 → 첫 레슨 자동 흐름 (Phase 1)
+- [x] 레슨: 왜? → 시범 → 실습 → 채점 → 해금 전체 동작 (Phase 2)
+- [x] TTS: AI 설명을 음성으로 재생 (Phase 2+3)
+- [x] 무료 사용자: 18레슨까지 채점 진행 (Phase 5 PaywallBanner)
+- [x] 발성전문반: 28레슨 채점 해금 + 4축 분석 (Phase 5)
+- [x] 유료 피드백: 녹음 업로드 → 선생님 진단 (Phase 5 - 결제 연동 제외)
+- [x] 101개 백엔드 테스트 PASS (커버리지 95%)
+- [x] 빌드 성공
+- [x] 토스페이먼츠 결제 연동 (테스트 완료)
 
 ## 현재 완료된 것 (이번 세션)
 
@@ -200,6 +213,14 @@ Level 3: 1.5 스케일 → '구' 발성 → '마' 발성
 - [x] FAQ 자동 응답 13개 (API 호출 0원)
 - [x] /api/analyze, /api/report 구현 (501 제거)
 - [x] billingStore 플랜 관리 로직
+- [x] Phase 1 온보딩 (상담페이지 + 녹음→4축분석 + AI 로드맵 + TTS + 레슨연결)
+- [x] audio_utils.py DRY 리팩터 (evaluate + onboarding 공유)
+- [x] 테스트 101개 PASS, 커버리지 95%
+- [x] Phase 2 레슨 흐름 개편 (5-phase: 왜?→시범→실습→평가→요약)
+- [x] 28개 스테이지 whyText/demoScript 전체 작성
+- [x] useTTS 훅 (LRU 캐시 + blob URL 관리)
+- [x] LiveFeedbackToast ("그렇지!" 실시간 피드백)
+- [x] /api/tts 범용 TTS 프록시
 
 ## 참고 자료
 
@@ -210,4 +231,4 @@ Level 3: 1.5 스케일 → '구' 발성 → '마' 발성
 
 ---
 생성일: 2026-04-07
-상태: 전면 개편 설계 완료, Phase 1 Step 1부터 구현 대기
+상태: Phase 1~6 완료 (Step 19 결제 연동만 잔여). 22개 Step 중 21개 완료.

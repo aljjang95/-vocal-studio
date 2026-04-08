@@ -11,7 +11,12 @@ class CoachRequest(BaseModel):
     user_message: str = ""
     score: int = 0
     pitch_accuracy: int = 0
-    tension_detail: str = ""  # 긴장 부위/상태 (선택)
+    tension_detail: str = ""
+    # 음성 질감 파라미터 (vocal_feedback RAG 검색용)
+    jitter: float = 0.0
+    shimmer: float = 0.0
+    hnr_db: float = 0.0
+    avg_pitch_hz: float = 0.0
 
 class CoachResponse(BaseModel):
     feedback: str
@@ -24,5 +29,7 @@ async def coach(req: CoachRequest):
         stage_id=req.stage_id, user_message=req.user_message,
         score=req.score, pitch_accuracy=req.pitch_accuracy,
         tension_detail=req.tension_detail,
+        jitter=req.jitter, shimmer=req.shimmer,
+        hnr_db=req.hnr_db, avg_pitch_hz=req.avg_pitch_hz,
     )
     return CoachResponse(**result)

@@ -25,6 +25,7 @@ COACHING_SYSTEM = """당신은 감각 기반 보컬 코치입니다.
 """
 
 def _get_chroma_context(query: str, n_results: int = 3) -> str:
+    """vocal_curriculum 컬렉션에서 개념/기법 검색."""
     try:
         client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
         collection = client.get_collection("vocal_curriculum")
@@ -32,24 +33,63 @@ def _get_chroma_context(query: str, n_results: int = 3) -> str:
         documents = results.get("documents", [[]])[0]
         return "\n---\n".join(documents) if documents else ""
     except Exception as e:
-        logger.warning("ChromaDB 검색 실패: %s", e)
+        logger.warning("ChromaDB curriculum 검색 실패: %s", e)
         return ""
 
-def get_coaching_feedback(stage_id: int, user_message: str, score: int, pitch_accuracy: int, tension_detail: str = "") -> dict:
+def _get_feedback_context(jitter: float, shimmer: float, hnr_db: float, avg_pitch_hz: float, n_results: int = 3) -> str:
+    """vocal_feedback 컬렉션에서 유사 음성 질감 → 실제 선생님 피드백 검색."""
+    try:
+        client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
+        collection = client.get_collection("vocal_feedback")
+        query = f"Jitter={jitter:.3f} Shimmer={shimmer:.3f} HNR={hnr_db:.1f}dB 피치={avg_pitch_hz:.0f}Hz"
+        results = collection.query(query_texts=[query], n_results=n_results)
+        documents = results.get("documents", [[]])[0]
+        return "\n---\n".join(documents) if documents else ""
+    except Exception as e:
+        logger.warning("ChromaDB feedback 검색 실패: %s", e)
+        return ""
+
+def get_coaching_feedback(
+    stage_id: int,
+    user_message: str,
+    score: int,
+    pitch_accuracy: int,
+    tension_detail: str = "",
+    jitter: float = 0.0,
+    shimmer: float = 0.0,
+    hnr_db: float = 0.0,
+    avg_pitch_hz: float = 0.0,
+) -> dict:
     search_query = f"{user_message} {tension_detail}".strip() if tension_detail else user_message
-    context = _get_chroma_context(search_query)
+    curriculum_context = _get_chroma_context(search_query)
+
+    # 음성 질감 데이터가 있으면 실제 선생님 피드백 사례 검색
+    feedback_context = ""
+    if jitter > 0 or shimmer > 0 or hnr_db != 0:
+        feedback_context = _get_feedback_context(jitter, shimmer, hnr_db, avg_pitch_hz)
 
     tension_section = ""
     if tension_detail:
         tension_section = f"\n- 긴장 부위/상태: {tension_detail}"
 
+    texture_section = ""
+    if jitter > 0 or shimmer > 0:
+        texture_section = f"\n- 음성 질감: Jitter={jitter:.3f}, Shimmer={shimmer:.3f}, HNR={hnr_db:.1f}dB, 피치={avg_pitch_hz:.0f}Hz"
+
+    context_parts = []
+    if curriculum_context:
+        context_parts.append(f"[커리큘럼 참고]\n{curriculum_context}")
+    if feedback_context:
+        context_parts.append(f"[유사 상황 실제 피드백 사례]\n{feedback_context}")
+    combined_context = "\n\n".join(context_parts)
+
     user_prompt = f"""학생 상황:
 - 현재 단계: {stage_id}단계
 - 채점 결과: 총점 {score}/100, 피치 정확도 {pitch_accuracy}/100
-- 학생 메시지: {user_message}{tension_section}
+- 학생 메시지: {user_message}{tension_section}{texture_section}
 
 참고 자료:
-{context}
+{combined_context}
 
 위 상황에 맞는 감각 기반 코칭 피드백을 JSON으로 제공해주세요."""
 
