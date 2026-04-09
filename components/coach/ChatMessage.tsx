@@ -1,5 +1,8 @@
+'use client';
+
 import { Message } from '@/types';
 import { IconMic, IconUser } from '@/components/shared/Icons';
+import TTSButton from '@/components/shared/TTSButton';
 import styles from './ChatMessage.module.css';
 
 interface ChatMessageProps {
@@ -39,6 +42,11 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       </div>
       <div className={styles.chatBubble}>
         {parseContent(message.content)}
+        {!isUser && (
+          <div className={styles.ttsRow}>
+            <TTSButton text={message.content} size="sm" />
+          </div>
+        )}
       </div>
     </div>
   );

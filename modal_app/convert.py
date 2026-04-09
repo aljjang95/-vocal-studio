@@ -28,6 +28,8 @@ gpu_image = (
         "numpy<2",
         "scipy",
         "faiss-cpu",
+        "pedalboard>=0.9",
+        "pyloudnorm>=0.1",
     )
     .add_local_python_source("modal_app")
 )
@@ -48,6 +50,57 @@ RMVPE_FILENAME = "rmvpe.pt"
 # ──────────────────────────────────────────────
 # 유틸리티 함수 (함수 밖에 있어도 OK — 순수 numpy)
 # ──────────────────────────────────────────────
+
+def _postprocess_vocal(audio, sr, preset_name="default"):
+    """보컬에 프로 후처리 체인 적용 (EQ + 컴프레서 + 리버브 + LUFS 정규화)"""
+    import numpy as np
+    from pedalboard import (
+        Pedalboard, HighpassFilter, PeakFilter, HighShelfFilter,
+        Compressor, Reverb, Limiter
+    )
+    import pyloudnorm as pyln
+
+    PRESETS = {
+        "default": {"eq_presence_db": 2.0, "comp_ratio": 3.0, "reverb_room": 0.3, "reverb_wet": 0.15},
+        "ballad": {"eq_presence_db": 1.0, "comp_ratio": 2.0, "reverb_room": 0.5, "reverb_wet": 0.20},
+        "pop": {"eq_presence_db": 3.0, "comp_ratio": 4.0, "reverb_room": 0.2, "reverb_wet": 0.10},
+    }
+    p = PRESETS.get(preset_name, PRESETS["default"])
+
+    audio = audio.astype(np.float32)
+    if audio.ndim == 1:
+        audio = np.stack([audio, audio], axis=0)
+
+    board = Pedalboard([
+        HighpassFilter(cutoff_frequency_hz=100.0),
+        PeakFilter(cutoff_frequency_hz=300.0, gain_db=-2.0, q=1.0),
+        PeakFilter(cutoff_frequency_hz=3000.0, gain_db=p["eq_presence_db"], q=1.0),
+        HighShelfFilter(cutoff_frequency_hz=8000.0, gain_db=1.5),
+        Compressor(threshold_db=-20.0, ratio=p["comp_ratio"], attack_ms=5.0, release_ms=50.0),
+        Reverb(room_size=p["reverb_room"], wet_level=p["reverb_wet"],
+               dry_level=1.0 - p["reverb_wet"], damping=0.6),
+        Limiter(threshold_db=-1.0),
+    ])
+    processed = board(audio, sr)
+
+    # LUFS 정규화 (-12 LUFS)
+    if processed.ndim == 2 and processed.shape[0] < processed.shape[1]:
+        processed = processed.T
+    meter = pyln.Meter(sr)
+    loudness = meter.integrated_loudness(processed)
+    if not (np.isinf(loudness) or np.isnan(loudness)):
+        processed = pyln.normalize.loudness(processed, loudness, -12.0)
+
+    # 다시 1D로 (모노 입력이었으면)
+    if processed.ndim == 2:
+        processed = processed.mean(axis=-1)
+
+    peak = np.max(np.abs(processed))
+    if peak > 0.99:
+        processed = processed * (0.99 / peak)
+
+    return processed.astype(np.float32)
+
 
 def _f0_to_coarse(f0):
     """F0(Hz)를 양자화된 피치 인덱스(0~255)로 변환한다."""
@@ -136,6 +189,8 @@ def convert(
     filter_radius: int = 3,
     rms_mix_rate: float = 0.25,
     protect: float = 0.33,
+    postprocess: bool = True,
+    preset_name: str = "default",
 ) -> bytes:
     """
     RVC v2 음성 변환.
@@ -358,6 +413,10 @@ def convert(
     peak = np.abs(output_audio).max()
     if peak > 1.0:
         output_audio = output_audio / peak * 0.95
+
+    # ── 7.5) 후처리 (EQ + 컴프레서 + 리버브 + LUFS) ──
+    if postprocess:
+        output_audio = _postprocess_vocal(output_audio, tgt_sr, preset_name)
 
     # ── 8) WAV 바이트로 출력 ──
     buf = io.BytesIO()

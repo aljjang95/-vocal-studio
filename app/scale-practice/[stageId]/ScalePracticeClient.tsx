@@ -162,13 +162,13 @@ export default function ScalePracticeClient({ stageId }: Props) {
       <style jsx>{`
         .sc-root {
           min-height: 100vh;
-          background: #111;
+          background: #030712;
           color: #e5e5e5;
         }
         .sc-container {
-          max-width: 560px;
+          max-width: 720px;
           margin: 0 auto;
-          padding: 16px 20px 40px;
+          padding: 24px 24px 60px;
         }
         .sc-header {
           display: flex;
@@ -218,7 +218,7 @@ export default function ScalePracticeClient({ stageId }: Props) {
           50% { opacity: 0.3; }
         }
         .sc-empty {
-          min-height: 100vh; background: #111; color: #e5e5e5;
+          min-height: 100vh; background: #030712; color: #e5e5e5;
           display: flex; flex-direction: column;
           align-items: center; justify-content: center;
           gap: 12px; padding: 24px; text-align: center;

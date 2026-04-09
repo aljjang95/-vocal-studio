@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 // 로그인 없이 접근 가능한 경로
-const PUBLIC_PATHS = ['/', '/auth/login', '/auth/signup', '/auth/callback', '/scale-practice', '/journey'];
+const PUBLIC_PATHS = ['/', '/auth/login', '/auth/signup', '/auth/callback', '/scale-practice', '/journey', '/onboarding', '/pricing', '/payment'];
+// 선생님 전용 경로 (로그인 필요, 이메일 검사는 page.tsx/API에서 처리)
+const TEACHER_PATHS = ['/teacher'];
 
 export async function middleware(request: NextRequest) {
   // ── CSP nonce 생성 ──
@@ -15,14 +17,16 @@ export async function middleware(request: NextRequest) {
     ? `script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:`
     : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' blob:`;
   const connectSrc = isDev
-    ? `connect-src 'self' ws://localhost:* http://localhost:* https://*.supabase.co https://*.modal.run https://d1pzp51pvbm36p.cloudfront.net blob:`
-    : `connect-src 'self' wss://* https://*.supabase.co https://*.modal.run https://d1pzp51pvbm36p.cloudfront.net blob:`;
+    ? `connect-src 'self' ws://localhost:* http://localhost:* https://*.supabase.co https://*.modal.run https://d1pzp51pvbm36p.cloudfront.net https://api.tosspayments.com blob:`
+    : `connect-src 'self' wss://* https://*.supabase.co https://*.modal.run https://d1pzp51pvbm36p.cloudfront.net https://api.tosspayments.com blob:`;
   const csp = [
     `default-src 'self'`, scriptSrc,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `img-src 'self' data: blob: https://images.unsplash.com`,
-    connectSrc, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`,
+    `img-src 'self' data: blob: https://images.unsplash.com https://*.tosspayments.com`,
+    connectSrc,
+    `frame-src https://js.tosspayments.com`,
+    `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`,
   ].join('; ');
 
   // ── Supabase 세션 갱신 ──

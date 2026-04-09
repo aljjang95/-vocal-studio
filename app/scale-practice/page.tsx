@@ -14,6 +14,14 @@ export default function ScalePracticePage() {
 
   return (
     <div className="sp-root">
+      <nav className="sp-nav">
+        <Link href="/" className="sp-nav-logo">HLB 보컬스튜디오</Link>
+        <div className="sp-nav-links">
+          <Link href="/journey" className="sp-nav-link">소리의 길</Link>
+          <Link href="/coach" className="sp-nav-link">AI 코치</Link>
+          <Link href="/dashboard" className="sp-nav-link">대시보드</Link>
+        </div>
+      </nav>
       <div className="sp-container">
         <header className="sp-header">
           <h1>스케일 연습</h1>
@@ -67,16 +75,33 @@ export default function ScalePracticePage() {
       <style jsx global>{`
         .sp-root {
           min-height: 100vh;
-          background: #111;
+          background: #030712;
           color: #e5e5e5;
         }
+        .sp-nav {
+          position: sticky; top: 0; z-index: 100;
+          background: rgba(3,7,18,0.9); backdrop-filter: blur(20px);
+          border-bottom: 1px solid #1a1a1a;
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 0 20px; height: 52px;
+        }
+        .sp-nav-logo {
+          font-weight: 700; font-size: 15px; color: #e5e5e5; text-decoration: none;
+        }
+        .sp-nav-links { display: flex; gap: 4px; }
+        @media (max-width: 600px) { .sp-nav-links { display: none; } }
+        .sp-nav-link {
+          font-size: 13px; color: #666; text-decoration: none;
+          padding: 6px 10px; border-radius: 6px;
+        }
+        .sp-nav-link:hover { color: #e5e5e5; background: #1a1a1a; }
         .sp-container {
           max-width: 520px;
           margin: 0 auto;
           padding: 0 20px 60px;
         }
         .sp-header {
-          padding: 40px 0 24px;
+          padding: 32px 0 24px;
         }
         .sp-header h1 {
           font-size: 26px;

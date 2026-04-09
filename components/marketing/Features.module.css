@@ -39,6 +39,19 @@
   letter-spacing: -0.01em;
 }
 
+.kicker {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.cardFeatured {
+  border-color: var(--border-strong);
+}
+
 .cardDesc {
   font-size: 14px;
   color: var(--text-secondary);

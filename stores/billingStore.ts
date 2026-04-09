@@ -10,6 +10,7 @@ interface BillingState {
   yearly: boolean;
   toggle: () => void;
   setPlan: (plan: Plan) => void;
+  syncFromServer: () => Promise<void>;
   isPro: () => boolean;
   isSubscription: () => boolean;
   canAccessStage: (stageId: number) => boolean;
@@ -24,6 +25,17 @@ export const useBillingStore = create<BillingState>()(
       yearly: false,
       toggle: () => set((s) => ({ yearly: !s.yearly })),
       setPlan: (plan) => set({ plan }),
+      syncFromServer: async () => {
+        try {
+          const res = await fetch('/api/payment/plan');
+          if (res.ok) {
+            const { plan } = await res.json();
+            set({ plan: plan as Plan });
+          }
+        } catch {
+          // 서버 동기화 실패 시 로컬 상태 유지
+        }
+      },
       isPro: () => get().plan === 'pro',
       isSubscription: () => get().plan === 'subscription' || get().plan === 'pro',
       canAccessStage: (stageId: number) => {

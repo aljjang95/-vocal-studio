@@ -71,7 +71,7 @@ export default function WarmupPageClient() {
               &larr; HLB 보컬스튜디오
             </Link>
             <nav className={styles.headerNav}>
-              <Link href="/coaching" className={styles.headerLink}>코칭</Link>
+              <Link href="/coach" className={styles.headerLink}>AI 코치</Link>
               <Link href="/diagnosis" className={styles.headerLink}>진단</Link>
             </nav>
           </div>
@@ -124,8 +124,8 @@ export default function WarmupPageClient() {
                 <Link href="/practice" className={styles.primaryLink}>
                   곡 연습하러 가기
                 </Link>
-                <Link href="/coaching" className={styles.secondaryLink}>
-                  코칭 받으러 가기
+                <Link href="/coach" className={styles.secondaryLink}>
+                  AI 코치 받으러 가기
                 </Link>
                 <button
                   type="button"

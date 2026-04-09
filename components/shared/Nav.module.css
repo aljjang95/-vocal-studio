@@ -58,15 +58,18 @@
 }
 
 .navLinks {
-  display: flex; align-items: center; gap: 4px;
+  display: flex; align-items: center; gap: 2px;
   list-style: none;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 .navLinks a {
-  padding: 8px 18px;
+  padding: 8px 10px;
   color: var(--text2); text-decoration: none;
-  font-size: 0.9rem; font-weight: 400;
+  font-size: 0.82rem; font-weight: 400;
   border-radius: 8px;
   transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
 }
 .navLinks a:hover { color: var(--text); background: var(--surface2); }
 

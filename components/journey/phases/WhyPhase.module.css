@@ -1,0 +1,112 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: calc(100vh - 180px);
+  padding-top: 8px;
+  padding-bottom: 24px;
+}
+
+.container > :last-child {
+  margin-top: auto;
+}
+
+.whyText {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.question {
+  font-size: 14px;
+  color: rgba(165, 180, 252, 0.9);
+  padding: 16px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+}
+
+.audioRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.listenBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.listenBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.listenBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+}
+
+.infoLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+}
+
+.infoValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.goalCard {
+  padding: 16px 20px;
+  background: rgba(52, 211, 153, 0.06);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 12px;
+}
+
+.goalLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(52, 211, 153, 0.7);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.goalText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.75);
+}

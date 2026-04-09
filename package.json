@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.27.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.44.2",
+    "@tosspayments/payment-widget-sdk": "^0.12.1",
     "next": "^14.2.25",
     "pitchy": "^4.1.0",
     "react": "^18",

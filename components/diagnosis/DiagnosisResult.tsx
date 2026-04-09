@@ -69,7 +69,7 @@ export default function DiagnosisResultView({ result, onRetry }: DiagnosisResult
       </div>
 
       <div className={styles.resultActions}>
-        <Link href="/coaching" className="btn-primary">
+        <Link href="/coach" className="btn-primary">
           맞춤 코칭 시작하기 &rarr;
         </Link>
         <button type="button" className="btn-outline" onClick={onRetry}>

@@ -100,7 +100,7 @@ export default function PracticePageClient() {
               &larr; HLB 보컬스튜디오
             </Link>
             <nav className={styles.headerNav}>
-              <Link href="/coaching" className={styles.headerLink}>코칭</Link>
+              <Link href="/coach" className={styles.headerLink}>AI 코치</Link>
               <Link href="/diagnosis" className={styles.headerLink}>진단</Link>
               <Link href="/warmup" className={styles.headerLink}>워밍업</Link>
             </nav>

@@ -1,0 +1,60 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: calc(100vh - 180px);
+  padding-top: 8px;
+  padding-bottom: 24px;
+}
+
+.container > :last-child {
+  margin-top: auto;
+}
+
+.demoCard {
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.script {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 20px;
+}
+
+.playBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent, #3b82f6);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+  font-size: 24px;
+}
+
+.playBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.playBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+.readyText {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin-top: 4px;
+}

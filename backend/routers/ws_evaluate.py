@@ -9,6 +9,7 @@ from services.realtime_analyzer import (
     SessionAccumulator,
     analyze_chunk,
     convert_chunk_to_wav,
+    extract_avg_pitch,
     get_somatic_feedback,
 )
 from services.session_report import generate_session_report
@@ -63,6 +64,7 @@ async def ws_evaluate(ws: WebSocket):
                 try:
                     wav_path = convert_chunk_to_wav(chunk_data, tmp_dir)
                     score = analyze_chunk(wav_path)
+                    avg_pitch = extract_avg_pitch(wav_path)
                     wav_path.unlink(missing_ok=True)
 
                     if score:
@@ -71,6 +73,7 @@ async def ws_evaluate(ws: WebSocket):
                         await ws.send_json({
                             "type": "analysis",
                             "chunk_index": session.chunk_count,
+                            "avg_pitch_hz": avg_pitch,
                             "tension": {
                                 "overall": score.overall,
                                 "laryngeal": score.laryngeal_tension,
@@ -86,6 +89,7 @@ async def ws_evaluate(ws: WebSocket):
                         await ws.send_json({
                             "type": "analysis",
                             "chunk_index": session.chunk_count,
+                            "avg_pitch_hz": avg_pitch,
                             "tension": None,
                             "feedback": "음성이 감지되지 않았어요. 마이크를 확인해보세요.",
                         })

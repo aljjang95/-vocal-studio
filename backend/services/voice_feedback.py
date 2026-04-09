@@ -5,7 +5,7 @@ import edge_tts
 
 VOICE = "ko-KR-SunHiNeural"
 RATE = "+10%"
-MAX_CHARS = 80
+MAX_CHARS = 200
 
 
 async def synthesize_feedback(text: str) -> bytes | None:

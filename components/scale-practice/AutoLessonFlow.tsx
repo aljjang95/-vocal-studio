@@ -111,13 +111,29 @@ export default function AutoLessonFlow({ stage }: Props) {
             <span>BPM {stage.bpmRange[0]}</span>
             <span className="af-tag-level">{lvLabel}</span>
           </div>
+          <div className="af-info-grid">
+            <div className="af-info-item">
+              <span className="af-info-label">합격 기준</span>
+              <span className="af-info-value">{stage.evaluationCriteria.passingScore}점</span>
+            </div>
+            <div className="af-info-item">
+              <span className="af-info-label">BPM</span>
+              <span className="af-info-value">{stage.bpmRange[0]}~{stage.bpmRange[1]}</span>
+            </div>
+          </div>
+
+          <div className="af-goal">
+            <span className="af-goal-label">목표</span>
+            <span className="af-goal-text">{stage.evaluationCriteria.description}</span>
+          </div>
+
           <ol className="af-steps">
             <li>턱을 편하게 열어주세요</li>
             <li>피아노를 따라 &apos;{stage.pronunciation}&apos; 소리를 연결하세요</li>
             <li>올라갈수록 배 아래쪽 압력을 느껴보세요</li>
           </ol>
           <p className="af-question">{stage.somaticFeedback.observationQuestion}</p>
-          <Button variant="primary" fullWidth onClick={doStart}>시작</Button>
+          <Button variant="accent" fullWidth onClick={doStart}>시작</Button>
         </div>
       )}
 
@@ -209,6 +225,25 @@ export default function AutoLessonFlow({ stage }: Props) {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .af-center { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+        .af-info-grid {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+        }
+        .af-info-item {
+          display: flex; flex-direction: column; gap: 4px;
+          padding: 12px 14px; background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.07); border-radius: 10px;
+        }
+        .af-info-label { font-size: 10px; letter-spacing: 0.08em; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+        .af-info-value { font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.85); }
+
+        .af-goal {
+          display: flex; flex-direction: column; gap: 4px;
+          padding: 12px 14px; margin-bottom: 14px;
+          background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.2); border-radius: 10px;
+        }
+        .af-goal-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: rgba(52,211,153,0.7); text-transform: uppercase; }
+        .af-goal-text { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; }
 
         .af-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
         .af-tags span {

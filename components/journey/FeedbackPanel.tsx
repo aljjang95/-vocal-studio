@@ -11,51 +11,51 @@ interface FeedbackPanelProps {
 export default function FeedbackPanel({ evaluation, coaching, isLoading }: FeedbackPanelProps) {
   if (isLoading) {
     return (
-      <div className="p-4 rounded-xl bg-gray-900/50 border border-gray-800 animate-pulse">
-        <div className="h-4 bg-gray-700 rounded w-3/4 mb-2" />
-        <div className="h-4 bg-gray-700 rounded w-1/2" />
+      <div style={{ padding: 16, borderRadius: 12, background: 'rgba(17,24,39,0.5)', border: '1px solid #1f2937' }}>
+        <div style={{ height: 16, background: '#374151', borderRadius: 4, width: '75%', marginBottom: 8 }} />
+        <div style={{ height: 16, background: '#374151', borderRadius: 4, width: '50%' }} />
       </div>
     );
   }
   if (!evaluation) return null;
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-900/50 border border-gray-800">
-        <div className={`text-3xl font-bold ${evaluation.passed ? 'text-emerald-400' : 'text-amber-400'}`}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 16, borderRadius: 12, background: 'rgba(17,24,39,0.5)', border: '1px solid #1f2937' }}>
+        <div style={{ fontSize: 30, fontWeight: 700, color: evaluation.passed ? '#34d399' : '#fbbf24' }}>
           {evaluation.score}
         </div>
-        <div className="flex-1">
-          <div className="text-sm text-gray-400">피치 정확도 {evaluation.pitchAccuracy}%</div>
-          <div className="text-sm text-gray-400">톤 안정성 {evaluation.toneStability.toFixed(0)}%</div>
-          {evaluation.passed && <div className="text-emerald-400 text-sm font-medium mt-1">통과!</div>}
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, color: '#9ca3af' }}>피치 정확도 {evaluation.pitchAccuracy}%</div>
+          <div style={{ fontSize: 14, color: '#9ca3af' }}>톤 안정성 {evaluation.toneStability.toFixed(0)}%</div>
+          {evaluation.passed && <div style={{ color: '#34d399', fontSize: 14, fontWeight: 500, marginTop: 4 }}>통과!</div>}
         </div>
       </div>
       {evaluation.tensionDetected && evaluation.tension && (
-        <div className="p-3 rounded-lg bg-red-950/20 border border-red-900">
-          <div className="text-sm font-medium text-red-300 mb-2">긴장 감지</div>
-          <p className="text-white text-sm">{evaluation.tension.detail}</p>
-          <div className="mt-2 space-y-1">
+        <div style={{ padding: 12, borderRadius: 8, background: 'rgba(69,10,10,0.2)', border: '1px solid #7f1d1d' }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#fca5a5', marginBottom: 8 }}>긴장 감지</div>
+          <p style={{ color: '#e5e5e5', fontSize: 14, margin: 0 }}>{evaluation.tension.detail}</p>
+          <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
             {evaluation.tension.laryngeal > 40 && (
-              <div className="text-xs text-red-300">후두: {evaluation.tension.laryngeal.toFixed(0)}%</div>
+              <div style={{ fontSize: 12, color: '#fca5a5' }}>후두: {evaluation.tension.laryngeal.toFixed(0)}%</div>
             )}
             {evaluation.tension.tongue_root > 40 && (
-              <div className="text-xs text-red-300">혀뿌리: {evaluation.tension.tongue_root.toFixed(0)}%</div>
+              <div style={{ fontSize: 12, color: '#fca5a5' }}>혀뿌리: {evaluation.tension.tongue_root.toFixed(0)}%</div>
             )}
             {evaluation.tension.jaw > 40 && (
-              <div className="text-xs text-red-300">턱: {evaluation.tension.jaw.toFixed(0)}%</div>
+              <div style={{ fontSize: 12, color: '#fca5a5' }}>턱: {evaluation.tension.jaw.toFixed(0)}%</div>
             )}
             {evaluation.tension.register_break > 40 && (
-              <div className="text-xs text-red-300">성구전환: {evaluation.tension.register_break.toFixed(0)}%</div>
+              <div style={{ fontSize: 12, color: '#fca5a5' }}>성구전환: {evaluation.tension.register_break.toFixed(0)}%</div>
             )}
           </div>
         </div>
       )}
       {coaching && (
-        <div className="p-4 rounded-xl bg-indigo-950/30 border border-indigo-800">
-          <div className="text-sm font-medium text-indigo-300 mb-2">AI 코치</div>
-          <p className="text-white text-sm">{coaching.feedback}</p>
-          {coaching.nextExercise && <p className="text-indigo-300 text-sm mt-2">💡 {coaching.nextExercise}</p>}
-          {coaching.encouragement && <p className="text-emerald-300 text-sm mt-1">{coaching.encouragement}</p>}
+        <div style={{ padding: 16, borderRadius: 12, background: 'rgba(29,17,69,0.3)', border: '1px solid #3730a3' }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#a5b4fc', marginBottom: 8 }}>AI 코치</div>
+          <p style={{ color: '#e5e5e5', fontSize: 14, margin: 0 }}>{coaching.feedback}</p>
+          {coaching.nextExercise && <p style={{ color: '#a5b4fc', fontSize: 14, marginTop: 8, marginBottom: 0 }}>💡 {coaching.nextExercise}</p>}
+          {coaching.encouragement && <p style={{ color: '#6ee7b7', fontSize: 14, marginTop: 4, marginBottom: 0 }}>{coaching.encouragement}</p>}
         </div>
       )}
     </div>

@@ -184,10 +184,10 @@ Level 3: 1.5 스케일 → '구' 발성 → '마' 발성
 - [x] Step 26: rag_service.py — vocal_curriculum + vocal_feedback 이중 검색
 - [x] Step 27: EvalPhase.tsx — 레슨 평가 후 RAG 코칭 자동 호출 + "선생님 코칭" 카드 표시
 
-### Phase 8: 고도화 (예정)
-- [ ] Step 28: audio_analyzer.py Jitter/Shimmer/HNR 추가 → 더 정확한 질감 매핑
-- [ ] Step 29: 토스페이먼츠 실서비스 키 연동
-- [ ] Step 30: 선생님 대시보드 (채점 승인/코멘트)
+### Phase 8: 고도화
+- [x] Step 28: audio_analyzer.py Jitter/Shimmer/HNR 추가 → 더 정확한 질감 매핑 (2026-04-08)
+- [ ] Step 29: 토스페이먼츠 실서비스 키 연동 (사용자가 실서비스 키 발급 후 .env.local에 직접 입력)
+- [x] Step 30: 선생님 대시보드 (/teacher — 피드백 요청 목록+코멘트+완료처리) (2026-04-08)
 
 ## 완료 기준
 

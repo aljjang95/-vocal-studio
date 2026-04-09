@@ -52,7 +52,7 @@ export default function Footer() {
         </div>
 
         <div className={styles.footerBottom}>
-          <p>&copy; 2025 HLB 보컬스튜디오. All rights reserved.</p>
+          <p>&copy; 2026 HLB 보컬스튜디오. All rights reserved.</p>
           <div className={styles.footerSocials}>
             <a className={styles.socIcon} href="#" title="YouTube" aria-label="YouTube"><IconYoutube size={16} /></a>
             <a className={styles.socIcon} href="#" title="Instagram" aria-label="Instagram"><IconInstagram size={16} /></a>

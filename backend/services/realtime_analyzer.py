@@ -1,9 +1,13 @@
 """실시간 오디오 청크 분석 + 템플릿 감각 피드백."""
 from __future__ import annotations
+import math
 import subprocess
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
+import soundfile as sf
+import parselmouth
+from parselmouth.praat import call
 import services.tension_analyzer as tension_analyzer
 import services.tension_scorer as tension_scorer
 from models.tension import TensionScore
@@ -71,6 +75,22 @@ def convert_chunk_to_wav(chunk_data: bytes, tmp_dir: Path) -> Path:
     )
     src.unlink(missing_ok=True)
     return dst
+
+
+def extract_avg_pitch(wav_path: Path) -> float:
+    """WAV 파일에서 평균 피치(Hz)를 추출한다. 실패 시 0.0 반환."""
+    try:
+        data, sr = sf.read(str(wav_path), dtype="float32", always_2d=False)
+        if data.ndim > 1:
+            data = data.mean(axis=1)
+        snd = parselmouth.Sound(data, sampling_frequency=sr)
+        pitch = call(snd, "To Pitch", 0.0, 75, 600)
+        mean_f0 = call(pitch, "Get mean", 0, 0, "Hertz")
+        if mean_f0 != mean_f0 or math.isinf(mean_f0) or mean_f0 <= 0:
+            return 0.0
+        return round(float(mean_f0), 1)
+    except Exception:
+        return 0.0
 
 
 def analyze_chunk(wav_path: Path) -> TensionScore | None:

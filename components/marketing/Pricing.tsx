@@ -1,10 +1,16 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import Button from '@/components/ds/Button';
 import Card from '@/components/ds/Card';
 import styles from './Pricing.module.css';
 
 export default function Pricing() {
+  const router = useRouter();
+
+  const goCheckout = (plan: string) => router.push(`/checkout/${plan}`);
+  const goSignup = () => router.push('/auth/signup');
+
   return (
     <section id="pricing" className={styles.pricing}>
       <div className="container">
@@ -39,7 +45,7 @@ export default function Pricing() {
               <Feature off>4축 긴장 상세 분석</Feature>
               <Feature off>성장 리포트</Feature>
             </ul>
-            <Button variant="secondary" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+            <Button variant="secondary" fullWidth onClick={goSignup}>
               무료로 시작
             </Button>
           </Card>
@@ -57,14 +63,14 @@ export default function Pricing() {
             <ul className={styles.featureList}>
               <Feature on>무료 콘텐츠 전부 포함</Feature>
               <Feature on>광고 완전 제거</Feature>
-              <Feature on>AI 커버 (내 목소리 변환)</Feature>
+              <Feature on>발성 분석 리포트 무제한</Feature>
               <Feature on>곡 연습 + 구간 분석</Feature>
               <Feature on>AI 코치 채팅 무제한</Feature>
               <Feature off>채점 기반 해금 (19~28단계)</Feature>
               <Feature off>4축 긴장 상세 분석</Feature>
               <Feature off>맞춤 커리큘럼 설계</Feature>
             </ul>
-            <Button variant="secondary" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+            <Button variant="secondary" fullWidth onClick={() => goCheckout('subscription')}>
               정액제 시작
             </Button>
           </Card>
@@ -88,9 +94,9 @@ export default function Pricing() {
               <Feature on>단계별 매커니즘 AI 해설</Feature>
               <Feature on>1:1 맞춤 커리큘럼 + 루틴</Feature>
               <Feature on>일간 + 주간 성장 리포트</Feature>
-              <Feature on>AI 커버 (월 5곡)</Feature>
+              <Feature on>발성 분석 리포트 + AI 커버</Feature>
             </ul>
-            <Button variant="accent" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+            <Button variant="accent" fullWidth onClick={() => goCheckout('pro')}>
               발성전문반 시작
             </Button>
           </Card>
@@ -112,7 +118,7 @@ export default function Pricing() {
               <Feature on>7년 경력 전문 트레이너</Feature>
               <Feature on>모든 플랜에서 추가 구매 가능</Feature>
             </ul>
-            <Button variant="secondary" fullWidth onClick={() => window.location.href = '/auth/signup'}>
+            <Button variant="secondary" fullWidth onClick={() => goCheckout('feedback')}>
               피드백 신청
             </Button>
           </Card>

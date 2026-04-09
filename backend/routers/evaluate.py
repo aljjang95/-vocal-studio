@@ -8,6 +8,7 @@ from pathlib import Path
 from fastapi import APIRouter, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 import services.audio_service as audio_service
+from services.audio_utils import convert_to_wav
 from services.scoring import calculate_pitch_score, calculate_stage_score_v2, calculate_scale_practice_score
 
 router = APIRouter()
@@ -31,18 +32,6 @@ class EvaluateResponse(BaseModel):
 PASSING_SCORE = 80
 
 
-def _convert_to_wav(src: Path, dst: Path) -> None:
-    """FFmpeg로 오디오를 16kHz mono WAV로 변환."""
-    subprocess.run(
-        ["ffmpeg", "-y", "-i", str(src), "-ar", "16000", "-ac", "1", str(dst)],
-        capture_output=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=30,
-        check=True,
-    )
-
-
 @router.post("/evaluate", response_model=EvaluateResponse)
 async def evaluate(
     audio: UploadFile,
@@ -63,7 +52,7 @@ async def evaluate(
         else:
             wav_path = tmp_dir / f"{uuid.uuid4().hex}.wav"
             try:
-                _convert_to_wav(src_path, wav_path)
+                convert_to_wav(src_path, wav_path)
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
                 raise HTTPException(500, f"오디오 변환 실패: {e}")
 
@@ -140,7 +129,7 @@ async def evaluate_scale_practice(
         else:
             wav_path = tmp_dir / f"{uuid.uuid4().hex}.wav"
             try:
-                _convert_to_wav(src_path, wav_path)
+                convert_to_wav(src_path, wav_path)
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
                 raise HTTPException(500, f"오디오 변환 실패: {e}")
 

@@ -33,6 +33,8 @@ gpu_image = (
         "praat-parselmouth",
         "supabase>=2.0.0",
         "fastapi[standard]",
+        "pedalboard>=0.9",
+        "pyloudnorm>=0.1",
     )
     .add_local_python_source("modal_app")
 )
@@ -41,6 +43,53 @@ model_volume = modal.Volume.from_name("vocalmind-models", create_if_missing=True
 
 # Supabase 접속 정보 — Modal Secret에서 가져옴
 supabase_secret = modal.Secret.from_name("supabase-credentials")
+
+
+def _pro_mix(vocal_audio, inst_audio, sr):
+    """보컬(-12 LUFS) + 반주(-17 LUFS) → 마스터(-14 LUFS)"""
+    import io
+    import numpy as np
+    import soundfile as sf
+    import pyloudnorm as pyln
+
+    def _normalize_lufs(audio, sr, target):
+        if audio.ndim == 1:
+            audio = audio[:, np.newaxis]
+        meter = pyln.Meter(sr)
+        loudness = meter.integrated_loudness(audio)
+        if np.isinf(loudness) or np.isnan(loudness):
+            return audio
+        return pyln.normalize.loudness(audio, loudness, target)
+
+    vocal_norm = _normalize_lufs(vocal_audio, sr, -12.0)
+    inst_norm = _normalize_lufs(inst_audio, sr, -17.0)
+
+    # 모노 → 스테레오
+    if vocal_norm.ndim == 1:
+        vocal_norm = vocal_norm[:, np.newaxis]
+    if inst_norm.ndim == 1:
+        inst_norm = inst_norm[:, np.newaxis]
+
+    # 채널 수 맞추기
+    if vocal_norm.shape[1] != inst_norm.shape[1]:
+        if vocal_norm.shape[1] == 1:
+            vocal_norm = np.repeat(vocal_norm, inst_norm.shape[1], axis=1)
+        elif inst_norm.shape[1] == 1:
+            inst_norm = np.repeat(inst_norm, vocal_norm.shape[1], axis=1)
+
+    # 길이 맞추기
+    min_len = min(len(vocal_norm), len(inst_norm))
+    mixed = vocal_norm[:min_len] + inst_norm[:min_len]
+
+    # 마스터 LUFS
+    master = _normalize_lufs(mixed, sr, -14.0)
+    peak = np.max(np.abs(master))
+    if peak > 0.99:
+        master = master * (0.99 / peak)
+
+    buf = io.BytesIO()
+    sf.write(buf, master, sr, format="WAV", subtype="PCM_16")
+    return buf.getvalue()
 
 
 def _get_supabase_client():
@@ -143,16 +192,20 @@ def process_conversion(item: dict):
         if index_path:
             index_bytes = _download_from_storage(supabase, "ai-cover-models", index_path)
 
+        preset_name = item.get("preset_name", "default")
+
         from convert import convert
         converted_bytes = convert.local(
             vocals_bytes=sep_result["vocals"],
             model_bytes=model_bytes,
             index_bytes=index_bytes,
             pitch_shift=pitch_shift,
+            postprocess=True,
+            preset_name=preset_name,
         )
 
-        # ── 3) 믹싱 (변환 보컬 + 반주) ──
-        logger.info("믹싱 시작")
+        # ── 3) 프로 믹싱 (후처리 보컬 + 반주 LUFS 밸런싱) ──
+        logger.info("프로 믹싱 시작")
         _update_status(supabase, "ai_cover_conversions", conversion_id, "mixing")
 
         converted_audio, conv_sr = sf.read(io.BytesIO(converted_bytes))
@@ -166,33 +219,7 @@ def process_conversion(item: dict):
             )
             conv_sr = inst_sr
 
-        # 길이 맞추기
-        if converted_audio.ndim == 1:
-            converted_audio = converted_audio[:, np.newaxis]
-        if inst_audio.ndim == 1:
-            inst_audio = inst_audio[:, np.newaxis]
-
-        min_len = min(len(converted_audio), len(inst_audio))
-        converted_audio = converted_audio[:min_len]
-        inst_audio = inst_audio[:min_len]
-
-        # 채널 수 맞추기
-        if converted_audio.shape[1] != inst_audio.shape[1]:
-            if converted_audio.shape[1] == 1:
-                converted_audio = np.repeat(converted_audio, inst_audio.shape[1], axis=1)
-            elif inst_audio.shape[1] == 1:
-                inst_audio = np.repeat(inst_audio, converted_audio.shape[1], axis=1)
-
-        mixed = converted_audio * 0.7 + inst_audio * 0.3
-
-        # 클리핑 방지
-        peak = np.abs(mixed).max()
-        if peak > 0.95:
-            mixed = mixed / peak * 0.95
-
-        mixed_buf = io.BytesIO()
-        sf.write(mixed_buf, mixed, inst_sr, format="WAV", subtype="PCM_16")
-        mixed_bytes = mixed_buf.getvalue()
+        mixed_bytes = _pro_mix(converted_audio, inst_audio, conv_sr)
 
         # 결과 업로드
         output_path = f"{user_id}/{conversion_id}/output.wav"

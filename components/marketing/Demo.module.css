@@ -2,7 +2,7 @@
 
 .head {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 .headDesc {
   font-size: 16px;
@@ -15,6 +15,42 @@
   line-height: 1.7;
 }
 
+/* 탭 */
+.tabRow {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.tab:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.tabActive {
+  background: var(--accent-muted);
+  border-color: rgba(59,130,246,0.3);
+  color: var(--accent);
+}
+
+/* 그리드 */
 .demoGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -22,15 +58,15 @@
   align-items: start;
 }
 
-.chatWrap { }
+.mainPanel { }
 .descWrap {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .demoRow {
-  display: flex; gap: 14px; align-items: flex-start; padding: 20px;
+  display: flex; gap: 14px; align-items: flex-start; padding: 18px;
   background: var(--bg-raised); border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   transition: border-color 0.2s, transform 0.2s;
@@ -51,14 +87,144 @@
   font-size: 13px; color: var(--text-secondary); line-height: 1.6;
 }
 
-.demoCta {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 10px; padding: 24px; margin-top: 4px;
-  background: var(--bg-raised); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg); text-align: center;
+/* ── 4축 긴장 분석 패널 ── */
+.tensionPanel {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-.demoCtaSub {
-  font-size: 12px; color: var(--text-muted);
+
+.tensionHeader { }
+
+.tensionRec {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--error);
+  background: var(--error-muted);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.tensionRecDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--error);
+  animation: tensionPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes tensionPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.axesList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.axisRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.axisLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.axisLabel {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.axisScore {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.axisBarBg {
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.axisBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s var(--ease-out-expo);
+}
+
+.tensionFeedback {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tensionFeedbackLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.tensionFeedbackText {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-style: italic;
+}
+
+.tensionCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.tensionCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+  font-family: var(--font-sans);
+}
+
+.tensionCtaBtn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.tensionCtaSub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 @media (max-width: 768px) {

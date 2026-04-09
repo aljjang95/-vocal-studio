@@ -20,6 +20,8 @@ gpu_image = (
         "faiss-cpu",
         "pyworld",
         "praat-parselmouth",
+        "pedalboard>=0.9",
+        "pyloudnorm>=0.1",
     )
 )
 

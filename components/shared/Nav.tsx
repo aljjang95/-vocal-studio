@@ -1,18 +1,38 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 import styles from './Nav.module.css';
+import type { User } from '@supabase/supabase-js';
 
 export default function Nav() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => { window.removeEventListener('scroll', onScroll); subscription.unsubscribe(); };
   }, []);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push('/');
+    router.refresh();
+  };
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -38,16 +58,18 @@ export default function Nav() {
           </Link>
 
           <ul className={styles.navLinks}>
-            <li><a href="#features">기능</a></li>
-            <li><a href="#how">사용법</a></li>
-            <li><a href="#demo">AI 체험</a></li>
-            <li><a href="#pricing">요금제</a></li>
-            <li><Link href="/practice">연습실</Link></li>
-            <li><Link href="/coach">AI 코치</Link></li>
-            <li><Link href="/breathing">호흡</Link></li>
-            <li><Link href="/ai-cover">AI 커버</Link></li>
             <li><Link href="/journey">소리의 길</Link></li>
-            <li><a href="/diagnosis" className={styles.navCta}>무료 시작</a></li>
+            <li><Link href="/scale-practice">스케일 연습</Link></li>
+            <li><Link href="/coach">AI 코치</Link></li>
+            <li><Link href="/ai-cover">AI 커버</Link></li>
+            <li><Link href="/vocal-report">발성 분석</Link></li>
+            <li><Link href="/pricing">요금제</Link></li>
+            {user && <li><Link href="/dashboard">대시보드</Link></li>}
+            {user ? (
+              <li><button onClick={handleLogout} className={styles.navCta} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit' }}>로그아웃</button></li>
+            ) : (
+              <li><Link href="/onboarding" className={styles.navCta}>무료 시작</Link></li>
+            )}
           </ul>
 
           <button
@@ -63,16 +85,18 @@ export default function Nav() {
       {/* Mobile Menu */}
       <div className={`${styles.mobileMenu} ${menuOpen ? styles.open : ''}`} role="dialog" aria-modal="true">
         <button className={styles.mClose} onClick={closeMenu} aria-label="메뉴 닫기">✕</button>
-        <a href="#features" onClick={closeMenu}>기능</a>
-        <a href="#how" onClick={closeMenu}>사용법</a>
-        <a href="#demo" onClick={closeMenu}>AI 체험</a>
-        <a href="#pricing" onClick={closeMenu}>요금제</a>
-        <Link href="/practice" onClick={closeMenu}>연습실</Link>
-        <Link href="/coach" onClick={closeMenu}>AI 코치</Link>
-        <Link href="/breathing" onClick={closeMenu}>호흡</Link>
-        <Link href="/ai-cover" onClick={closeMenu}>AI 커버</Link>
         <Link href="/journey" onClick={closeMenu}>소리의 길</Link>
-        <a href="/diagnosis" onClick={closeMenu}>무료로 시작하기 →</a>
+        <Link href="/scale-practice" onClick={closeMenu}>스케일 연습</Link>
+        <Link href="/coach" onClick={closeMenu}>AI 코치</Link>
+        <Link href="/ai-cover" onClick={closeMenu}>AI 커버</Link>
+        <Link href="/vocal-report" onClick={closeMenu}>발성 분석</Link>
+        <Link href="/pricing" onClick={closeMenu}>요금제</Link>
+        {user && <Link href="/dashboard" onClick={closeMenu}>대시보드</Link>}
+        {user ? (
+          <button onClick={() => { closeMenu(); handleLogout(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit', padding: 0, textAlign: 'left' }}>로그아웃</button>
+        ) : (
+          <Link href="/onboarding" onClick={closeMenu}>무료 시작</Link>
+        )}
       </div>
     </>
   );
