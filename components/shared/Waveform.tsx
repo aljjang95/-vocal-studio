@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef } from 'react';
-import styles from './Waveform.module.css';
 
 interface WaveformProps {
   count?: number;
@@ -32,15 +31,15 @@ export default function Waveform({ count = 40, animated = true, className }: Wav
   }
 
   return (
-    <div className={`${styles.waveformWrap} ${className ?? ''}`}>
+    <div className={`h-[60px] flex items-center gap-[3px] justify-center bg-black/20 rounded-xl px-4 overflow-hidden relative mb-[18px] before:content-[''] before:absolute before:top-0 before:bottom-0 before:left-0 before:w-10 before:z-[1] before:pointer-events-none before:bg-gradient-to-r before:from-[rgba(24,24,27,0.95)] before:to-transparent after:content-[''] after:absolute after:top-0 after:bottom-0 after:right-0 after:w-10 after:z-[1] after:pointer-events-none after:bg-gradient-to-l after:from-[rgba(24,24,27,0.95)] after:to-transparent ${className ?? ''}`}>
       {barsRef.current.map((bar, i) => (
         <div
           key={i}
-          className={styles.waveBar}
+          className="w-[3.5px] rounded-[3px] shrink-0 bg-gradient-to-t from-[var(--accent)] to-[var(--success-lt)]"
           style={{
             ['--min-h' as string]: `${bar.minH}px`,
             ['--max-h' as string]: `${bar.maxH}px`,
-            ['--dur' as string]: `${bar.dur}s`,
+            animation: `waveAnim ${bar.dur}s ease-in-out infinite alternate`,
             animationDelay: animated ? `${bar.delay}s` : '0s',
             animationPlayState: animated ? 'running' : 'paused',
           }}
@@ -52,11 +51,11 @@ export default function Waveform({ count = 40, animated = true, className }: Wav
 
 export function FeatMiniWaveform() {
   return (
-    <div className={styles.featMiniBars}>
+    <div className="flex items-end gap-[3px] h-[50px] mb-3">
       {FEAT_HEIGHTS.map((h, i) => (
         <div
           key={i}
-          className={styles.fmb}
+          className="flex-1 rounded-[3px] bg-gradient-to-t from-[var(--accent)] to-[var(--success-lt)] animate-[fmbAnim_1.5s_ease-in-out_infinite_alternate]"
           style={{ height: `${h}%`, animationDelay: `${i * 0.05}s` }}
         />
       ))}

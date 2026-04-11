@@ -1,7 +1,6 @@
 'use client';
 
 import { useTTS } from '@/lib/hooks/useTTS';
-import styles from './TTSButton.module.css';
 
 interface TTSButtonProps {
   text: string;
@@ -26,6 +25,11 @@ function StopIcon() {
   );
 }
 
+const sizeClasses = {
+  sm: 'px-2 py-[3px] text-[0.7rem] rounded',
+  md: 'px-3 py-1.5 text-[0.8rem] rounded-md',
+} as const;
+
 export default function TTSButton({ text, size = 'md', label = '듣기' }: TTSButtonProps) {
   const { play, isPlaying, isLoading } = useTTS(text);
 
@@ -34,14 +38,14 @@ export default function TTSButton({ text, size = 'md', label = '듣기' }: TTSBu
   return (
     <button
       type="button"
-      className={`${styles.ttsBtn} ${styles[size]}`}
+      className={`inline-flex items-center gap-1.5 border-none cursor-pointer font-[inherit] whitespace-nowrap transition-[background,opacity] duration-150 text-[var(--accent-light)] bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 active:opacity-80 disabled:cursor-default disabled:opacity-50 border border-[var(--accent)]/20 ${sizeClasses[size]} ${isLoading ? 'opacity-60 cursor-wait' : ''} ${isPlaying ? 'shadow-[0_0_16px_var(--accent-glow)]' : ''}`}
       onClick={play}
       disabled={!text}
       aria-label={displayLabel}
     >
-      <span className={styles.icon}>
+      <span className="inline-flex items-center shrink-0">
         {isLoading ? (
-          <span className={styles.spinner} />
+          <span className="w-3 h-3 border-2 border-white/15 border-t-[var(--accent-light)] rounded-full animate-spin" />
         ) : isPlaying ? (
           <StopIcon />
         ) : (
