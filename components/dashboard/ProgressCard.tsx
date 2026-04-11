@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { hlbCurriculum } from '@/lib/data/hlbCurriculum';
 import { GlowCard } from '@/components/ui/glow-card';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 
 export default function ProgressCard() {
   const progress = useJourneyStore((s) => s.progress);
@@ -69,19 +69,19 @@ export default function ProgressCard() {
 
       {nextStageId ? (
         <Link href={`/journey/${nextStageId}`} className="no-underline mt-1 block">
-          <Button variant="accent" fullWidth>
+          <Button variant="default" className="w-full">
             이어서 연습하기
           </Button>
         </Link>
       ) : passedCount === totalStages ? (
         <Link href="/journey" className="no-underline mt-1 block">
-          <Button variant="secondary" fullWidth>
+          <Button variant="secondary" className="w-full">
             전체 복습하기
           </Button>
         </Link>
       ) : (
         <Link href="/journey" className="no-underline mt-1 block">
-          <Button variant="secondary" fullWidth>
+          <Button variant="secondary" className="w-full">
             소리의 길 보기
           </Button>
         </Link>

@@ -2,7 +2,7 @@
 
 import type { HLBCurriculumStage } from '@/types';
 import { useTTS } from '@/lib/hooks/useTTS';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 import { GlowCard } from '@/components/ui/glow-card';
 
 interface Props {
@@ -29,7 +29,7 @@ export default function DemoPhase({ stage, onNext }: Props) {
 
       <p className="text-sm text-white/60 text-center mt-1">이제 직접 해볼까요?</p>
 
-      <Button variant="accent" fullWidth onClick={onNext}>
+      <Button variant="default" className="w-full" onClick={onNext}>
         실습 시작
       </Button>
     </div>

@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { useOnboardingStore } from '@/stores/onboardingStore';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 
 export default function StepRoadmap() {
   const { result, isPlayingTts, setPlayingTts, setStep } = useOnboardingStore();
@@ -79,7 +79,7 @@ export default function StepRoadmap() {
       </button>
 
       <div className="flex justify-end mt-8">
-        <Button variant="primary" size="lg" onClick={() => setStep(4)}>
+        <Button variant="default" size="lg" onClick={() => setStep(4)}>
           첫 레슨 시작하기
         </Button>
       </div>

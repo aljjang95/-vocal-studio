@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { hlbCurriculum } from '@/lib/data/hlbCurriculum';
 import { GlowCard } from '@/components/ui/glow-card';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 
 type Recommendation = {
   label: string;
@@ -33,7 +33,7 @@ export default function TodayPractice() {
       </div>
 
       <Link href={recommendation.href} className="no-underline mt-auto block">
-        <Button variant="primary" fullWidth>
+        <Button variant="default" className="w-full">
           {recommendation.buttonText}
         </Button>
       </Link>

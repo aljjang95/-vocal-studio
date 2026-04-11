@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback, type DragEvent } from 'react';
-import styles from './FileDropZone.module.css';
 
 interface FileDropZoneProps {
   onFileSelected: (file: File) => void;
@@ -29,14 +28,12 @@ export default function FileDropZone({ onFileSelected, disabled = false }: FileD
     (file: File) => {
       setError(null);
 
-      // 확장자 검증
       const ext = '.' + file.name.split('.').pop()?.toLowerCase();
       if (!ACCEPTED_TYPES.includes(ext)) {
         setError(`지원하지 않는 형식입니다. (${ACCEPTED_TYPES.join(', ')})`);
         return;
       }
 
-      // 크기 검증
       if (file.size > MAX_SIZE_BYTES) {
         setError(`파일 크기가 ${MAX_SIZE_MB}MB를 초과합니다.`);
         return;
@@ -85,50 +82,48 @@ export default function FileDropZone({ onFileSelected, disabled = false }: FileD
     [validateAndSelect],
   );
 
-  const zoneClasses = [
-    styles.dropzone,
-    isDragOver ? styles.dropzoneActive : '',
-    disabled ? styles.dropzoneDisabled : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
     <>
       <div
-        className={zoneClasses}
+        className={`border-2 border-dashed rounded-xl p-8 min-h-[200px] flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-200 ${
+          isDragOver
+            ? 'border-[var(--accent,#7c3aed)] bg-purple-600/[0.08]'
+            : disabled
+              ? 'border-[var(--border2,#3a3a4a)] bg-[var(--bg2,#111113)] opacity-50 cursor-not-allowed'
+              : 'border-[var(--border2,#3a3a4a)] bg-[var(--bg2,#111113)] hover:border-[var(--accent,#7c3aed)] hover:bg-purple-600/[0.04]'
+        }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
       >
         {isDragOver ? (
-          <p className={styles.dragText}>여기에 놓으세요</p>
+          <p className="text-base font-medium text-purple-300">여기에 놓으세요</p>
         ) : selectedFile ? (
-          <div className={styles.fileInfo}>
-            <span className={styles.icon}>&#127925;</span>
-            <p className={styles.fileName}>{selectedFile.name}</p>
-            <p className={styles.fileSize}>{formatFileSize(selectedFile.size)}</p>
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[2.5rem] opacity-30">&#127925;</span>
+            <p className="text-sm text-green-500 break-all text-center">{selectedFile.name}</p>
+            <p className="text-xs text-[var(--muted,#6b6b7b)]">{formatFileSize(selectedFile.size)}</p>
           </div>
         ) : (
           <>
-            <span className={styles.icon}>&#128190;</span>
-            <p className={styles.label}>파일을 드래그하거나 클릭하여 업로드</p>
-            <p className={styles.hint}>
+            <span className="text-[2.5rem] opacity-30">&#128190;</span>
+            <p className="text-sm font-semibold text-[var(--text2,#a3a3a3)]">파일을 드래그하거나 클릭하여 업로드</p>
+            <p className="text-xs text-[var(--muted,#6b6b7b)]">
               WAV, MP3, FLAC, OGG, M4A / 최대 {MAX_SIZE_MB}MB
             </p>
           </>
         )}
       </div>
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
 
       <input
         ref={fileInputRef}
         type="file"
         accept={ACCEPT_STRING}
         onChange={handleInputChange}
-        className={styles.fileInput}
+        className="hidden"
       />
     </>
   );

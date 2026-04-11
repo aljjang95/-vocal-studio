@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useOnboardingStore } from '@/stores/onboardingStore';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 
 const MIN_SEC = 5;
 const MAX_SEC = 30;
@@ -208,7 +208,7 @@ export default function StepRecording() {
 
       {audioBlob && !isRecording && (
         <Button
-          variant="primary"
+          variant="default"
           size="lg"
           onClick={handleSubmit}
           disabled={submitting}

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { HLBCurriculumStage } from '@/types';
 import { useJourneyStore } from '@/stores/journeyStore';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 import { GlowCard } from '@/components/ui/glow-card';
 
 interface Props {
@@ -52,21 +52,21 @@ export default function SummaryPhase({ stage, stageId, passed, onRetry }: Props)
 
       {passed && !isLastStage ? (
         <Button
-          variant="accent"
-          fullWidth
+          variant="default"
+          className="w-full"
           onClick={() => router.push(`/journey/${nextStageId}`)}
         >
           다음 레슨
         </Button>
       ) : !passed ? (
-        <Button variant="accent" fullWidth onClick={onRetry}>
+        <Button variant="default" className="w-full" onClick={onRetry}>
           다시 연습
         </Button>
       ) : null}
 
       <Button
         variant="ghost"
-        fullWidth
+        className="w-full"
         onClick={() => router.push('/journey')}
       >
         여정으로 돌아가기

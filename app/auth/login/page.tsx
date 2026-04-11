@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import s from '../auth.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,48 +34,36 @@ export default function LoginPage() {
     router.refresh();
   };
 
-  const inp: React.CSSProperties = {
-    width: '100%', padding: '0.875rem 1rem',
-    borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.08)',
-    backgroundColor: 'rgba(255,255,255,0.04)', color: 'white',
-    fontSize: '0.9375rem', boxSizing: 'border-box', outline: 'none',
-  };
-
   return (
-    <div className={s.page}>
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-[#030712]">
       {/* 브랜딩 */}
-      <div className={s.brand}>
-        <div className={s.brandOrb1} />
-        <div className={s.brandOrb2} />
-        <div className={s.brandContent}>
-          <div className={s.brandKicker}>HLB 보컬스튜디오</div>
-          <h1 className={s.brandTitle}>
+      <div className="hidden md:flex flex-col justify-center p-16 bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.15)_0%,transparent_70%)]" />
+        <div className="absolute -bottom-[60px] -left-[60px] w-60 h-60 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.12)_0%,transparent_70%)]" />
+        <div className="relative z-10">
+          <div className="text-[0.8rem] tracking-[0.15em] text-indigo-300/70 uppercase mb-4">HLB 보컬스튜디오</div>
+          <h1 className="text-[2.5rem] font-extrabold text-white leading-[1.2] mb-6">
             목이 조이는 이유,<br />
-            <em>이제 알 수 있습니다</em>
+            <span className="text-indigo-400">이제 알 수 있습니다</span>
           </h1>
-          <p className={s.brandDesc}>
+          <p className="text-base text-white/[0.55] leading-[1.7] max-w-[360px]">
             후두·혀뿌리·턱의 긴장을 AI가 실시간으로 분석하고,
             당신만의 발성 로드맵을 제시합니다.
           </p>
 
-          <div style={{ marginTop: '3rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="mt-12 flex flex-col gap-4">
             {[
               { label: '28단계', desc: '체계적 커리큘럼' },
               { label: '4축 분석', desc: '후두·혀뿌리·턱·성구' },
               { label: '18단계 무료', desc: '신용카드 불필요' },
             ].map((item) => (
-              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
-                  background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.75rem', fontWeight: '700', color: '#818cf8',
-                }}>
+              <div key={item.label} className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-[10px] shrink-0 bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-xs font-bold text-indigo-400">
                   {item.label.replace(/[가-힣·]/g, '').trim() || item.label.slice(0, 2)}
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'white' }}>{item.label}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>{item.desc}</div>
+                  <div className="text-sm font-semibold text-white">{item.label}</div>
+                  <div className="text-xs text-white/40">{item.desc}</div>
                 </div>
               </div>
             ))}
@@ -85,14 +72,14 @@ export default function LoginPage() {
       </div>
 
       {/* 폼 */}
-      <div className={s.formPanel}>
-        <div className={s.formInner}>
-          <h2 className={s.formTitle}>로그인</h2>
-          <p className={s.formSub}>계속하려면 로그인하세요</p>
+      <div className="flex flex-col justify-start pt-16 md:justify-center items-center px-6 md:p-16">
+        <div className="w-full max-w-[380px] md:max-w-[380px]">
+          <h2 className="text-[1.75rem] font-bold text-white mb-2">로그인</h2>
+          <p className="text-sm text-gray-500 mb-8">계속하려면 로그인하세요</p>
 
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '500', color: '#9ca3af', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+              <label className="block text-[0.8rem] font-medium text-gray-400 mb-2 tracking-[0.05em]">
                 이메일
               </label>
               <input
@@ -100,15 +87,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                style={inp}
-                onFocus={(e) => e.target.style.borderColor = 'rgba(99,102,241,0.6)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                className="w-full py-3.5 px-4 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white text-[0.9375rem] outline-none focus:border-indigo-500/60 transition-colors"
                 placeholder="vocal@example.com"
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '500', color: '#9ca3af', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+              <label className="block text-[0.8rem] font-medium text-gray-400 mb-2 tracking-[0.05em]">
                 비밀번호
               </label>
               <input
@@ -116,19 +101,13 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                style={inp}
-                onFocus={(e) => e.target.style.borderColor = 'rgba(99,102,241,0.6)'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                className="w-full py-3.5 px-4 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white text-[0.9375rem] outline-none focus:border-indigo-500/60 transition-colors"
                 placeholder="6자 이상"
               />
             </div>
 
             {error && (
-              <div style={{
-                padding: '0.75rem 1rem', borderRadius: '0.5rem',
-                background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-                color: '#f87171', fontSize: '0.875rem',
-              }}>
+              <div className="py-3 px-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
                 {error}
               </div>
             )}
@@ -136,20 +115,19 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: '100%', padding: '0.875rem', borderRadius: '0.75rem', border: 'none',
-                background: loading ? '#374151' : 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-                color: 'white', fontSize: '0.9375rem', fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer', marginTop: '0.25rem',
-              }}
+              className={`w-full py-3.5 rounded-xl border-none text-white text-[0.9375rem] font-semibold mt-1 transition-colors ${
+                loading
+                  ? 'bg-gray-700 cursor-not-allowed'
+                  : 'bg-gradient-to-br from-indigo-600 to-purple-600 cursor-pointer hover:opacity-90'
+              }`}
             >
               {loading ? '로그인 중...' : '로그인'}
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
+          <p className="text-center mt-6 text-gray-500 text-sm">
             계정이 없으신가요?{' '}
-            <Link href="/auth/signup" style={{ color: '#818cf8', textDecoration: 'none', fontWeight: '500' }}>
+            <Link href="/auth/signup" className="text-indigo-400 no-underline font-medium">
               무료로 시작하기
             </Link>
           </p>

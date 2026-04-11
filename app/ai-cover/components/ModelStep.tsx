@@ -5,7 +5,6 @@ import { useAiCoverStore } from '@/stores/aiCoverStore';
 import { getModels, startTraining } from '@/lib/ai-cover';
 import { createClient } from '@/lib/supabase/client';
 import type { VoiceModel } from '@/types';
-import styles from './ModelStep.module.css';
 
 export default function ModelStep() {
   const { setStep, selectModel, selectedModelId } = useAiCoverStore();
@@ -29,7 +28,6 @@ export default function ModelStep() {
     loadModels();
   }, [loadModels]);
 
-  // 녹음 파일 목록 불러오기
   useEffect(() => {
     (async () => {
       const supabase = createClient();
@@ -46,11 +44,9 @@ export default function ModelStep() {
     })();
   }, []);
 
-  // 폴링: 학습 중인 모델 상태
   useEffect(() => {
     const trainingModels = models.filter((m) => m.status === 'training' || m.status === 'pending');
     if (trainingModels.length === 0) return;
-
     const interval = setInterval(loadModels, 5000);
     return () => clearInterval(interval);
   }, [models, loadModels]);
@@ -89,19 +85,19 @@ export default function ModelStep() {
   };
 
   return (
-    <div className={styles.container}>
-      {/* 새 모델 학습 */}
-      <div className={styles.card}>
-        <h2 className={styles.cardTitle}>새 모델 만들기</h2>
+    <div className="flex flex-col gap-5">
+      <div className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-5">
+        <h2 className="text-[1.1rem] font-semibold text-[#e5e5e5] mb-3">새 모델 만들기</h2>
 
         {recordings.length > 0 && (
-          <div className={styles.checkboxList}>
+          <div className="flex flex-col gap-2 mb-4">
             {recordings.map((path) => (
-              <label key={path} className={styles.checkboxItem}>
+              <label key={path} className="flex items-center gap-2 text-[0.85rem] text-[#e5e5e5] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={selectedPaths.includes(path)}
                   onChange={() => togglePath(path)}
+                  className="accent-purple-600 w-4 h-4"
                 />
                 <span>{path.split('/').pop()}</span>
               </label>
@@ -110,44 +106,48 @@ export default function ModelStep() {
         )}
 
         <input
-          className={styles.input}
+          className="w-full py-2.5 px-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[#e5e5e5] text-[0.9rem] mb-3 outline-none focus:border-purple-600 transition-colors"
           placeholder="모델 이름 (예: 내 목소리 v1)"
           value={modelName}
           onChange={(e) => setModelName(e.target.value)}
         />
 
         <button
-          className={styles.trainBtn}
+          className="w-full py-2.5 border-none rounded-xl bg-purple-600 text-white text-[0.95rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleTrain}
           disabled={training || !modelName.trim() || selectedPaths.length === 0}
         >
           {training ? '학습 요청 중...' : '모델 만들기'}
         </button>
 
-        {error && <p className={styles.error}>{error}</p>}
+        {error && <p className="text-[0.85rem] text-red-500 mt-2">{error}</p>}
       </div>
 
-      {/* 기존 모델 목록 */}
       {models.length > 0 && (
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}>내 모델</h2>
-          <ul className={styles.modelList}>
+        <div className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-5">
+          <h2 className="text-[1.1rem] font-semibold text-[#e5e5e5] mb-3">내 모델</h2>
+          <ul className="list-none p-0 m-0 flex flex-col gap-2">
             {models.map((model) => (
               <li
                 key={model.id}
-                className={`${styles.modelItem} ${selectedModelId === model.id ? styles.modelItemSelected : ''}`}
+                className={`flex items-center justify-between p-3 bg-[#1a1a1a] border rounded-lg transition-colors ${
+                  selectedModelId === model.id ? 'border-purple-600' : 'border-[#2a2a2a]'
+                }`}
               >
-                <div className={styles.modelInfo}>
-                  <span className={styles.modelName}>{model.name}</span>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[0.9rem] text-[#e5e5e5] font-medium">{model.name}</span>
                   <span
-                    className={`${styles.modelStatus} ${model.status === 'completed' ? styles.statusDone : model.status === 'failed' ? styles.statusFail : ''}`}
+                    className={`text-xs ${
+                      model.status === 'completed' ? 'text-green-500' :
+                      model.status === 'failed' ? 'text-red-500' : 'text-[#888]'
+                    }`}
                   >
                     {statusLabel[model.status] ?? model.status}
                   </span>
                 </div>
                 {model.status === 'completed' && (
                   <button
-                    className={styles.selectBtn}
+                    className="px-3 py-1.5 border border-purple-600 rounded-lg bg-transparent text-purple-600 text-[0.8rem] font-medium cursor-pointer hover:bg-purple-600/10 transition-colors"
                     onClick={() => handleSelectModel(model)}
                   >
                     {selectedModelId === model.id ? '선택됨' : '이 모델 사용'}
@@ -159,12 +159,15 @@ export default function ModelStep() {
         </div>
       )}
 
-      <div className={styles.navRow}>
-        <button className={styles.backBtn} onClick={() => setStep('record')}>
+      <div className="flex gap-3">
+        <button
+          className="flex-1 py-3 border border-[#2a2a2a] rounded-xl bg-transparent text-[#e5e5e5] text-[0.95rem] cursor-pointer hover:bg-[#1e1e1e]"
+          onClick={() => setStep('record')}
+        >
           이전
         </button>
         <button
-          className={styles.nextBtn}
+          className="flex-[2] py-3 border-none rounded-xl bg-purple-600 text-white text-[0.95rem] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setStep('convert')}
           disabled={!selectedModelId}
         >

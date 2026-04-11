@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { GlowCard } from '@/components/ui/glow-card';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 
 interface PaywallBannerProps {
   currentStage: number;
@@ -63,7 +63,7 @@ export default function PaywallBanner({ currentStage }: PaywallBannerProps) {
             <span className="text-[13px] text-[var(--text-muted)]">/ 월</span>
           </div>
 
-          <Button variant="accent" fullWidth onClick={() => router.push('/pricing')}>
+          <Button variant="default" className="w-full" onClick={() => router.push('/pricing')}>
             발성전문반 시작하기
           </Button>
         </div>

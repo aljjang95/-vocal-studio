@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Button from '@/components/ds/Button';
-import styles from './success.module.css';
+import { Button } from '@/components/ui/button';
 
 const PLAN_LABEL: Record<string, string> = {
   subscription: '정액제',
@@ -52,8 +51,8 @@ export default function PaymentSuccessClient() {
 
   if (status === 'loading') {
     return (
-      <div className={styles.center}>
-        <div className={styles.spinner} />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-8 text-center bg-[var(--bg-base)]">
+        <div className="w-12 h-12 border-[3px] border-[var(--bg-surface)] border-t-[var(--accent)] rounded-full animate-spin" />
         <p>결제를 확인하고 있습니다...</p>
       </div>
     );
@@ -61,10 +60,10 @@ export default function PaymentSuccessClient() {
 
   if (status === 'error') {
     return (
-      <div className={styles.center}>
-        <div className={styles.icon}>✗</div>
-        <h2 className={styles.title}>결제 처리 실패</h2>
-        <p className={styles.desc}>{errorMsg}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-8 text-center bg-[var(--bg-base)]">
+        <div className="w-16 h-16 rounded-full bg-red-100 text-red-500 text-[2rem] flex items-center justify-center">&#10007;</div>
+        <h2 className="text-[1.75rem] font-bold text-[var(--text-primary)]">결제 처리 실패</h2>
+        <p className="text-[var(--text-secondary)] text-base max-w-[360px]">{errorMsg}</p>
         <Button variant="secondary" onClick={() => router.push('/pricing')}>
           요금제로 돌아가기
         </Button>
@@ -73,14 +72,14 @@ export default function PaymentSuccessClient() {
   }
 
   return (
-    <div className={styles.center}>
-      <div className={styles.iconSuccess}>✓</div>
-      <h2 className={styles.title}>결제 완료!</h2>
-      <p className={styles.desc}>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-8 text-center bg-[var(--bg-base)]">
+      <div className="w-16 h-16 rounded-full bg-green-100 text-green-600 text-[2rem] flex items-center justify-center">&#10003;</div>
+      <h2 className="text-[1.75rem] font-bold text-[var(--text-primary)]">결제 완료!</h2>
+      <p className="text-[var(--text-secondary)] text-base max-w-[360px]">
         <strong>{PLAN_LABEL[plan] ?? plan}</strong> 플랜이 활성화되었습니다.
       </p>
-      <div className={styles.actions}>
-        <Button variant="accent" onClick={() => router.push('/journey')}>
+      <div className="flex gap-3 flex-wrap justify-center">
+        <Button variant="default" onClick={() => router.push('/journey')}>
           레슨 시작하기
         </Button>
         <Button variant="secondary" onClick={() => router.push('/dashboard')}>

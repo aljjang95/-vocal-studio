@@ -2,7 +2,7 @@
 
 import type { HLBCurriculumStage } from '@/types';
 import { useTTS } from '@/lib/hooks/useTTS';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 import { GlowCard } from '@/components/ui/glow-card';
 
 interface Props {
@@ -61,7 +61,7 @@ export default function WhyPhase({ stage, onNext }: Props) {
         {stage.somaticFeedback.observationQuestion}
       </div>
 
-      <Button variant="accent" fullWidth onClick={onNext}>
+      <Button variant="default" className="w-full" onClick={onNext}>
         시범 보기
       </Button>
     </div>

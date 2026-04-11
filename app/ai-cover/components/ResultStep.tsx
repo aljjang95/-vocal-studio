@@ -5,7 +5,6 @@ import { useAiCoverStore } from '@/stores/aiCoverStore';
 import { getConversionStatus, getStorageUrl } from '@/lib/ai-cover';
 import AudioPlayer from '@/components/ai-cover/AudioPlayer';
 import type { AiCoverConversion } from '@/types';
-import styles from './ResultStep.module.css';
 
 export default function ResultStep() {
   const { conversionId, reset, setStep } = useAiCoverStore();
@@ -27,14 +26,14 @@ export default function ResultStep() {
   }, [conversionId]);
 
   if (loading) {
-    return <p className={styles.loadingText}>결과를 불러오는 중...</p>;
+    return <p className="text-center text-[#888] py-12">결과를 불러오는 중...</p>;
   }
 
   if (!conversion || !conversion.output_path) {
     return (
-      <div className={styles.container}>
-        <p className={styles.errorText}>변환 결과를 찾을 수 없습니다.</p>
-        <button className={styles.retryBtn} onClick={reset}>
+      <div className="flex flex-col gap-5">
+        <p className="text-center text-red-500 py-8">변환 결과를 찾을 수 없습니다.</p>
+        <button className="w-full py-3 border-none rounded-xl bg-purple-600 text-white text-[0.95rem] font-semibold cursor-pointer hover:opacity-90" onClick={reset}>
           처음부터 다시
         </button>
       </div>
@@ -61,9 +60,9 @@ export default function ResultStep() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <h2 className={styles.cardTitle}>변환 결과</h2>
+    <div className="flex flex-col gap-5">
+      <div className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-5">
+        <h2 className="text-[1.1rem] font-semibold text-[#e5e5e5] mb-4">변환 결과</h2>
         <AudioPlayer
           src={outputUrl}
           compareSrc={originalUrl}
@@ -72,9 +71,9 @@ export default function ResultStep() {
         />
       </div>
 
-      <div className={styles.downloadRow}>
+      <div className="flex gap-3 max-[480px]:flex-col">
         <button
-          className={styles.downloadBtn}
+          className="flex-1 flex items-center justify-center gap-2 py-3 border border-purple-600 rounded-xl bg-transparent text-purple-600 text-[0.9rem] font-semibold cursor-pointer hover:bg-purple-600/10 transition-colors"
           onClick={() => handleDownload('wav')}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -85,7 +84,7 @@ export default function ResultStep() {
           WAV 다운로드
         </button>
         <button
-          className={styles.downloadBtn}
+          className="flex-1 flex items-center justify-center gap-2 py-3 border border-purple-600 rounded-xl bg-transparent text-purple-600 text-[0.9rem] font-semibold cursor-pointer hover:bg-purple-600/10 transition-colors"
           onClick={() => handleDownload('mp3')}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -97,11 +96,11 @@ export default function ResultStep() {
         </button>
       </div>
 
-      <div className={styles.navRow}>
-        <button className={styles.retryBtn} onClick={handleRestart}>
+      <div className="flex gap-3">
+        <button className="flex-1 py-3 border-none rounded-xl bg-purple-600 text-white text-[0.95rem] font-semibold cursor-pointer hover:opacity-90" onClick={handleRestart}>
           다시 변환하기
         </button>
-        <button className={styles.resetBtn} onClick={reset}>
+        <button className="flex-1 py-3 border border-[#2a2a2a] rounded-xl bg-transparent text-[#e5e5e5] text-[0.95rem] cursor-pointer hover:bg-[#1e1e1e]" onClick={reset}>
           처음부터 다시
         </button>
       </div>

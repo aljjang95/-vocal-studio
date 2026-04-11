@@ -1,7 +1,6 @@
 'use client';
 
 import { useDiagnosisStore } from '@/stores/diagnosisStore';
-import styles from './DiagnosisWizard.module.css';
 
 const GOAL_SUGGESTIONS = [
   '노래방에서 고음을 자신 있게 부르고 싶어요',
@@ -18,28 +17,32 @@ export default function StepGoals() {
   const canProceed = goal.trim().length >= 1;
 
   return (
-    <div className={styles.stepContent}>
-      <h2 className={styles.stepTitle}>어떤 목표를 가지고 있나요?</h2>
-      <p className={styles.stepDesc}>직접 입력하거나, 아래에서 골라보세요.</p>
+    <div className="animate-[slideIn_0.4s_ease-out]">
+      <h2 className="text-[1.6rem] max-md:text-[1.3rem] font-bold mb-2">어떤 목표를 가지고 있나요?</h2>
+      <p className="text-[0.9rem] text-[var(--text2)] mb-7 leading-relaxed">직접 입력하거나, 아래에서 골라보세요.</p>
 
-      <div className={styles.formGroup}>
+      <div className="mb-[22px] relative">
         <textarea
-          className={styles.formTextarea}
+          className="w-full py-3 px-4 bg-[var(--surface2)] border border-[var(--border)] rounded-[var(--r-xs)] text-[var(--text)] text-[0.9rem] outline-none resize-y min-h-[80px] transition-colors duration-200 focus:border-blue-500/50 placeholder:text-[var(--muted)]"
           placeholder="목표를 자유롭게 적어주세요 (최대 200자)"
           value={goal}
           onChange={(e) => setGoal(e.target.value.slice(0, 200))}
           maxLength={200}
           rows={3}
         />
-        <span className={styles.charCount}>{goal.length}/200</span>
+        <span className="absolute bottom-2 right-3 text-[0.68rem] text-[var(--muted)] font-mono">{goal.length}/200</span>
       </div>
 
-      <div className={styles.suggestionList}>
+      <div className="flex flex-wrap gap-2">
         {GOAL_SUGGESTIONS.map((s) => (
           <button
             key={s}
             type="button"
-            className={`${styles.suggestionChip} ${goal === s ? styles.suggestionActive : ''}`}
+            className={`px-4 py-2 border rounded-[20px] text-[0.78rem] cursor-pointer transition-all duration-200 ${
+              goal === s
+                ? 'border-[var(--accent)] bg-blue-500/10 text-[var(--accent-lt)]'
+                : 'bg-[var(--surface)] border-[var(--border)] text-[var(--text2)] hover:border-[var(--border2)] hover:text-[var(--text)]'
+            }`}
             onClick={() => setGoal(s)}
           >
             {s}
@@ -47,7 +50,7 @@ export default function StepGoals() {
         ))}
       </div>
 
-      <div className={styles.stepActions}>
+      <div className="flex justify-between items-center mt-8 gap-3 max-[560px]:flex-col-reverse max-[560px]:[&>*]:w-full max-[560px]:[&>*]:text-center max-[560px]:[&>*]:justify-center">
         <button type="button" className="btn-outline" onClick={() => setStep(1)}>
           &larr; 이전
         </button>

@@ -3,7 +3,6 @@
 import { useDiagnosisStore } from '@/stores/diagnosisStore';
 import { ConcernKey } from '@/types';
 import { IconRocket, IconWind, IconTarget, IconFrown, IconSparkle, IconChat, IconNervous, IconChart, IconVibrato } from '@/components/shared/Icons';
-import styles from './DiagnosisWizard.module.css';
 
 const CONCERN_OPTIONS: { key: ConcernKey; label: string; icon: React.ReactNode }[] = [
   { key: 'high_notes', label: '고음이 어려워요', icon: <IconRocket size={22} /> },
@@ -33,11 +32,11 @@ export default function StepConcerns() {
   const canProceed = concerns.length >= 1;
 
   return (
-    <div className={styles.stepContent}>
-      <h2 className={styles.stepTitle}>현재 가장 큰 고민은?</h2>
-      <p className={styles.stepDesc}>최대 {MAX_CONCERNS}개까지 선택할 수 있어요.</p>
+    <div className="animate-[slideIn_0.4s_ease-out]">
+      <h2 className="text-[1.6rem] max-md:text-[1.3rem] font-bold mb-2">현재 가장 큰 고민은?</h2>
+      <p className="text-[0.9rem] text-[var(--text2)] mb-7 leading-relaxed">최대 {MAX_CONCERNS}개까지 선택할 수 있어요.</p>
 
-      <div className={styles.concernGrid}>
+      <div className="grid grid-cols-3 max-md:grid-cols-2 max-[560px]:grid-cols-2 gap-2.5 my-2">
         {CONCERN_OPTIONS.map((opt) => {
           const isSelected = concerns.includes(opt.key);
           const isDisabled = !isSelected && concerns.length >= MAX_CONCERNS;
@@ -45,19 +44,25 @@ export default function StepConcerns() {
             <button
               key={opt.key}
               type="button"
-              className={`${styles.concernCard} ${isSelected ? styles.concernActive : ''} ${isDisabled ? styles.concernDisabled : ''}`}
+              className={`flex flex-col items-center gap-2 px-3 py-[18px] border rounded-[var(--r-sm)] cursor-pointer transition-all duration-200 relative text-center ${
+                isSelected
+                  ? 'border-[var(--accent)] bg-blue-500/[0.08]'
+                  : isDisabled
+                    ? 'opacity-40 cursor-not-allowed bg-[var(--bg3)] border-[var(--border2)]'
+                    : 'bg-[var(--bg3)] border-[var(--border2)] hover:border-white/20 hover:bg-[var(--surface2)]'
+              }`}
               onClick={() => !isDisabled && toggleConcern(opt.key)}
               disabled={isDisabled}
             >
-              <span className={styles.concernIcon}>{opt.icon}</span>
-              <span className={styles.concernLabel}>{opt.label}</span>
-              {isSelected && <span className={styles.concernCheck}>&#10003;</span>}
+              <span className="text-[1.4rem] flex items-center justify-center text-[var(--accent-lt)]">{opt.icon}</span>
+              <span className="text-[0.78rem] text-[var(--text2)] leading-snug">{opt.label}</span>
+              {isSelected && <span className="absolute top-2 right-2.5 text-[0.72rem] text-[var(--accent)] font-bold">&#10003;</span>}
             </button>
           );
         })}
       </div>
 
-      <div className={styles.stepActions}>
+      <div className="flex justify-between items-center mt-8 gap-3 max-[560px]:flex-col-reverse max-[560px]:[&>*]:w-full max-[560px]:[&>*]:text-center max-[560px]:[&>*]:justify-center">
         <button type="button" className="btn-outline" onClick={() => setStep(0)}>
           &larr; 이전
         </button>

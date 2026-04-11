@@ -1,8 +1,8 @@
 'use client';
 
 import { useOnboardingStore } from '@/stores/onboardingStore';
-import MetricBar from '@/components/ds/MetricBar';
-import Button from '@/components/ds/Button';
+import { MetricBar } from '@/components/ui/metric-bar';
+import { Button } from '@/components/ui/button';
 
 function scoreColor(value: number): string {
   if (value <= 30) return 'var(--success)';
@@ -67,7 +67,7 @@ export default function StepResult() {
       )}
 
       <div className="flex justify-end mt-8">
-        <Button variant="primary" size="lg" onClick={() => setStep(3)}>
+        <Button variant="default" size="lg" onClick={() => setStep(3)}>
           맞춤 로드맵 보기
         </Button>
       </div>

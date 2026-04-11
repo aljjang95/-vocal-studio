@@ -5,7 +5,7 @@ import type { HLBCurriculumStage } from '@/types';
 import type { SessionReport, TensionData } from '@/lib/hooks/useRealtimeEval';
 import { useJourneyStore } from '@/stores/journeyStore';
 import SessionReportPanel from '@/components/journey/SessionReportPanel';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 import { GlowCard } from '@/components/ui/glow-card';
 
 interface Props {
@@ -84,7 +84,7 @@ export default function EvalPhase({ stage, stageId, report, tensionHistory, onNe
         </GlowCard>
       )}
 
-      <Button variant="accent" fullWidth onClick={onNext}>
+      <Button variant="default" className="w-full" onClick={onNext}>
         요약 보기
       </Button>
     </div>

@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { loadPaymentWidget, PaymentWidgetInstance } from '@tosspayments/payment-widget-sdk';
-import Button from '@/components/ds/Button';
-import styles from './checkout.module.css';
+import { Button } from '@/components/ui/button';
 
 const CLIENT_KEY = process.env.NEXT_PUBLIC_TOSSPAYMENTS_CLIENT_KEY!;
 
@@ -80,43 +79,42 @@ export default function CheckoutClient({ plan, userEmail, userName }: Props) {
   };
 
   if (!info) {
-    return <div className={styles.error}>잘못된 요금제입니다.</div>;
+    return <div className="text-red-500 text-center p-8">잘못된 요금제입니다.</div>;
   }
 
   return (
-    <div className={styles.container}>
-      <div style={{ marginBottom: 24 }}>
-        <Link href="/pricing" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>
+    <div className="max-w-[520px] mx-auto px-4 pt-8 pb-16">
+      <div className="mb-6">
+        <Link href="/pricing" className="text-[13px] text-[var(--text-muted)] no-underline">
           &larr; 요금제로 돌아가기
         </Link>
       </div>
-      <div className={styles.header}>
-        <h1 className={styles.title}>{info.name} 결제</h1>
-        <p className={styles.desc}>{info.desc}</p>
-        <div className={styles.amount}>
-          ₩{info.amount.toLocaleString()}
-          {plan !== 'feedback' && <span className={styles.period}> / 월</span>}
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{info.name} 결제</h1>
+        <p className="text-[var(--text-secondary)] text-[0.9rem] mb-4">{info.desc}</p>
+        <div className="text-[2rem] font-extrabold text-[var(--accent)]">
+          &#8361;{info.amount.toLocaleString()}
+          {plan !== 'feedback' && <span className="text-base font-normal text-[var(--text-secondary)]"> / 월</span>}
         </div>
       </div>
 
-      {loading && <div className={styles.skeleton} />}
+      {loading && <div className="h-[300px] bg-[var(--bg-surface)] rounded-xl mb-4 animate-pulse" />}
 
-      <div id="payment-widget" className={styles.widget} />
-      <div id="agreement-widget" className={styles.agreement} />
+      <div id="payment-widget" className="mb-4" />
+      <div id="agreement-widget" className="mb-6" />
 
-      {error && <p className={styles.errorMsg}>{error}</p>}
+      {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
 
       <Button
-        variant="accent"
-        fullWidth
+        variant="default"
         onClick={handlePay}
         disabled={loading || paying}
-        className={styles.payBtn}
+        className="w-full mb-4"
       >
-        {paying ? '결제 진행 중...' : `₩${info.amount.toLocaleString()} 결제하기`}
+        {paying ? '결제 진행 중...' : `\u20A9${info.amount.toLocaleString()} 결제하기`}
       </Button>
 
-      <p className={styles.notice}>
+      <p className="text-[0.8rem] text-[var(--text-secondary)] text-center leading-relaxed">
         결제 후 즉시 플랜이 활성화됩니다.{plan !== 'feedback' ? ' 매월 자동 갱신되지 않으며, 만료 후 재결제 필요합니다.' : ''}
       </p>
     </div>

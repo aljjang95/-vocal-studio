@@ -1,16 +1,11 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import styles from './AudioPlayer.module.css';
 
 interface AudioPlayerProps {
-  /** 오디오 소스 URL */
   src: string | null;
-  /** A/B 비교 대상 URL (선택적) */
   compareSrc?: string | null;
-  /** 원본 라벨 */
   label?: string;
-  /** 비교 대상 라벨 */
   compareLabel?: string;
 }
 
@@ -41,14 +36,12 @@ export default function AudioPlayer({
 
   const activeSrc = useCompare && compareSrc ? compareSrc : src;
 
-  // 소스 변경 시 재생 초기화
   useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
     cancelAnimationFrame(animFrameRef.current);
   }, [activeSrc]);
 
-  // 언마운트 정리
   useEffect(() => {
     return () => {
       cancelAnimationFrame(animFrameRef.current);
@@ -148,20 +141,18 @@ export default function AudioPlayer({
   if (!src) return null;
 
   return (
-    <div className={styles.container}>
-      {/* 파형 시각화 */}
+    <div className="flex flex-col gap-4">
       <canvas
         ref={canvasRef}
         width={800}
         height={120}
-        className={styles.canvas}
+        className="w-full rounded-xl bg-[#1a1a2e]"
       />
 
-      {/* 재생 컨트롤 */}
-      <div className={styles.controls}>
+      <div className="flex items-center gap-4">
         <button
           onClick={handlePlayPause}
-          className={styles.playBtn}
+          className="w-12 h-12 rounded-full border-none bg-gradient-to-br from-[var(--accent,#7c3aed)] to-[var(--accent-lt,#a855f7)] shadow-[0_0_16px_rgba(124,58,237,0.35)] flex items-center justify-center cursor-pointer shrink-0 transition-opacity hover:opacity-90"
           type="button"
         >
           {isPlaying ? (
@@ -176,7 +167,7 @@ export default function AudioPlayer({
           )}
         </button>
 
-        <div className={styles.seekWrap}>
+        <div className="flex-1 flex flex-col">
           <input
             type="range"
             min={0}
@@ -184,37 +175,32 @@ export default function AudioPlayer({
             step={0.1}
             value={currentTime}
             onChange={handleSeek}
-            className={styles.seekBar}
+            className="w-full accent-[var(--accent,#7c3aed)] cursor-pointer"
           />
-          <div className={styles.timeRow}>
+          <div className="flex justify-between text-xs text-[var(--text2,#a3a3a3)] mt-1">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>
       </div>
 
-      {/* A/B 비교 + 볼륨 */}
-      <div className={styles.bottomRow}>
+      <div className="flex items-center gap-4">
         {compareSrc && (
           <button
             onClick={() => setUseCompare((prev) => !prev)}
-            className={`${styles.abToggle} ${useCompare ? styles.abToggleB : styles.abToggleA}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all border ${
+              useCompare
+                ? 'border-yellow-400/50 bg-yellow-400/10 text-yellow-200'
+                : 'border-purple-500/50 bg-purple-500/10 text-purple-300'
+            }`}
             type="button"
           >
             {useCompare ? compareLabel : label}
           </button>
         )}
 
-        <div className={styles.volumeWrap}>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className={styles.volumeIcon}
-          >
+        <div className="flex items-center gap-2 flex-1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--text2,#a3a3a3)] shrink-0">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
@@ -226,25 +212,20 @@ export default function AudioPlayer({
             step={0.01}
             value={volume}
             onChange={handleVolumeChange}
-            className={styles.volumeSlider}
+            className="w-24 accent-[var(--accent,#7c3aed)]"
           />
-          <span className={styles.volumeValue}>
+          <span className="text-xs text-[var(--text2,#a3a3a3)] w-8 text-right">
             {Math.round(volume * 100)}
           </span>
         </div>
       </div>
 
-      {/* 숨겨진 오디오 엘리먼트 */}
       {activeSrc && (
         <audio
           ref={audioRef}
           src={activeSrc}
-          onTimeUpdate={() =>
-            setCurrentTime(audioRef.current?.currentTime ?? 0)
-          }
-          onLoadedMetadata={() =>
-            setDuration(audioRef.current?.duration ?? 0)
-          }
+          onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
+          onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
           onEnded={() => {
             setIsPlaying(false);
             cancelAnimationFrame(animFrameRef.current);

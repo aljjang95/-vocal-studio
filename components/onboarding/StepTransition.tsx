@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useOnboardingStore } from '@/stores/onboardingStore';
-import Button from '@/components/ds/Button';
+import { Button } from '@/components/ui/button';
 
 export default function StepTransition() {
   const router = useRouter();
@@ -26,9 +26,9 @@ export default function StepTransition() {
 
       <div className="flex flex-col gap-3 w-full max-w-[320px]">
         <Button
-          variant="primary"
+          variant="default"
           size="lg"
-          fullWidth
+          className="w-full"
           onClick={() => router.push(`/journey/${suggestedStage}`)}
         >
           추천 단계로 시작하기

@@ -6,9 +6,9 @@ import { useScalePracticeStore } from '@/stores/scalePracticeStore';
 import { useTonePlayer } from '@/lib/hooks/useTonePlayer';
 import { useScaleWebSocket } from '@/lib/hooks/useScaleWebSocket';
 import PianoKeyboard from './PianoKeyboard';
-import Button from '@/components/ds/Button';
-import ScoreDisplay from '@/components/ds/ScoreDisplay';
-import MetricBar from '@/components/ds/MetricBar';
+import { Button } from '@/components/ui/button';
+import { ScoreRing } from '@/components/ui/score-ring';
+import { MetricBar } from '@/components/ui/metric-bar';
 import type { HLBCurriculumStage, LessonPhase, ScalePracticeScore } from '@/types';
 
 interface Props { stage: HLBCurriculumStage }
@@ -133,7 +133,7 @@ export default function AutoLessonFlow({ stage }: Props) {
             <li>올라갈수록 배 아래쪽 압력을 느껴보세요</li>
           </ol>
           <p className="af-question">{stage.somaticFeedback.observationQuestion}</p>
-          <Button variant="accent" fullWidth onClick={doStart}>시작</Button>
+          <Button variant="default" className="w-full" onClick={doStart}>시작</Button>
         </div>
       )}
 
@@ -157,7 +157,7 @@ export default function AutoLessonFlow({ stage }: Props) {
             </p>
           )}
           <PianoKeyboard />
-          <Button variant="secondary" fullWidth onClick={doFinish}>
+          <Button variant="secondary" className="w-full" onClick={doFinish}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="2" width="10" height="10" rx="1.5"/></svg>
             종료
           </Button>
@@ -175,7 +175,7 @@ export default function AutoLessonFlow({ stage }: Props) {
       {lessonPhase === 'result' && latestScore && (
         <div className="af-section">
           <div style={{ marginBottom: 24 }}>
-            <ScoreDisplay score={latestScore.score} passed={latestScore.passed} />
+            <ScoreRing score={latestScore.score} passed={latestScore.passed} />
           </div>
 
           <div style={{ padding: '16px 0', borderTop: '1px solid var(--border-subtle)' }}>
@@ -187,8 +187,8 @@ export default function AutoLessonFlow({ stage }: Props) {
           <p className="af-feedback">{latestScore.feedbackHint}</p>
 
           <div className="af-actions">
-            <Button variant="secondary" onClick={doRetry} style={{ flex: 1 }}>다시</Button>
-            {latestScore.passed && <Button variant="accent" onClick={doNext} style={{ flex: 1 }}>다음 단계</Button>}
+            <Button variant="secondary" onClick={doRetry} className="flex-1">다시</Button>
+            {latestScore.passed && <Button variant="default" onClick={doNext} className="flex-1">다음 단계</Button>}
           </div>
           {!latestScore.passed && (
             <button className="af-skip" onClick={doNext}>건너뛰기</button>

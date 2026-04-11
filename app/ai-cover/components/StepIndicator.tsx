@@ -1,7 +1,6 @@
 'use client';
 
 import type { AiCoverStep } from '@/types';
-import styles from './StepIndicator.module.css';
 
 const STEPS: { key: AiCoverStep; label: string }[] = [
   { key: 'record', label: '녹음' },
@@ -22,21 +21,20 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
   const currentIdx = stepIndex(currentStep);
 
   return (
-    <div className={styles.container}>
+    <div className="flex items-center mb-4">
       {STEPS.map((step, idx) => {
         const isCompleted = idx < currentIdx;
         const isCurrent = idx === currentIdx;
 
         return (
-          <div key={step.key} className={styles.stepItem}>
+          <div key={step.key} className="flex items-center gap-2 flex-1">
             <div
               className={[
-                styles.circle,
-                isCompleted ? styles.completed : '',
-                isCurrent ? styles.current : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
+                'w-8 h-8 rounded-full flex items-center justify-center text-[0.8rem] font-semibold shrink-0 transition-all border-2',
+                isCompleted ? 'border-purple-600 bg-purple-600 text-white' : '',
+                isCurrent ? 'border-purple-600 text-purple-600 bg-purple-600/10' : '',
+                !isCompleted && !isCurrent ? 'text-[#888] bg-[#1e1e1e] border-[#2a2a2a]' : '',
+              ].filter(Boolean).join(' ')}
             >
               {isCompleted ? (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -48,23 +46,20 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
             </div>
             <span
               className={[
-                styles.label,
-                isCurrent ? styles.labelCurrent : '',
-                isCompleted ? styles.labelCompleted : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
+                'text-[0.85rem] whitespace-nowrap transition-colors',
+                isCurrent ? 'text-[#e5e5e5] font-semibold' : '',
+                isCompleted ? 'text-purple-600' : '',
+                !isCurrent && !isCompleted ? 'text-[#555]' : '',
+              ].filter(Boolean).join(' ')}
             >
               {step.label}
             </span>
             {idx < STEPS.length - 1 && (
               <div
                 className={[
-                  styles.connector,
-                  idx < currentIdx ? styles.connectorDone : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
+                  'flex-1 h-0.5 mx-1 transition-colors',
+                  idx < currentIdx ? 'bg-purple-600' : 'bg-[#2a2a2a]',
+                ].join(' ')}
               />
             )}
           </div>

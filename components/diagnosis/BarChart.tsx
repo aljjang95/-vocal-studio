@@ -1,7 +1,6 @@
 'use client';
 
 import { SelfEvalScores } from '@/types';
-import styles from './BarChart.module.css';
 
 const LABELS: Record<keyof SelfEvalScores, string> = {
   pitch: '음정',
@@ -27,20 +26,20 @@ export default function BarChart({ scores }: BarChartProps) {
   const keys = Object.keys(LABELS) as (keyof SelfEvalScores)[];
 
   return (
-    <div className={styles.chart}>
+    <div className="flex flex-col gap-3.5">
       {keys.map((key) => (
-        <div key={key} className={styles.row}>
-          <span className={styles.label}>{LABELS[key]}</span>
-          <div className={styles.track}>
+        <div key={key} className="flex items-center gap-3">
+          <span className="w-14 shrink-0 text-[0.8rem] text-[var(--text2)] text-right">{LABELS[key]}</span>
+          <div className="flex-1 h-2.5 bg-[var(--surface2)] rounded-[5px] overflow-hidden">
             <div
-              className={styles.bar}
+              className="h-full rounded-[5px] transition-[width] duration-1000 ease-[cubic-bezier(.16,1,.3,1)]"
               style={{
                 width: `${scores[key]}%`,
                 background: `linear-gradient(90deg, ${COLORS[key]}, ${COLORS[key]}88)`,
               }}
             />
           </div>
-          <span className={styles.value}>{scores[key]}</span>
+          <span className="w-8 shrink-0 font-mono text-[0.82rem] text-[var(--text)] text-right">{scores[key]}</span>
         </div>
       ))}
     </div>

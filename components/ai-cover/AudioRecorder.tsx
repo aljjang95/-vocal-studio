@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import styles from './AudioRecorder.module.css';
 
 interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob, duration: number) => void;
@@ -13,7 +12,6 @@ function formatTime(sec: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-/** PCM Float32 배열을 WAV Blob으로 변환 */
 function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   const numChannels = 1;
   const bitsPerSample = 16;
@@ -23,7 +21,6 @@ function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   const buffer = new ArrayBuffer(44 + dataSize);
   const view = new DataView(buffer);
 
-  // WAV 헤더 (44바이트)
   const writeString = (offset: number, str: string) => {
     for (let i = 0; i < str.length; i++) {
       view.setUint8(offset + i, str.charCodeAt(i));
@@ -35,7 +32,7 @@ function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   writeString(8, 'WAVE');
   writeString(12, 'fmt ');
   view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true); // PCM
+  view.setUint16(20, 1, true);
   view.setUint16(22, numChannels, true);
   view.setUint32(24, sampleRate, true);
   view.setUint32(28, byteRate, true);
@@ -44,7 +41,6 @@ function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   writeString(36, 'data');
   view.setUint32(40, dataSize, true);
 
-  // PCM16 데이터 작성
   let offset = 44;
   for (let i = 0; i < samples.length; i++) {
     const clamped = Math.max(-1, Math.min(1, samples[i]));
@@ -83,27 +79,23 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
   }, []);
 
   const stopRecording = useCallback(() => {
-    // ScriptProcessorNode 해제
     if (processorRef.current) {
       processorRef.current.disconnect();
       processorRef.current.onaudioprocess = null;
       processorRef.current = null;
     }
 
-    // 스트림 중지
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
 
-    // 타이머 정리
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
     cancelAnimationFrame(animFrameRef.current);
 
-    // PCM 합치기 → WAV 변환
     const chunks = pcmBufferRef.current;
     if (chunks.length > 0 && audioCtxRef.current) {
       const totalLength = chunks.reduce((acc, c) => acc + c.length, 0);
@@ -121,7 +113,6 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
 
     pcmBufferRef.current = [];
 
-    // AudioContext 닫기
     if (audioCtxRef.current) {
       audioCtxRef.current.close().catch(() => {});
       audioCtxRef.current = null;
@@ -142,13 +133,11 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
 
       const source = audioCtx.createMediaStreamSource(stream);
 
-      // 레벨 모니터링용 AnalyserNode
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      // ScriptProcessorNode로 PCM Float32 수집
       const bufferSize = 4096;
       const processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
       pcmBufferRef.current = [];
@@ -176,7 +165,6 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
     }
   }, [monitorLevel]);
 
-  // 언마운트 시 정리
   useEffect(() => {
     return () => {
       if (streamRef.current) {
@@ -197,11 +185,14 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
   const showDurationWarning = duration > 0 && duration < 10 && !isRecording;
 
   return (
-    <div className={styles.container}>
-      {/* 녹음 버튼 */}
+    <div className="flex flex-col items-center px-4 py-10 gap-6">
       <button
         onClick={isRecording ? stopRecording : startRecording}
-        className={`${styles.recordBtn} ${isRecording ? styles.recordBtnActive : ''}`}
+        className={`w-28 h-28 rounded-full border-none flex items-center justify-center cursor-pointer transition-all duration-300 ${
+          isRecording
+            ? 'bg-[var(--error,#ef4444)] shadow-[0_0_24px_rgba(239,68,68,0.5)] animate-pulse'
+            : 'bg-gradient-to-br from-[var(--accent,#7c3aed)] to-[var(--accent-lt,#a855f7)] shadow-[0_0_24px_rgba(124,58,237,0.4)] hover:opacity-90 hover:scale-[1.04]'
+        }`}
         type="button"
       >
         {isRecording ? (
@@ -209,16 +200,7 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
             <rect x="6" y="6" width="12" height="12" rx="2" />
           </svg>
         ) : (
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
             <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
             <line x1="12" y1="19" x2="12" y2="23" />
@@ -227,21 +209,19 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
         )}
       </button>
 
-      <p className={styles.statusText}>
+      <p className="text-base font-medium text-[var(--text,#e5e5e5)]">
         {isRecording ? '녹음 중...' : '녹음 시작'}
       </p>
 
-      {/* 경과 시간 */}
       {(isRecording || duration > 0) && (
-        <div className={styles.timerWrap}>
-          <p className={styles.timerLabel}>경과 시간</p>
-          <p className={styles.timerValue}>{formatTime(duration)}</p>
+        <div className="text-center">
+          <p className="text-xs text-[var(--text2,#a3a3a3)]">경과 시간</p>
+          <p className="text-[1.875rem] font-mono text-[var(--text,#e5e5e5)] mt-1">{formatTime(duration)}</p>
         </div>
       )}
 
-      {/* 레벨 미터 */}
       {isRecording && (
-        <div className={styles.levelMeter}>
+        <div className="w-64 flex items-end gap-0.5 h-8 justify-center">
           {Array.from({ length: 24 }).map((_, i) => {
             const barThreshold = (i + 1) / 24;
             const active = audioLevel >= barThreshold * 0.8;
@@ -249,15 +229,11 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
             return (
               <div
                 key={i}
-                className={styles.levelBar}
+                className="w-2 rounded-sm transition-[height] duration-75"
                 style={{
                   height: `${active ? barHeight : 4}px`,
                   backgroundColor: active
-                    ? i < 16
-                      ? '#7c3aed'
-                      : i < 20
-                        ? '#a855f7'
-                        : '#ef4444'
+                    ? i < 16 ? '#7c3aed' : i < 20 ? '#a855f7' : '#ef4444'
                     : '#2a2a3e',
                 }}
               />
@@ -266,9 +242,8 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
         </div>
       )}
 
-      {/* 10초 미만 경고 */}
       {showDurationWarning && (
-        <p className={styles.warning}>10초 이상 녹음을 권장합니다</p>
+        <p className="text-sm text-yellow-300">10초 이상 녹음을 권장합니다</p>
       )}
     </div>
   );
