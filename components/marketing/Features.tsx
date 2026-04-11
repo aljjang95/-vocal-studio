@@ -80,7 +80,7 @@ export default function Features() {
 
   return (
     <section id="features" className="py-24">
-      <div className="container">
+      <div className="max-w-[1200px] mx-auto px-7">
         <div className="text-center mb-16" ref={headRef}>
           <div className="section-kicker">핵심 기능</div>
           <h2 className="font-[family-name:var(--font-display)] text-[var(--fs-h2)] text-[var(--text-primary)]">
@@ -92,10 +92,10 @@ export default function Features() {
           </p>
         </div>
 
-        <div className="max-w-[1200px] mx-auto px-7 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {FEATURES.map((f) => (
-            <GlowCard key={f.title} className="p-6">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-[var(--accent-light)] mb-4" style={{ background: 'rgba(59,130,246,0.1)' }}>
+            <GlowCard key={f.title} className="p-8">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-[var(--accent-light)] mb-5" style={{ background: 'rgba(91,140,110,0.1)' }}>
                 {f.icon}
               </div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">{f.title}</h3>

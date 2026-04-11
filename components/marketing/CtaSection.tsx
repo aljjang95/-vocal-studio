@@ -17,7 +17,7 @@ export default function CtaSection() {
           loading="lazy"
           className="w-full h-full object-cover brightness-[0.2] saturate-[0.6]"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.08),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(91,140,110,0.08),transparent_70%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-base)] via-transparent to-[var(--bg-base)]" style={{ backgroundSize: '100% 100%' }} />
       </div>
 

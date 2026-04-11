@@ -38,9 +38,9 @@ export default function Testimonials() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
           {STORIES.map((s) => (
-            <GlowCard key={s.name} className="p-6 reveal">
+            <GlowCard key={s.name} className="p-8 reveal">
               {/* Before/After */}
               <div className="flex items-start gap-2.5">
                 <div className="flex-1 flex flex-col gap-1.5">
@@ -66,8 +66,8 @@ export default function Testimonials() {
                 &ldquo;{s.quote}&rdquo;
               </p>
 
-              <div className="flex items-center gap-3 mt-4">
-                <div className="w-9 h-9 rounded-full bg-[var(--accent-muted)] border border-blue-500/20 flex items-center justify-center text-sm font-bold text-[var(--accent)] flex-shrink-0">
+              <div className="flex items-center gap-3 mt-5">
+                <div className="w-9 h-9 rounded-full bg-[var(--accent-muted)] border border-[var(--accent)]/20 flex items-center justify-center text-sm font-bold text-[var(--accent)] flex-shrink-0">
                   {s.name[0]}
                 </div>
                 <div>

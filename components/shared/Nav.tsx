@@ -66,7 +66,7 @@ export default function Nav() {
             <span className="flex gap-[5px]"><strong className="font-extrabold tracking-[0.02em] bg-gradient-to-br from-[#60A5FA] to-[#A78BFA] bg-clip-text text-transparent">HLB</strong> 보컬스튜디오</span>
           </Link>
 
-          <ul className="hidden min-[960px]:flex items-center gap-0.5 list-none flex-nowrap overflow-hidden">
+          <ul className="hidden min-[960px]:flex items-center gap-2 list-none flex-nowrap overflow-hidden">
             <li><Link href="/journey" className={navLinkClass}>소리의 길</Link></li>
             <li><Link href="/scale-practice" className={navLinkClass}>스케일 연습</Link></li>
             <li><Link href="/coach" className={navLinkClass}>AI 코치</Link></li>

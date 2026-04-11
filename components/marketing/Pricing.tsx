@@ -12,7 +12,7 @@ export default function Pricing() {
   return (
     <section id="pricing" className="py-24">
       <div className="max-w-[1200px] mx-auto px-7">
-        <div className="text-center mb-10">
+        <div className="text-center mb-14">
           <div className="section-kicker" style={{ justifyContent: 'center' }}>요금제</div>
           <h2 className="section-title" style={{ textAlign: 'center' }}>
             오프라인 레슨 그대로,<br />온라인으로
@@ -22,9 +22,9 @@ export default function Pricing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start">
           {/* 무료 */}
-          <GlowCard className="p-6 flex flex-col">
+          <GlowCard className="p-8 flex flex-col">
             <div className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider">무료</div>
             <p className="text-[13px] text-[var(--text-muted)] mt-0 mb-5 leading-normal">가볍게 시작하기</p>
             <div className="flex items-baseline gap-0.5 mb-0.5">
@@ -52,7 +52,7 @@ export default function Pricing() {
           </GlowCard>
 
           {/* 정액제 */}
-          <GlowCard className="p-6 flex flex-col">
+          <GlowCard className="p-8 flex flex-col">
             <div className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider">정액제</div>
             <p className="text-[13px] text-[var(--text-muted)] mt-0 mb-5 leading-normal">광고 없이 마음껏</p>
             <div className="flex items-baseline gap-0.5 mb-0.5">
@@ -80,7 +80,7 @@ export default function Pricing() {
           </GlowCard>
 
           {/* 발성전문반 */}
-          <GlowCard active className="p-6 flex flex-col relative">
+          <GlowCard active className="p-8 flex flex-col relative">
             <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[11px] font-semibold text-white bg-[var(--accent)] px-3 py-0.5 rounded">
               추천
             </span>
@@ -111,7 +111,7 @@ export default function Pricing() {
           </GlowCard>
 
           {/* 유료 피드백 */}
-          <GlowCard className="p-6 flex flex-col">
+          <GlowCard className="p-8 flex flex-col">
             <div className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider">유료 피드백</div>
             <p className="text-[13px] text-[var(--text-muted)] mt-0 mb-5 leading-normal">선생님이 직접 듣고 진단</p>
             <div className="flex items-baseline gap-0.5 mb-0.5">

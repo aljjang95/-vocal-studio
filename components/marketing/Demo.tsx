@@ -99,7 +99,7 @@ export default function Demo() {
   return (
     <section id="demo" className="py-24">
       <div className="max-w-[1200px] mx-auto px-7">
-        <div className="text-center mb-8 reveal">
+        <div className="text-center mb-10 reveal">
           <div className="section-kicker" style={{ justifyContent: 'center' }}>직접 확인</div>
           <h2 className="font-[family-name:var(--font-display)] text-[var(--fs-h2)] text-[var(--text-primary)] text-center mb-8">
             실제로 어떻게 작동하는지
@@ -116,7 +116,7 @@ export default function Demo() {
               key={t.id}
               className={`inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg border cursor-pointer transition-all font-[family-name:var(--font-sans)] ${
                 tab === t.id
-                  ? 'bg-[var(--accent-muted)] border-blue-500/30 text-[var(--accent)]'
+                  ? 'bg-[var(--accent-muted)] border-[var(--accent)]/30 text-[var(--accent)]'
                   : 'bg-transparent border-[var(--border-default)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
               }`}
               onClick={() => setTab(t.id as 'chat' | 'tension')}
@@ -128,7 +128,7 @@ export default function Demo() {
         </div>
 
         {/* 콘텐츠 */}
-        <GlowCard className="p-8 max-w-3xl mx-auto">
+        <GlowCard className="p-10 max-w-3xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
             <div className="reveal">
               {tab === 'chat' ? <ChatBox /> : <TensionDemo />}
@@ -149,7 +149,7 @@ export default function Demo() {
                     </div>
                   </div>
                   <div className="flex gap-3.5 items-start p-4 bg-[var(--bg-raised)] border border-[var(--border-subtle)] rounded-xl transition-all hover:border-[var(--border-default)] hover:translate-x-1">
-                    <div className="w-11 h-11 rounded-[10px] flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.12)' }}>
+                    <div className="w-11 h-11 rounded-[10px] flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(91,140,110,0.12)' }}>
                       <IconTarget size={20} />
                     </div>
                     <div>
@@ -174,7 +174,7 @@ export default function Demo() {
               ) : (
                 <>
                   <div className="flex gap-3.5 items-start p-4 bg-[var(--bg-raised)] border border-[var(--border-subtle)] rounded-xl transition-all hover:border-[var(--border-default)] hover:translate-x-1">
-                    <div className="w-11 h-11 rounded-[10px] flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.12)' }}>
+                    <div className="w-11 h-11 rounded-[10px] flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(91,140,110,0.12)' }}>
                       <IconChat size={20} />
                     </div>
                     <div>

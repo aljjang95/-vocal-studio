@@ -11,7 +11,7 @@ const STEPS = [
 export default function HowItWorks() {
   return (
     <section id="how" className="py-24 border-t border-white/[0.06]">
-      <div className="container">
+      <div className="max-w-[1200px] mx-auto px-7">
         <div className="section-head center reveal">
           <div className="section-kicker" style={{ justifyContent: 'center' }}>사용 방법</div>
           <h2 className="section-title">4단계로 <em>시작하세요</em></h2>
@@ -20,10 +20,10 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div className="max-w-[1200px] mx-auto px-7 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {STEPS.map((step) => (
-            <GlowCard key={step.num} className="p-6 text-center">
-              <div className="text-5xl font-mono font-bold mb-3" style={{ color: 'var(--accent)', opacity: 0.2 }}>{step.num}</div>
+            <GlowCard key={step.num} className="p-8 text-center">
+              <div className="text-5xl font-mono font-bold mb-3" style={{ color: 'var(--accent)', opacity: 0.3 }}>{step.num}</div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">{step.title}</h3>
               <p className="text-sm text-[var(--text-secondary)]">{step.desc}</p>
             </GlowCard>
