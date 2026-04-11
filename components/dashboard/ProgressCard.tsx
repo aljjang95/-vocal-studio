@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { hlbCurriculum } from '@/lib/data/hlbCurriculum';
-import Card from '@/components/ds/Card';
+import { GlowCard } from '@/components/ui/glow-card';
 import Button from '@/components/ds/Button';
-import styles from './ProgressCard.module.css';
 
 export default function ProgressCard() {
   const progress = useJourneyStore((s) => s.progress);
@@ -32,27 +31,27 @@ export default function ProgressCard() {
     : null;
 
   return (
-    <Card className={styles.card}>
-      <h2 className={styles.heading}>레슨 진도</h2>
+    <GlowCard className="p-6 space-y-4">
+      <h2 className="text-lg font-semibold text-[var(--text-primary)] tracking-tight">레슨 진도</h2>
 
-      <div className={styles.stats}>
-        <div className={styles.statMain}>
-          <span className={styles.statNumber}>{passedCount}</span>
-          <span className={styles.statLabel}>/ {totalStages} 완료</span>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-baseline gap-1">
+          <span className="text-[2rem] font-bold text-[var(--text-primary)] leading-none">{passedCount}</span>
+          <span className="text-sm text-[var(--text-secondary)]">/ {totalStages} 완료</span>
         </div>
-        <div className={styles.progressBar}>
+        <div className="w-full h-1.5 bg-white/[0.06] rounded-sm overflow-hidden">
           <div
-            className={styles.progressFill}
+            className="h-full bg-[var(--accent)] rounded-sm transition-[width] duration-400 ease-out"
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <span className={styles.percentage}>{percentage}%</span>
+        <span className="text-xs text-[var(--text-secondary)] text-right">{percentage}%</span>
       </div>
 
       {lastPassedStage && (
-        <div className={styles.lastPassed}>
-          <span className={styles.lastLabel}>최근 통과</span>
-          <span className={styles.lastValue}>
+        <div className="flex justify-between items-center py-2.5 border-t border-[var(--border-subtle)]">
+          <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">최근 통과</span>
+          <span className="text-sm text-[var(--text-primary)] text-right">
             {lastPassedStage.blockIcon} {lastPassedStage.name}
             {lastPassed ? ` (${lastPassed.bestScore}점)` : ''}
           </span>
@@ -60,33 +59,33 @@ export default function ProgressCard() {
       )}
 
       {nextStage && (
-        <div className={styles.nextStage}>
-          <span className={styles.nextLabel}>다음 레슨</span>
-          <span className={styles.nextValue}>
+        <div className="flex justify-between items-center py-2.5 border-t border-[var(--border-subtle)]">
+          <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">다음 레슨</span>
+          <span className="text-sm text-[var(--text-primary)] text-right">
             {nextStage.blockIcon} {nextStage.name}
           </span>
         </div>
       )}
 
       {nextStageId ? (
-        <Link href={`/journey/${nextStageId}`} className={styles.ctaLink}>
+        <Link href={`/journey/${nextStageId}`} className="no-underline mt-1 block">
           <Button variant="accent" fullWidth>
             이어서 연습하기
           </Button>
         </Link>
       ) : passedCount === totalStages ? (
-        <Link href="/journey" className={styles.ctaLink}>
+        <Link href="/journey" className="no-underline mt-1 block">
           <Button variant="secondary" fullWidth>
             전체 복습하기
           </Button>
         </Link>
       ) : (
-        <Link href="/journey" className={styles.ctaLink}>
+        <Link href="/journey" className="no-underline mt-1 block">
           <Button variant="secondary" fullWidth>
             소리의 길 보기
           </Button>
         </Link>
       )}
-    </Card>
+    </GlowCard>
   );
 }

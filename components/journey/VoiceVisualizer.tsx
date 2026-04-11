@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useEffect, useCallback } from 'react';
-import s from './VoiceVisualizer.module.css';
 
 /* ── Types ── */
 interface TensionInput {
@@ -46,10 +45,10 @@ function hzToY(hz: number, minHz: number, maxHz: number, height: number): number
   return height - ratio * height;
 }
 
-function tensionColor(value: number): string {
-  if (value <= 40) return s.green;
-  if (value <= 70) return s.yellow;
-  return s.red;
+function tensionColorClass(value: number): string {
+  if (value <= 40) return 'bg-green-500/70 shadow-[0_0_8px_rgba(34,197,94,0.4)]';
+  if (value <= 70) return 'bg-yellow-500/70 shadow-[0_0_10px_rgba(234,179,8,0.4)] animate-[tensionPulse_1.5s_ease_infinite]';
+  return 'bg-rose-600/80 shadow-[0_0_14px_rgba(225,29,72,0.5)] animate-[tensionPulse_0.8s_ease_infinite]';
 }
 
 function tensionLegendColor(value: number): string {
@@ -221,8 +220,8 @@ export default function VoiceVisualizer({
 
   if (!isRecording && pitchHistory.length === 0) {
     return (
-      <div className={s.inactive}>
-        <span className={s.inactiveIcon}>&#127908;</span>
+      <div className="flex items-center justify-center min-h-[260px] bg-white/[0.02] border border-dashed border-white/[0.08] rounded-xl text-[var(--text-muted)] text-sm gap-2">
+        <span className="text-xl opacity-50">&#127908;</span>
         녹음을 시작하면 실시간 시각화가 표시됩니다
       </div>
     );
@@ -236,14 +235,16 @@ export default function VoiceVisualizer({
   const jaw = tensionData?.jaw ?? 0;
 
   return (
-    <div className={s.wrapper}>
+    <div className="grid grid-cols-[1fr_200px] gap-4 bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 min-h-[260px] max-sm:grid-cols-1 max-sm:min-h-auto">
       {/* Left: Pitch Curve */}
-      <div className={s.pitchPanel}>
-        <canvas ref={canvasRef} className={s.canvas} />
-        <div className={s.currentNote}>
-          <span className={s.noteName}>{noteName}</span>
+      <div className="relative overflow-hidden rounded-lg bg-black/30 max-sm:min-h-[180px]">
+        <canvas ref={canvasRef} className="block w-full h-full" />
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-0.5 pointer-events-none">
+          <span className="font-mono text-[28px] font-bold text-[var(--accent)] leading-none" style={{ textShadow: '0 0 20px var(--accent-glow)' }}>
+            {noteName}
+          </span>
           {currentPitch && currentPitch > 0 && (
-            <span className={`${s.cents} ${cents > 0 ? s.centsSharp : cents < 0 ? s.centsFlat : ''}`}>
+            <span className={`font-mono text-xs ${cents > 0 ? 'text-[var(--accent-gold)]' : cents < 0 ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}>
               {cents > 0 ? '+' : ''}{cents} cents
             </span>
           )}
@@ -251,11 +252,11 @@ export default function VoiceVisualizer({
       </div>
 
       {/* Right: Body Map */}
-      <div className={s.bodyPanel}>
-        <span className={s.bodyTitle}>긴장 지도</span>
-        <div className={s.bodyMap}>
+      <div className="flex flex-col items-center gap-2 max-sm:flex-row max-sm:justify-center max-sm:gap-4">
+        <span className="text-[11px] font-semibold text-[var(--text-muted)] tracking-[0.08em] uppercase">긴장 지도</span>
+        <div className="relative w-[120px] h-[180px] shrink-0 max-sm:w-[90px] max-sm:h-[135px]">
           {/* Simple human silhouette SVG */}
-          <svg className={s.silhouette} viewBox="0 0 120 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="w-full h-full opacity-40" viewBox="0 0 120 180" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Head */}
             <circle cx="60" cy="30" r="22" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
             {/* Neck */}
@@ -271,33 +272,42 @@ export default function VoiceVisualizer({
           </svg>
 
           {/* Tension indicators */}
-          <div className={`${s.indicator} ${s.indicatorTongue} ${tensionColor(tongue)}`}>
+          <div
+            className={`absolute w-6 h-6 rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-[8px] font-bold text-white/90 transition-all duration-300 ${tensionColorClass(tongue)}`}
+            style={{ top: '30%', left: '50%' }}
+          >
             {tongue}
           </div>
-          <div className={`${s.indicator} ${s.indicatorLaryngeal} ${tensionColor(lary)}`}>
+          <div
+            className={`absolute w-6 h-6 rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-[8px] font-bold text-white/90 transition-all duration-300 ${tensionColorClass(lary)}`}
+            style={{ top: '42%', left: '50%' }}
+          >
             {lary}
           </div>
-          <div className={`${s.indicator} ${s.indicatorJaw} ${tensionColor(jaw)}`}>
+          <div
+            className={`absolute w-6 h-6 rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-[8px] font-bold text-white/90 transition-all duration-300 ${tensionColorClass(jaw)}`}
+            style={{ top: '54%', left: '50%' }}
+          >
             {jaw}
           </div>
         </div>
 
         {/* Legend */}
-        <div className={s.legend}>
-          <div className={s.legendItem}>
-            <span className={s.legendDot} style={{ background: tensionLegendColor(tongue) }} />
+        <div className="flex flex-col gap-1 w-full max-sm:w-auto">
+          <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-secondary)]">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: tensionLegendColor(tongue) }} />
             혀뿌리
-            <span className={s.legendValue} style={{ color: tensionLegendColor(tongue) }}>{tongue}</span>
+            <span className="ml-auto font-mono text-[10px] font-semibold" style={{ color: tensionLegendColor(tongue) }}>{tongue}</span>
           </div>
-          <div className={s.legendItem}>
-            <span className={s.legendDot} style={{ background: tensionLegendColor(lary) }} />
+          <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-secondary)]">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: tensionLegendColor(lary) }} />
             후두
-            <span className={s.legendValue} style={{ color: tensionLegendColor(lary) }}>{lary}</span>
+            <span className="ml-auto font-mono text-[10px] font-semibold" style={{ color: tensionLegendColor(lary) }}>{lary}</span>
           </div>
-          <div className={s.legendItem}>
-            <span className={s.legendDot} style={{ background: tensionLegendColor(jaw) }} />
+          <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-secondary)]">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: tensionLegendColor(jaw) }} />
             턱
-            <span className={s.legendValue} style={{ color: tensionLegendColor(jaw) }}>{jaw}</span>
+            <span className="ml-auto font-mono text-[10px] font-semibold" style={{ color: tensionLegendColor(jaw) }}>{jaw}</span>
           </div>
         </div>
       </div>

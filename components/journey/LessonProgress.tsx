@@ -1,7 +1,6 @@
 'use client';
 
 import type { JourneyLessonPhase } from '@/types';
-import s from './LessonProgress.module.css';
 
 const PHASES: { key: JourneyLessonPhase; label: string }[] = [
   { key: 'why', label: '왜?' },
@@ -21,25 +20,37 @@ export default function LessonProgress({ currentPhase }: Props) {
   const currentIndex = PHASE_ORDER.indexOf(currentPhase);
 
   return (
-    <div className={s.container}>
+    <div className="flex items-center w-full py-4">
       {PHASES.map((phase, i) => {
         const isCompleted = i < currentIndex;
         const isActive = i === currentIndex;
-        const dotCls = [s.dot, isCompleted && s.completed, isActive && s.active]
-          .filter(Boolean)
-          .join(' ');
-        const labelCls = [s.label, isCompleted && s.completed, isActive && s.active]
-          .filter(Boolean)
-          .join(' ');
 
         return (
           <div key={phase.key} style={{ display: 'contents' }}>
-            <div className={s.step}>
-              <div className={dotCls} />
-              <span className={labelCls}>{phase.label}</span>
+            <div className="flex flex-col items-center flex-1 relative">
+              <div
+                className={`w-2.5 h-2.5 rounded-full z-[1] transition-all duration-300 ${
+                  isActive
+                    ? 'bg-[var(--accent)] border-2 border-[var(--accent)] shadow-[0_0_0_3px_rgba(59,130,246,0.25)]'
+                    : isCompleted
+                      ? 'bg-[var(--accent-light)] border-2 border-[var(--accent-light)]'
+                      : 'bg-white/[0.06] border-2 border-white/20'
+                }`}
+              />
+              <span
+                className={`mt-1.5 text-[11px] whitespace-nowrap transition-colors duration-300 ${
+                  isCompleted || isActive ? 'text-white/90' : 'text-white/35'
+                }`}
+              >
+                {phase.label}
+              </span>
             </div>
             {i < PHASES.length - 1 && (
-              <div className={`${s.line} ${i < currentIndex ? s.filled : ''}`} />
+              <div
+                className={`flex-1 h-0.5 -mx-1 self-start mt-1 relative top-[3px] ${
+                  i < currentIndex ? 'bg-[var(--accent)]' : 'bg-white/10'
+                }`}
+              />
             )}
           </div>
         );

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import s from './LiveFeedbackToast.module.css';
 
 type ToastType = 'positive' | 'neutral' | 'correction';
 
@@ -12,6 +11,12 @@ interface Props {
 
 const AUTO_DISMISS_MS = 3000;
 const EXIT_ANIMATION_MS = 300;
+
+const TYPE_CLASSES: Record<ToastType, string> = {
+  positive: 'bg-emerald-500/[0.15] border border-emerald-500/30 text-emerald-300',
+  neutral: 'bg-gray-400/[0.15] border border-gray-400/30 text-gray-300',
+  correction: 'bg-orange-400/[0.15] border border-orange-400/30 text-orange-300',
+};
 
 export default function LiveFeedbackToast({ message, type }: Props) {
   const [visible, setVisible] = useState(false);
@@ -46,13 +51,18 @@ export default function LiveFeedbackToast({ message, type }: Props) {
 
   if (!visible || !displayMessage) return null;
 
-  const toastCls = [s.toast, s[displayType], exiting && s.exiting]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <div className={s.wrapper}>
-      <div className={toastCls}>{displayMessage}</div>
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] pointer-events-none">
+      <div
+        className={`px-5 py-2.5 rounded-xl text-[13px] font-medium leading-snug max-w-[340px] text-center pointer-events-auto bg-[var(--bg-elevated)] border border-white/[0.06] shadow-lg ${TYPE_CLASSES[displayType]}`}
+        style={{
+          animation: exiting
+            ? 'toastSlideOut 0.3s ease forwards'
+            : 'toastSlideIn 0.3s ease forwards',
+        }}
+      >
+        {displayMessage}
+      </div>
     </div>
   );
 }

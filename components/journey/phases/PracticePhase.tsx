@@ -8,7 +8,6 @@ import PitchVisualizer from '@/components/journey/PitchVisualizer';
 import TensionIndicator from '@/components/journey/TensionIndicator';
 import LiveFeedbackToast from '@/components/journey/LiveFeedbackToast';
 import VoiceVisualizer from '@/components/journey/VoiceVisualizer';
-import s from './PracticePhase.module.css';
 
 interface Props {
   stage: HLBCurriculumStage;
@@ -74,19 +73,19 @@ export default function PracticePhase({ stage, stageId, onComplete }: Props) {
   const feedbackType = feedbackMsg ? classifyFeedback(feedbackMsg) : 'neutral';
 
   return (
-    <div className={s.container}>
+    <div className="flex flex-col gap-4">
       {isConnected && (
-        <div className={s.connected}>
-          <span className={s.connDot} />
+        <div className="flex items-center justify-end gap-1 text-xs text-emerald-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           실시간
         </div>
       )}
 
-      <div className={s.stageInfo}>
-        <p>
+      <div className="p-3 bg-white/[0.03] border border-white/[0.08] rounded-[10px]">
+        <p className="text-[13px] text-white/70">
           발음: <strong>{stage.pronunciation}</strong> / BPM: {stage.bpmRange[0]}~{stage.bpmRange[1]} / {stage.scaleType}
         </p>
-        <p className={s.detail}>{stage.evaluationCriteria.description}</p>
+        <p className="text-xs text-white/40 mt-1">{stage.evaluationCriteria.description}</p>
       </div>
 
       <VoiceVisualizer
@@ -107,16 +106,22 @@ export default function PracticePhase({ stage, stageId, onComplete }: Props) {
         isActive={isRecording}
       />
 
-      <div className={s.recordRow}>
+      <div className="flex justify-center py-5">
         <button
-          className={`${s.recordBtn} ${isRecording ? s.recording : s.idle}`}
+          className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl border-none cursor-pointer text-white transition-all hover:scale-105 ${
+            isRecording ? 'bg-red-600' : 'bg-[var(--accent)]'
+          }`}
           onClick={handleToggle}
         >
           {isRecording ? '\u23F9' : '\uD83C\uDFA4'}
         </button>
       </div>
 
-      {error && <div className={s.error}>{error}</div>}
+      {error && (
+        <div className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-[13px] text-red-300 text-center">
+          {error}
+        </div>
+      )}
 
       {isRecording && (
         <>

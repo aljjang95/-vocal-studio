@@ -404,3 +404,17 @@ section { position: relative; z-index: 1; }
   from { opacity: 0.4; transform: scaleY(0.4); }
   to   { opacity: 1;   transform: scaleY(1); }
 }
+
+/* ── Journey phase keyframes ── */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-12px); }
+}
+@keyframes tensionPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50%      { transform: translate(-50%, -50%) scale(1.15); opacity: 0.7; }
+}

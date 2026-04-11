@@ -1,6 +1,6 @@
 'use client';
 
-import Card from '@/components/ds/Card';
+import { GlowCard } from '@/components/ui/glow-card';
 import type { HLBCurriculumStage, StageStatus } from '@/types';
 
 interface StageCardProps {
@@ -11,68 +11,66 @@ interface StageCardProps {
 }
 
 export default function StageCard({ stage, status, bestScore, onClick }: StageCardProps) {
-  const variant = status === 'locked' ? 'locked'
-    : (status === 'available' || status === 'in_progress') ? 'active'
-    : 'default';
+  const isLocked = status === 'locked';
+  const isActive = status === 'available' || status === 'in_progress';
+
+  const cardProps = isLocked
+    ? { className: 'p-4 opacity-40 pointer-events-none' }
+    : isActive
+      ? { active: true, glow: true, className: 'p-4 cursor-pointer' }
+      : { hover3d: true, className: 'p-4 cursor-pointer' };
 
   return (
-    <Card
-      variant={variant}
-      interactive={status !== 'locked'}
-      onClick={status !== 'locked' ? onClick : undefined}
-      style={{ cursor: status === 'locked' ? 'default' : 'pointer' }}
+    <GlowCard
+      {...cardProps}
+      onClick={!isLocked ? onClick : undefined}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: 13, fontWeight: 600,
-          color: 'var(--text-muted)',
-          width: 28, textAlign: 'right' as const, flexShrink: 0,
-        }}>
+      <div className="flex items-center gap-3.5">
+        <span className="text-xs font-mono text-[var(--text-muted)] w-7 text-right shrink-0 font-semibold">
           {String(stage.id).padStart(2, '0')}
         </span>
 
-        <div style={{
-          width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-          background: status === 'passed' ? 'var(--success)'
-            : status === 'available' || status === 'in_progress' ? 'var(--accent)'
-            : 'var(--bg-elevated)',
-          boxShadow: status === 'available' || status === 'in_progress'
-            ? '0 0 8px var(--accent-glow)' : 'none',
-        }} />
+        <div
+          className="w-2 h-2 rounded-full shrink-0"
+          style={{
+            background: status === 'passed' ? 'var(--success)'
+              : isActive ? 'var(--accent)'
+              : 'var(--bg-elevated)',
+            boxShadow: isActive ? '0 0 8px var(--accent-glow)' : 'none',
+          }}
+        />
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium text-[var(--text-primary)]">
             {stage.name}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>
+          <div className="text-xs text-[var(--text-muted)] mt-px">
             {stage.pronunciation} · {stage.scaleType || stage.block}
           </div>
         </div>
 
         {bestScore > 0 && (
-          <div style={{ textAlign: 'right' as const }}>
-            <div style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 18, fontWeight: 700, color: 'var(--text-primary)',
-            }}>{bestScore}</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>점</div>
+          <div className="text-right">
+            <div className="font-mono text-lg font-bold text-[var(--text-primary)]">
+              {bestScore}
+            </div>
+            <div className="text-[10px] text-[var(--text-muted)]">점</div>
           </div>
         )}
 
-        {status === 'locked' && (
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+        {isLocked && (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-[var(--text-muted)] shrink-0">
             <rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
             <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
           </svg>
         )}
 
-        {status !== 'locked' && (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+        {!isLocked && (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-[var(--text-muted)] shrink-0">
             <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         )}
       </div>
-    </Card>
+    </GlowCard>
   );
 }

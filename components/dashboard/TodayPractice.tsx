@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { hlbCurriculum } from '@/lib/data/hlbCurriculum';
-import Card from '@/components/ds/Card';
+import { GlowCard } from '@/components/ui/glow-card';
 import Button from '@/components/ds/Button';
-import styles from './TodayPractice.module.css';
 
 type Recommendation = {
   label: string;
@@ -22,23 +21,23 @@ export default function TodayPractice() {
   const recommendation = getRecommendation(progress, getNextAvailableStage);
 
   return (
-    <Card className={styles.card}>
-      <h2 className={styles.heading}>오늘 할 연습</h2>
+    <GlowCard className="p-6 flex flex-col gap-4">
+      <h2 className="text-lg font-semibold text-[var(--text-primary)] tracking-tight">오늘 할 연습</h2>
 
-      <div className={styles.recBox}>
-        <span className={styles.recIcon}>{recommendation.icon}</span>
-        <div className={styles.recContent}>
-          <span className={styles.recLabel}>{recommendation.label}</span>
-          <p className={styles.recDesc}>{recommendation.description}</p>
+      <div className="flex gap-3.5 items-start p-4 bg-white/[0.03] rounded-[var(--radius-md)] border border-[var(--border-subtle)]">
+        <span className="text-2xl leading-none shrink-0 mt-0.5">{recommendation.icon}</span>
+        <div className="flex flex-col gap-1 min-w-0">
+          <span className="text-[0.95rem] font-semibold text-[var(--text-primary)]">{recommendation.label}</span>
+          <p className="text-sm text-[var(--text-secondary)] m-0 leading-relaxed">{recommendation.description}</p>
         </div>
       </div>
 
-      <Link href={recommendation.href} className={styles.ctaLink}>
+      <Link href={recommendation.href} className="no-underline mt-auto block">
         <Button variant="primary" fullWidth>
           {recommendation.buttonText}
         </Button>
       </Link>
-    </Card>
+    </GlowCard>
   );
 }
 

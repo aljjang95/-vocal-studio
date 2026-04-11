@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { HLBCurriculumStage } from '@/types';
 import { useJourneyStore } from '@/stores/journeyStore';
 import Button from '@/components/ds/Button';
-import s from './SummaryPhase.module.css';
+import { GlowCard } from '@/components/ui/glow-card';
 
 interface Props {
   stage: HLBCurriculumStage;
@@ -26,26 +26,26 @@ export default function SummaryPhase({ stage, stageId, passed, onRetry }: Props)
   const isLastStage = stageId >= 28;
 
   return (
-    <div className={s.container}>
-      <div className={`${s.resultCard} ${passed ? s.passed : s.retry}`}>
-        <h2 className={`${s.resultTitle} ${passed ? s.passed : s.retry}`}>
+    <div className="flex flex-col gap-5">
+      <GlowCard className={`p-6 text-center ${passed ? 'border-emerald-500/20' : 'border-orange-400/20'}`}>
+        <h2 className={`text-lg font-bold mb-3 ${passed ? 'text-emerald-300' : 'text-orange-300'}`}>
           {passed && isLastStage ? '전 과정을 완료했어요!' : passed ? '통과' : '다시 도전해보세요'}
         </h2>
-        <p className={s.feedbackText}>{feedbackText}</p>
+        <p className="text-sm leading-[1.7] text-white/80">{feedbackText}</p>
         {passed && isLastStage && (
-          <p className={s.feedbackText}>28단계 전체를 마쳤어요. 정말 대단해요!</p>
+          <p className="text-sm leading-[1.7] text-white/80">28단계 전체를 마쳤어요. 정말 대단해요!</p>
         )}
-      </div>
+      </GlowCard>
 
       {prog && (
-        <div className={s.stats}>
-          <div className={s.statItem}>
-            <div className={s.statValue}>{prog.bestScore}</div>
-            <div className={s.statLabel}>최고 점수</div>
+        <div className="flex justify-center gap-8 py-3">
+          <div className="text-center">
+            <div className="text-xl font-bold text-white/90">{prog.bestScore}</div>
+            <div className="text-[11px] text-white/40 mt-0.5">최고 점수</div>
           </div>
-          <div className={s.statItem}>
-            <div className={s.statValue}>{prog.attempts}</div>
-            <div className={s.statLabel}>시도 횟수</div>
+          <div className="text-center">
+            <div className="text-xl font-bold text-white/90">{prog.attempts}</div>
+            <div className="text-[11px] text-white/40 mt-0.5">시도 횟수</div>
           </div>
         </div>
       )}

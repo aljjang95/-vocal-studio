@@ -6,7 +6,7 @@ import type { SessionReport, TensionData } from '@/lib/hooks/useRealtimeEval';
 import { useJourneyStore } from '@/stores/journeyStore';
 import SessionReportPanel from '@/components/journey/SessionReportPanel';
 import Button from '@/components/ds/Button';
-import s from './EvalPhase.module.css';
+import { GlowCard } from '@/components/ui/glow-card';
 
 interface Props {
   stage: HLBCurriculumStage;
@@ -74,14 +74,14 @@ export default function EvalPhase({ stage, stageId, report, tensionHistory, onNe
   }, [report, stageId, submitEvaluation, tensionHistory]);
 
   return (
-    <div className={s.container}>
+    <div className="flex flex-col gap-4">
       <SessionReportPanel report={report} tensionHistory={tensionHistory} />
 
       {ragFeedback && (
-        <div className={s.ragFeedback}>
-          <span className={s.ragLabel}>선생님 코칭</span>
-          <p>{ragFeedback}</p>
-        </div>
+        <GlowCard className="p-3 px-4 border-l-[3px] border-l-[var(--accent)]">
+          <span className="text-[11px] font-semibold text-[var(--accent)] uppercase tracking-wide">선생님 코칭</span>
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-1.5 m-0">{ragFeedback}</p>
+        </GlowCard>
       )}
 
       <Button variant="accent" fullWidth onClick={onNext}>
