@@ -1,5 +1,5 @@
 import { IconLock, IconTarget, IconMic, IconChart } from '@/components/shared/Icons';
-import styles from './HowItWorks.module.css';
+import { GlowCard } from '@/components/ui/glow-card';
 
 const STEPS = [
   { icon: <IconLock size={26} />, num: '01', title: '무료 가입', desc: '30초면 가입 완료. 무료로 18단계까지 체험하세요.' },
@@ -10,7 +10,7 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section id="how" className={styles.how}>
+    <section id="how" className="py-24 border-t border-white/[0.06]">
       <div className="container">
         <div className="section-head center reveal">
           <div className="section-kicker" style={{ justifyContent: 'center' }}>사용 방법</div>
@@ -20,16 +20,13 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div className={styles.stepsGrid}>
+        <div className="max-w-[1200px] mx-auto px-7 grid grid-cols-1 md:grid-cols-4 gap-6">
           {STEPS.map((step) => (
-            <div key={step.num} className={`${styles.step} reveal`}>
-              <div className={styles.stepNumWrap}>
-                <div className={styles.stepEmoji}>{step.icon}</div>
-                <div className={styles.stepN}>{step.num}</div>
-              </div>
-              <h3>{step.title}</h3>
-              <p>{step.desc}</p>
-            </div>
+            <GlowCard key={step.num} className="p-6 text-center">
+              <div className="text-5xl font-mono font-bold text-[var(--accent)]/20 mb-3">{step.num}</div>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">{step.title}</h3>
+              <p className="text-sm text-[var(--text-secondary)]">{step.desc}</p>
+            </GlowCard>
           ))}
         </div>
       </div>

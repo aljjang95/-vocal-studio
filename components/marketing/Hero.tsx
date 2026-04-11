@@ -2,71 +2,50 @@
 
 import { useRouter } from 'next/navigation';
 import { useScrollReveal } from '@/lib/hooks/useScrollReveal';
-import Button from '@/components/ds/Button';
-import styles from './Hero.module.css';
+import { SoundWaveBackground } from '@/components/ui/sound-wave-bg';
 
 export default function Hero() {
   const router = useRouter();
   const ref = useScrollReveal<HTMLDivElement>();
 
   return (
-    <section id="hero" className={styles.hero}>
-      <div className={styles.bg} aria-hidden="true">
-        <img
-          src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80"
-          alt=""
-          loading="eager"
-        />
-      </div>
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <SoundWaveBackground />
 
-      <div className={styles.content} ref={ref}>
-        <div className={styles.badge}>
-          <span className={styles.dot} />
-          4축 긴장 감지 AI · 7년 경력 커리큘럼
-        </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-base)] via-transparent to-[var(--bg-base)] z-[1]" />
 
-        <h1 className={styles.title}>
+      <div className="relative z-10 text-center max-w-4xl mx-auto px-7" ref={ref}>
+        <h1 className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,5vw,4rem)] font-light text-[var(--text-primary)] leading-[1.05] tracking-[-0.03em]">
           목이 조이는 이유,
           <br />
-          <em className={styles.titleEm}>이제 알 수 있습니다</em>
+          <em
+            className="not-italic text-[var(--accent-light)]"
+            style={{ textShadow: '0 0 30px rgba(80,180,120,0.4)' }}
+          >
+            이제 알 수 있습니다
+          </em>
         </h1>
 
-        <p className={styles.subtitle}>
+        <p className="text-lg text-[var(--text-secondary)] mt-6 max-w-2xl mx-auto">
           후두·혀뿌리·턱의 긴장을 AI가 실시간으로 분석합니다.{' '}
-          <br className={styles.desktopBr} />
+          <br className="hidden md:inline" />
           원인을 알면, 달라집니다.
         </p>
 
-        <div className={styles.actions}>
-          <Button variant="primary" onClick={() => router.push('/onboarding')}>
-            무료 상담 시작하기
-          </Button>
-          <Button variant="secondary" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
-            어떻게 다른지 보기
-          </Button>
-        </div>
+        <a
+          href="/onboarding"
+          onClick={(e) => {
+            e.preventDefault();
+            router.push('/onboarding');
+          }}
+          className="mt-10 inline-flex items-center gap-2 bg-[var(--accent)] text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-[0_0_40px_var(--accent-glow)] hover:shadow-[0_0_60px_var(--accent-glow)] hover:bg-[var(--accent-hover)] transition-all"
+        >
+          무료 상담 시작하기
+        </a>
 
-        <div className={styles.trust}>
-          <div className={styles.trustItem}>
-            <span className={styles.trustNum}>7년+</span>
-            <span className={styles.trustLabel}>트레이닝 경력</span>
-          </div>
-          <div className={styles.trustDivider} />
-          <div className={styles.trustItem}>
-            <span className={styles.trustNum}>28단계</span>
-            <span className={styles.trustLabel}>체계적 커리큘럼</span>
-          </div>
-          <div className={styles.trustDivider} />
-          <div className={styles.trustItem}>
-            <span className={styles.trustNum}>4축</span>
-            <span className={styles.trustLabel}>실시간 긴장 감지</span>
-          </div>
-          <div className={styles.trustDivider} />
-          <div className={styles.trustItem}>
-            <span className={styles.trustNum}>무료</span>
-            <span className={styles.trustLabel}>18단계까지 체험</span>
-          </div>
-        </div>
+        <p className="mt-4 text-sm text-[var(--text-muted)]">
+          카드 등록 없이 무료로 시작
+        </p>
       </div>
     </section>
   );

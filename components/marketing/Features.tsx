@@ -1,8 +1,7 @@
 'use client';
 
 import { useScrollReveal } from '@/lib/hooks/useScrollReveal';
-import Card from '@/components/ds/Card';
-import styles from './Features.module.css';
+import { GlowCard } from '@/components/ui/glow-card';
 
 const FEATURES = [
   {
@@ -80,11 +79,11 @@ export default function Features() {
   const headRef = useScrollReveal<HTMLDivElement>();
 
   return (
-    <section id="features" className={styles.features}>
+    <section id="features" className="py-24">
       <div className="container">
-        <div className={styles.head} ref={headRef}>
+        <div className="text-center mb-16" ref={headRef}>
           <div className="section-kicker">핵심 기능</div>
-          <h2 className="section-title">
+          <h2 className="font-[family-name:var(--font-display)] text-[var(--fs-h2)] text-[var(--text-primary)]">
             다른 앱과 다른 점 하나
           </h2>
           <p className="section-desc">
@@ -93,16 +92,15 @@ export default function Features() {
           </p>
         </div>
 
-        <div className={styles.grid}>
-          {FEATURES.map((f, i) => (
-            <Card key={f.title} glow={i === 0} interactive className={i === 0 ? styles.cardFeatured : ''}>
-              <div className={styles.kicker}>{f.kicker}</div>
-              <div className={styles.iconBox}>
+        <div className="max-w-[1200px] mx-auto px-7 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {FEATURES.map((f) => (
+            <GlowCard key={f.title} className="p-6">
+              <div className="w-10 h-10 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center text-[var(--accent-light)] mb-4">
                 {f.icon}
               </div>
-              <h3 className={styles.cardTitle}>{f.title}</h3>
-              <p className={styles.cardDesc}>{f.desc}</p>
-            </Card>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">{f.title}</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{f.desc}</p>
+            </GlowCard>
           ))}
         </div>
       </div>

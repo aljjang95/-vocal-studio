@@ -1,4 +1,4 @@
-import styles from './Testimonials.module.css';
+import { GlowCard } from '@/components/ui/glow-card';
 
 const STORIES = [
   {
@@ -26,48 +26,56 @@ const STORIES = [
 
 export default function Testimonials() {
   return (
-    <section id="testimonials" className={styles.testimonials}>
-      <div className="container">
+    <section id="testimonials" className="py-24 border-t border-white/[0.06]">
+      <div className="max-w-[1200px] mx-auto px-7">
         <div className="section-head center reveal">
           <div className="section-kicker" style={{ justifyContent: 'center' }}>수강생 변화</div>
           <h2 className="section-title">
             원인을 알면, <em>달라집니다</em>
           </h2>
           <p className="section-desc" style={{ textAlign: 'center' }}>
-            막연히 "더 연습하세요"가 아닌, 정확한 원인 진단 후 개선된 사례들입니다.
+            막연히 &quot;더 연습하세요&quot;가 아닌, 정확한 원인 진단 후 개선된 사례들입니다.
           </p>
         </div>
 
-        <div className={styles.grid}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
           {STORIES.map((s) => (
-            <div key={s.name} className={`${styles.card} reveal`}>
+            <GlowCard key={s.name} className="p-6 reveal">
               {/* Before/After */}
-              <div className={styles.transform}>
-                <div className={styles.transformCol}>
-                  <span className={styles.transformBadgeBefore}>{s.before.label}</span>
-                  <p className={styles.transformText}>{s.before.text}</p>
+              <div className="flex items-start gap-2.5">
+                <div className="flex-1 flex flex-col gap-1.5">
+                  <span className="inline-block text-[0.65rem] font-bold tracking-wider uppercase text-[var(--error)] bg-[var(--error-muted)] rounded px-1.5 py-0.5 w-fit">
+                    {s.before.label}
+                  </span>
+                  <p className="text-[0.82rem] text-[var(--text-secondary)] leading-normal">{s.before.text}</p>
                 </div>
-                <div className={styles.arrow} aria-hidden="true">→</div>
-                <div className={styles.transformCol}>
-                  <span className={styles.transformBadgeAfter}>{s.after.label}</span>
-                  <p className={`${styles.transformText} ${styles.transformTextAfter}`}>{s.after.text}</p>
+                <div className="text-[var(--text-muted)] text-lg flex-shrink-0 pt-4" aria-hidden="true">→</div>
+                <div className="flex-1 flex flex-col gap-1.5">
+                  <span className="inline-block text-[0.65rem] font-bold tracking-wider uppercase text-[var(--success)] bg-[var(--success-muted)] rounded px-1.5 py-0.5 w-fit">
+                    {s.after.label}
+                  </span>
+                  <p className="text-[0.82rem] text-[var(--text-primary)] font-medium leading-normal">{s.after.text}</p>
                 </div>
               </div>
 
               {/* 구분선 */}
-              <div className={styles.divider} />
+              <div className="h-px bg-[var(--border-subtle)] my-4" />
 
               {/* 후기 */}
-              <p className={styles.quote}>&ldquo;{s.quote}&rdquo;</p>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed italic mt-3 flex-1">
+                &ldquo;{s.quote}&rdquo;
+              </p>
 
-              <div className={styles.author}>
-                <div className={styles.authorInitial}>{s.name[0]}</div>
+              <div className="flex items-center gap-3 mt-4">
+                <div className="w-9 h-9 rounded-full bg-[var(--accent-muted)] border border-blue-500/20 flex items-center justify-center text-sm font-bold text-[var(--accent)] flex-shrink-0">
+                  {s.name[0]}
+                </div>
                 <div>
-                  <div className={styles.authorName}>{s.name}</div>
-                  <div className={styles.authorRole}>{s.role}</div>
+                  <div className="text-xs text-[var(--text-muted)]">{s.name}</div>
+                  <div className="text-xs text-[var(--text-muted)] mt-px">{s.role}</div>
                 </div>
               </div>
-            </div>
+            </GlowCard>
           ))}
         </div>
       </div>

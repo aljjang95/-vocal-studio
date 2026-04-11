@@ -1,5 +1,3 @@
-import styles from './Proof.module.css';
-
 const STATS = [
   { num: '28단계', label: '체계적 커리큘럼', sub: '이완 기초 → 실가창까지' },
   { num: '4축', label: '긴장 분석', sub: '후두·혀뿌리·턱·성구전환' },
@@ -10,17 +8,20 @@ const STATS = [
 
 export default function Proof() {
   return (
-    <section id="proof" className={styles.proof}>
-      <div className="container">
-        <div className={styles.proofInner}>
-          {STATS.map((s) => (
-            <div key={s.num} className={styles.statItem}>
-              <span className={styles.statNum}>{s.num}</span>
-              <span className={styles.statLabel}>{s.label}</span>
-              <span className={styles.statSub}>{s.sub}</span>
-            </div>
-          ))}
-        </div>
+    <section id="proof" className="py-20 border-b border-white/[0.06]">
+      <div className="max-w-[1200px] mx-auto px-7 grid grid-cols-2 md:grid-cols-4 gap-8">
+        {STATS.map((s) => (
+          <div key={s.num} className="text-center">
+            <span
+              className="text-3xl font-mono font-bold text-[var(--accent-light)]"
+              style={{ textShadow: '0 0 20px rgba(80,180,120,0.3)' }}
+            >
+              {s.num}
+            </span>
+            <span className="text-sm text-[var(--text-muted)] mt-1 block">{s.label}</span>
+            <span className="text-xs text-[var(--text-muted)] block">{s.sub}</span>
+          </div>
+        ))}
       </div>
     </section>
   );
