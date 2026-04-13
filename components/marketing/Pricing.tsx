@@ -33,15 +33,14 @@ export default function Pricing() {
             <div className="text-sm text-[var(--text-muted)] mb-5">광고 포함</div>
             <div className="h-px bg-[var(--border-subtle)] mb-5" />
             <ul className="list-none p-0 m-0 mb-6 flex flex-col gap-2.5 flex-1">
-              <Feature on>18단계까지 채점 기반 진행</Feature>
-              <Feature on>이완 ~ 두성밸런스 코스</Feature>
+              <Feature on>무료 상담 1회 + 기본 체험</Feature>
+              <Feature on>3단계까지 채점 기반 진행</Feature>
               <Feature on>피아노 스케일 연습</Feature>
               <Feature on>기본 긴장 감지</Feature>
-              <Feature on>목소리 변환 (내장 프리셋)</Feature>
+              <Feature on>AI 커버 (내장 파일만)</Feature>
               <Feature on note>광고 포함</Feature>
-              <Feature off>19~28단계 (세팅~가창)</Feature>
-              <Feature off>4축 긴장 상세 분석</Feature>
-              <Feature off>성장 리포트</Feature>
+              <Feature off>자유 곡 업로드</Feature>
+              <Feature off>AI 커버 API</Feature>
             </ul>
             <button
               onClick={goOnboarding}
@@ -51,31 +50,31 @@ export default function Pricing() {
             </button>
           </GlowCard>
 
-          {/* 정액제 */}
+          {/* 취미반 */}
           <GlowCard className="p-8 flex flex-col">
-            <div className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider">정액제</div>
-            <p className="text-[13px] text-[var(--text-muted)] mt-0 mb-5 leading-normal">광고 없이 마음껏</p>
+            <div className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider">취미반</div>
+            <p className="text-[13px] text-[var(--text-muted)] mt-0 mb-5 leading-normal">자유롭게 노래하며 배우기</p>
             <div className="flex items-baseline gap-0.5 mb-0.5">
-              <span className="text-base font-medium text-[var(--text-secondary)]">₩</span>
-              <span className="text-3xl font-mono font-bold text-[var(--text-primary)]">19,900</span>
+              <span className="text-base font-medium text-[var(--text-secondary)]">{'\u20A9'}</span>
+              <span className="text-3xl font-mono font-bold text-[var(--text-primary)]">100,000</span>
             </div>
             <div className="text-sm text-[var(--text-muted)] mb-5">/ 월</div>
             <div className="h-px bg-[var(--border-subtle)] mb-5" />
             <ul className="list-none p-0 m-0 mb-6 flex flex-col gap-2.5 flex-1">
-              <Feature on>무료 콘텐츠 전부 포함</Feature>
-              <Feature on>광고 완전 제거</Feature>
-              <Feature on>발성 분석 리포트 무제한</Feature>
-              <Feature on>곡 연습 + 구간 분석</Feature>
-              <Feature on>AI 코치 채팅 무제한</Feature>
-              <Feature off>채점 기반 해금 (19~28단계)</Feature>
+              <Feature on>자유 곡 실시간 평가 + AI 피드백</Feature>
+              <Feature on>HLB 커리큘럼 맛보기 (5단계)</Feature>
+              <Feature on>AI 보컬 지식 종합 코칭</Feature>
+              <Feature on>AI 커버 (본인 파일, 5,000원/월)</Feature>
+              <Feature on>목소리 클론</Feature>
+              <Feature on>광고 제거</Feature>
+              <Feature off>28단계 체계적 커리큘럼</Feature>
               <Feature off>4축 긴장 상세 분석</Feature>
-              <Feature off>맞춤 커리큘럼 설계</Feature>
             </ul>
             <button
-              onClick={() => goCheckout('subscription')}
+              onClick={() => goCheckout('hobby')}
               className="mt-auto pt-6 w-full py-2.5 rounded-lg font-medium transition-colors border border-white/[0.10] text-[var(--text-secondary)] hover:bg-white/[0.04]"
             >
-              정액제 시작
+              취미반 시작
             </button>
           </GlowCard>
 
@@ -87,20 +86,19 @@ export default function Pricing() {
             <div className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider">발성전문반</div>
             <p className="text-[13px] text-[var(--text-muted)] mt-0 mb-5 leading-normal">발성 매커니즘 기반, 체계적 성장</p>
             <div className="flex items-baseline gap-0.5 mb-0.5">
-              <span className="text-base font-medium text-[var(--text-secondary)]">₩</span>
+              <span className="text-base font-medium text-[var(--text-secondary)]">{'\u20A9'}</span>
               <span className="text-3xl font-mono font-bold text-[var(--text-primary)]">150,000</span>
             </div>
             <div className="text-sm text-[var(--text-muted)] mb-5">/ 월</div>
             <div className="h-px bg-[var(--border-subtle)] mb-5" />
             <ul className="list-none p-0 m-0 mb-6 flex flex-col gap-2.5 flex-1">
-              <Feature on>정액제 전부 포함</Feature>
-              <Feature on>28단계 채점 기반 해금</Feature>
-              <Feature on>세팅 → 고음 → 가창 코스</Feature>
+              <Feature on>취미반 전부 포함</Feature>
+              <Feature on>28단계 HLB 체계적 커리큘럼</Feature>
+              <Feature on>5-phase 레슨 (왜?-시범-실습-평가-요약)</Feature>
+              <Feature on>카메라/녹음 발성 체크</Feature>
               <Feature on>4축 긴장 분석 (후두/혀뿌리/턱/성구)</Feature>
-              <Feature on>단계별 매커니즘 AI 해설</Feature>
-              <Feature on>1:1 맞춤 커리큘럼 + 루틴</Feature>
-              <Feature on>일간 + 주간 성장 리포트</Feature>
-              <Feature on>발성 분석 리포트 + AI 커버</Feature>
+              <Feature on>성장 리포트 + 맞춤 루틴</Feature>
+              <Feature on>AI 커버 (본인 파일, 10,000원/월)</Feature>
             </ul>
             <button
               onClick={() => goCheckout('pro')}
@@ -115,13 +113,13 @@ export default function Pricing() {
             <div className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider">유료 피드백</div>
             <p className="text-[13px] text-[var(--text-muted)] mt-0 mb-5 leading-normal">선생님이 직접 듣고 진단</p>
             <div className="flex items-baseline gap-0.5 mb-0.5">
-              <span className="text-base font-medium text-[var(--text-secondary)]">₩</span>
+              <span className="text-base font-medium text-[var(--text-secondary)]">{'\u20A9'}</span>
               <span className="text-3xl font-mono font-bold text-[var(--text-primary)]">50,000</span>
             </div>
             <div className="text-sm text-[var(--text-muted)] mb-5">/ 1회</div>
             <div className="h-px bg-[var(--border-subtle)] mb-5" />
             <ul className="list-none p-0 m-0 mb-6 flex flex-col gap-2.5 flex-1">
-              <Feature on>녹음 제출 → 선생님 직접 청취</Feature>
+              <Feature on>녹음 제출 - 선생님 직접 청취</Feature>
               <Feature on>AI 진단 + 선생님 소견 비교</Feature>
               <Feature on>구체적 개선 방향 제시</Feature>
               <Feature on>7년 경력 전문 트레이너</Feature>
@@ -137,7 +135,7 @@ export default function Pricing() {
         </div>
 
         <p className="text-center text-xs text-[var(--text-muted)] mt-8">
-          발성전문반 · 정액제는 언제든 해지 가능 · 유료 피드백은 건당 결제
+          취미반 · 발성전문반은 언제든 해지 가능 · 유료 피드백은 건당 결제
         </p>
       </div>
     </section>
