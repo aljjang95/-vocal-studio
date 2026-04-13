@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 
 const MIN_SEC = 5;
 const MAX_SEC = 30;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ACCEPTED_EXTS = ['.mp3', '.wav', '.m4a', '.webm'];
 
 export default function StepRecording() {
   const { setStep, setAnalyzing, setError, setResult } = useOnboardingStore();
@@ -15,6 +17,7 @@ export default function StepRecording() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -92,6 +95,10 @@ export default function StepRecording() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_FILE_SIZE) {
+      setError('파일 크기는 10MB 이하만 가능합니다.');
+      return;
+    }
     setAudioBlob(file);
     setFileName(file.name);
     setError(null);
@@ -142,6 +149,25 @@ export default function StepRecording() {
     return `${m}:${s_.toString().padStart(2, '0')}`;
   };
 
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('audio/') && !ACCEPTED_EXTS.some(ext => file.name.toLowerCase().endsWith(ext))) {
+      setError('mp3, wav, m4a, webm 파일만 업로드 가능합니다.');
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setError('파일 크기는 10MB 이하만 가능합니다.');
+      return;
+    }
+    setAudioBlob(file);
+    setFileName(file.name);
+    setError(null);
+  }, [setError]);
+
   return (
     <div className="flex flex-col items-center gap-7 py-5 animate-[slideIn_0.4s_ease-out]">
       <h3 className="font-['Inter',sans-serif] text-[1.4rem] font-bold text-center">
@@ -150,6 +176,15 @@ export default function StepRecording() {
       <p className="text-[0.9rem] text-[var(--text2)] text-center leading-relaxed max-w-[480px]">
         편하게 아무 노래나 한 소절 불러주세요. AI가 목소리 상태를 분석하고 맞춤 로드맵을 만들어드립니다.
       </p>
+
+      {/* 음질 경고 배너 */}
+      <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-amber-500/[0.08] border border-amber-500/20 text-amber-300 text-[0.82rem] max-w-[480px] w-full">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
+          <path d="M8 1.5l6.5 12H1.5L8 1.5z" stroke="currentColor" strokeWidth="1.2"/>
+          <path d="M8 6.5v3M8 11.5v.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </svg>
+        소음이 많거나 음질이 낮으면 정확한 분석이 어렵습니다. 조용한 환경에서 녹음해주세요.
+      </div>
 
       <div className="flex flex-col items-center gap-4">
         <button
@@ -195,11 +230,30 @@ export default function StepRecording() {
         또는
       </div>
 
-      <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--r-xs)] text-[var(--text2)] text-[0.85rem] cursor-pointer transition-all duration-200 hover:border-[var(--border2)] hover:text-[var(--text)]">
-        파일 업로드
+      <label
+        className={`w-full max-w-[400px] flex flex-col items-center gap-2 px-5 py-6 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
+          dragging
+            ? 'border-[var(--accent)] bg-[var(--accent)]/[0.05]'
+            : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--border2)]'
+        }`}
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--text-muted)]">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+        <span className="text-[var(--text2)] text-[0.85rem]">
+          파일을 드래그하거나 클릭해서 업로드
+        </span>
+        <span className="text-[var(--text-muted)] text-[0.75rem]">
+          mp3, wav, m4a, webm · 최대 10MB
+        </span>
         <input
           type="file"
-          accept="audio/*"
+          accept=".mp3,.wav,.m4a,.webm,audio/*"
           onChange={handleFileUpload}
           className="hidden"
           disabled={isRecording || submitting}
