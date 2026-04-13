@@ -8,7 +8,10 @@ import anthropic
 import chromadb
 
 logger = logging.getLogger(__name__)
-CHROMA_DB_PATH = os.environ.get("CHROMA_DB_PATH", os.path.expanduser("~/Desktop/보컬커리큘럼/chroma_db"))
+CHROMA_DB_PATH = os.environ.get(
+    "CHROMA_DB_PATH",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db"),
+)
 
 COACHING_SYSTEM = """당신은 감각 기반 보컬 코치입니다.
 
