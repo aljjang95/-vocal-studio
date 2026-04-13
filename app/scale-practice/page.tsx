@@ -96,7 +96,7 @@ export default function ScalePracticePage() {
         }
         .sp-nav-link:hover { color: var(--text-primary); background: var(--bg-hover); }
         .sp-container {
-          max-width: 520px;
+          max-width: 680px;
           margin: 0 auto;
           padding: 0 20px 60px;
         }
@@ -108,9 +108,10 @@ export default function ScalePracticePage() {
           font-weight: 700;
           letter-spacing: -0.02em;
           margin: 0;
+          font-family: var(--font-display);
         }
         .sp-sub {
-          font-size: 13px;
+          font-size: 14px;
           color: var(--text-muted);
           margin: 6px 0 0;
         }
@@ -118,12 +119,13 @@ export default function ScalePracticePage() {
           display: flex;
           gap: 8px;
           margin-bottom: 32px;
+          flex-wrap: wrap;
         }
         .sp-tier {
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 500;
-          padding: 4px 10px;
-          border-radius: 4px;
+          padding: 5px 12px;
+          border-radius: 6px;
           color: var(--text-secondary);
           background: var(--bg-raised);
         }
@@ -134,18 +136,18 @@ export default function ScalePracticePage() {
           margin-bottom: 28px;
         }
         .sp-block-title {
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 600;
-          color: var(--text-muted);
+          color: var(--text-secondary);
           letter-spacing: 0.03em;
-          margin: 0 0 8px;
+          margin: 0 0 10px;
           padding-left: 2px;
         }
         .sp-list {
           display: flex;
           flex-direction: column;
           gap: 1px;
-          border-radius: 10px;
+          border-radius: 12px;
           overflow: hidden;
           background: var(--border);
         }
@@ -153,18 +155,21 @@ export default function ScalePracticePage() {
           display: flex;
           align-items: center;
           gap: 14px;
-          padding: 14px 16px;
+          padding: 16px 18px;
           background: var(--bg-raised);
           color: inherit;
           text-decoration: none;
           transition: background 0.15s;
           cursor: pointer;
         }
+        @media (max-width: 480px) {
+          .sp-item { padding: 14px 14px; gap: 12px; }
+        }
         .sp-item:hover {
           background: var(--bg-elevated);
         }
         .sp-item.sp-locked {
-          opacity: 0.3;
+          opacity: 0.35;
           cursor: default;
         }
         .sp-item.sp-locked:hover {
@@ -178,6 +183,7 @@ export default function ScalePracticePage() {
           text-align: right;
           flex-shrink: 0;
           font-variant-numeric: tabular-nums;
+          font-family: var(--font-mono);
         }
         .sp-info {
           flex: 1;
@@ -185,14 +191,15 @@ export default function ScalePracticePage() {
         }
         .sp-name {
           display: block;
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 500;
+          line-height: 1.4;
         }
         .sp-meta {
           display: block;
-          font-size: 12px;
+          font-size: 13px;
           color: var(--text-muted);
-          margin-top: 1px;
+          margin-top: 2px;
         }
         .sp-arrow {
           color: var(--text-dim);

@@ -26,12 +26,12 @@ export default function StageCard({ stage, status, bestScore, onClick }: StageCa
       onClick={!isLocked ? onClick : undefined}
     >
       <div className="flex items-center gap-3.5">
-        <span className="text-xs font-mono text-[var(--text-muted)] w-7 text-right shrink-0 font-semibold">
+        <span className="text-xs font-mono text-[var(--text-muted)] w-7 text-right shrink-0 font-semibold tabular-nums">
           {String(stage.id).padStart(2, '0')}
         </span>
 
         <div
-          className="w-2 h-2 rounded-full shrink-0"
+          className="w-2.5 h-2.5 rounded-full shrink-0"
           style={{
             background: status === 'passed' ? 'var(--success)'
               : isActive ? 'var(--accent)'
@@ -41,10 +41,10 @@ export default function StageCard({ stage, status, bestScore, onClick }: StageCa
         />
 
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-[var(--text-primary)]">
+          <div className="text-[15px] font-medium text-[var(--text-primary)] leading-snug">
             {stage.name}
           </div>
-          <div className="text-xs text-[var(--text-muted)] mt-px">
+          <div className="text-[13px] text-[var(--text-muted)] mt-0.5">
             {stage.pronunciation} · {stage.scaleType || stage.block}
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function StageCard({ stage, status, bestScore, onClick }: StageCa
             <div className="font-mono text-lg font-bold text-[var(--text-primary)]">
               {bestScore}
             </div>
-            <div className="text-[10px] text-[var(--text-muted)]">점</div>
+            <div className="text-[11px] text-[var(--text-muted)]">점</div>
           </div>
         )}
 

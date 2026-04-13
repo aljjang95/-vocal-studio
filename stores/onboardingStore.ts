@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { createClient } from '@/lib/supabase/client';
 import type { OnboardingResult } from '@/types';
 
 interface OnboardingState {
@@ -16,12 +17,14 @@ interface OnboardingState {
   setPlayingTts: (v: boolean) => void;
   setError: (err: string | null) => void;
   setResult: (result: OnboardingResult) => void;
+  saveToSupabase: () => Promise<void>;
+  loadFromSupabase: () => Promise<void>;
   resetAll: () => void;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       step: 0,
       isAnalyzing: false,
       isPlayingTts: false,
@@ -33,6 +36,41 @@ export const useOnboardingStore = create<OnboardingState>()(
       setPlayingTts: (v) => set({ isPlayingTts: v }),
       setError: (err) => set({ error: err }),
       setResult: (result) => set({ result }),
+
+      saveToSupabase: async () => {
+        try {
+          const { result } = get();
+          if (!result) return;
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          await supabase
+            .from('profiles')
+            .update({ onboarding_result: result })
+            .eq('id', user.id);
+        } catch {
+          // Supabase 미연결 시 무시
+        }
+      },
+
+      loadFromSupabase: async () => {
+        try {
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          const { data } = await supabase
+            .from('profiles')
+            .select('onboarding_result')
+            .eq('id', user.id)
+            .single();
+          if (data?.onboarding_result && !get().result) {
+            set({ result: data.onboarding_result as OnboardingResult });
+          }
+        } catch {
+          // 무시
+        }
+      },
+
       resetAll: () =>
         set({
           step: 0,

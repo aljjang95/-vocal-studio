@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { useOnboardingStore } from '@/stores/onboardingStore';
+import { useJourneyStore } from '@/stores/journeyStore';
 import type { User } from '@supabase/supabase-js';
 
 export default function Nav() {
@@ -33,6 +35,39 @@ export default function Nav() {
     router.push('/');
     router.refresh();
   };
+
+  const onboardingResult = useOnboardingStore((s) => s.result);
+  const userTier = useJourneyStore((s) => s.userTier);
+
+  const navLinks = useMemo(() => {
+    const hasOnboarding = !!onboardingResult;
+    const isPaid = userTier === 'hobby' || userTier === 'pro' || userTier === 'teacher';
+
+    // 항상 표시
+    const links: { href: string; label: string }[] = [
+      { href: '/journey', label: '소리의 길' },
+      { href: '/pricing', label: '요금제' },
+    ];
+
+    // 온보딩 완료 후 추가
+    if (hasOnboarding || user) {
+      links.splice(1, 0,
+        { href: '/scale-practice', label: '스케일 연습' },
+        { href: '/coach', label: 'AI 코치' },
+      );
+    }
+
+    // 유료 사용자 추가
+    if (isPaid) {
+      const insertIdx = links.findIndex(l => l.href === '/pricing');
+      links.splice(insertIdx, 0,
+        { href: '/ai-cover', label: 'AI 커버' },
+        { href: '/vocal-report', label: '발성 분석' },
+      );
+    }
+
+    return links;
+  }, [onboardingResult, userTier, user]);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -67,18 +102,15 @@ export default function Nav() {
           </Link>
 
           <ul className="hidden min-[960px]:flex items-center gap-2 list-none flex-nowrap overflow-hidden">
-            <li><Link href="/journey" className={navLinkClass}>소리의 길</Link></li>
-            <li><Link href="/scale-practice" className={navLinkClass}>스케일 연습</Link></li>
-            <li><Link href="/coach" className={navLinkClass}>AI 코치</Link></li>
-            <li><Link href="/ai-cover" className={navLinkClass}>AI 커버</Link></li>
-            <li><Link href="/vocal-report" className={navLinkClass}>발성 분석</Link></li>
-            <li><Link href="/pricing" className={navLinkClass}>요금제</Link></li>
+            {navLinks.map((link) => (
+              <li key={link.href}><Link href={link.href} className={navLinkClass}>{link.label}</Link></li>
+            ))}
             {user && <li><Link href="/dashboard" className={navLinkClass}>대시보드</Link></li>}
             <li><ThemeToggle /></li>
             {user ? (
               <li><button onClick={handleLogout} className={`${ctaClass} border-none cursor-pointer`}>로그아웃</button></li>
             ) : (
-              <li><Link href="/onboarding" className={`${ctaClass} no-underline`}>무료 시작</Link></li>
+              <li><Link href="/onboarding" className={`${ctaClass} no-underline`}>무료 상담</Link></li>
             )}
           </ul>
 
@@ -103,17 +135,14 @@ export default function Nav() {
         aria-modal="true"
       >
         <button className="absolute top-[22px] right-[26px] bg-transparent border-none text-[var(--muted)] text-2xl cursor-pointer" onClick={closeMenu} aria-label="메뉴 닫기">✕</button>
-        <Link href="/journey" onClick={closeMenu} className={mobileLinkClass}>소리의 길</Link>
-        <Link href="/scale-practice" onClick={closeMenu} className={mobileLinkClass}>스케일 연습</Link>
-        <Link href="/coach" onClick={closeMenu} className={mobileLinkClass}>AI 코치</Link>
-        <Link href="/ai-cover" onClick={closeMenu} className={mobileLinkClass}>AI 커버</Link>
-        <Link href="/vocal-report" onClick={closeMenu} className={mobileLinkClass}>발성 분석</Link>
-        <Link href="/pricing" onClick={closeMenu} className={mobileLinkClass}>요금제</Link>
+        {navLinks.map((link) => (
+          <Link key={link.href} href={link.href} onClick={closeMenu} className={mobileLinkClass}>{link.label}</Link>
+        ))}
         {user && <Link href="/dashboard" onClick={closeMenu} className={mobileLinkClass}>대시보드</Link>}
         {user ? (
           <button onClick={() => { closeMenu(); handleLogout(); }} className="bg-transparent border-none cursor-pointer text-[var(--text)] font-['Inter',sans-serif] text-[1.6rem] font-bold p-0 text-left transition-colors hover:text-[var(--accent)]">로그아웃</button>
         ) : (
-          <Link href="/onboarding" onClick={closeMenu} className={mobileLinkClass}>무료 시작</Link>
+          <Link href="/onboarding" onClick={closeMenu} className={mobileLinkClass}>무료 상담</Link>
         )}
       </div>
     </>

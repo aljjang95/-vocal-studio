@@ -7,7 +7,7 @@ export default function Pricing() {
   const router = useRouter();
 
   const goCheckout = (plan: string) => router.push(`/checkout/${plan}`);
-  const goSignup = () => router.push('/auth/signup');
+  const goOnboarding = () => router.push('/onboarding');
 
   return (
     <section id="pricing" className="py-24">
@@ -44,10 +44,10 @@ export default function Pricing() {
               <Feature off>성장 리포트</Feature>
             </ul>
             <button
-              onClick={goSignup}
+              onClick={goOnboarding}
               className="mt-auto pt-6 w-full py-2.5 rounded-lg font-medium transition-colors border border-white/[0.10] text-[var(--text-secondary)] hover:bg-white/[0.04]"
             >
-              무료로 시작
+              무료 상담 시작하기
             </button>
           </GlowCard>
 

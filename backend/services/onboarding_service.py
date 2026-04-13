@@ -72,7 +72,7 @@ async def generate_consultation(tension_score: TensionScore) -> dict:
             # 필수 필드 검증
             if all(k in result for k in ("problems", "roadmap", "suggested_stage_id", "summary")):
                 return result
-    except (anthropic.APIError, json.JSONDecodeError, IndexError, KeyError) as e:
+    except Exception as e:
         logger.warning("온보딩 상담 생성 실패: %s", e)
 
     # 폴백: 템플릿 기반 응답

@@ -13,7 +13,7 @@ from routers.onboarding import router as onboarding_router
 app = FastAPI(title="VocalMind AI Backend", version="0.1.0")
 
 _allowed_origins = [
-    "http://localhost:3000",
+    "http://localhost:3010",
     *([_os.environ["FRONTEND_URL"]] if _os.environ.get("FRONTEND_URL") else []),
 ]
 

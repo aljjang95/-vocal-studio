@@ -9,17 +9,17 @@ const STATS = [
 export default function Proof() {
   return (
     <section id="proof" className="py-24 border-b border-white/[0.06]">
-      <div className="max-w-[1200px] mx-auto px-7 grid grid-cols-2 md:grid-cols-5 gap-10">
+      <div className="max-w-[1200px] mx-auto px-7 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
         {STATS.map((s) => (
           <div key={s.num} className="text-center py-2">
             <span
-              className="text-3xl font-mono font-bold text-[var(--accent-light)]"
+              className="text-2xl md:text-3xl font-mono font-bold text-[var(--accent-light)]"
               style={{ textShadow: '0 0 20px rgba(80,180,120,0.3)' }}
             >
               {s.num}
             </span>
-            <span className="text-sm text-[var(--text-muted)] mt-2 block">{s.label}</span>
-            <span className="text-xs text-[var(--text-muted)] block leading-relaxed">{s.sub}</span>
+            <span className="text-sm text-[var(--text-secondary)] mt-2 block">{s.label}</span>
+            <span className="text-xs md:text-[13px] text-[var(--text-muted)] block leading-relaxed mt-0.5">{s.sub}</span>
           </div>
         ))}
       </div>

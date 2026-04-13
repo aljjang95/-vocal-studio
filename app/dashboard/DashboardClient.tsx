@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useJourneyStore } from '@/stores/journeyStore';
+import { useOnboardingStore } from '@/stores/onboardingStore';
 import Nav from '@/components/shared/Nav';
+import NextActionCard from '@/components/dashboard/NextActionCard';
 import ProgressCard from '@/components/dashboard/ProgressCard';
 import TodayPractice from '@/components/dashboard/TodayPractice';
 import GrowthChart from '@/components/dashboard/GrowthChart';
@@ -10,11 +12,13 @@ import GrowthChart from '@/components/dashboard/GrowthChart';
 export default function DashboardClient() {
   const [hydrated, setHydrated] = useState(false);
   const syncFromSupabase = useJourneyStore((s) => s.syncFromSupabase);
+  const loadOnboarding = useOnboardingStore((s) => s.loadFromSupabase);
 
   useEffect(() => {
     setHydrated(true);
     syncFromSupabase();
-  }, [syncFromSupabase]);
+    loadOnboarding();
+  }, [syncFromSupabase, loadOnboarding]);
 
   if (!hydrated) {
     return (
@@ -43,6 +47,7 @@ export default function DashboardClient() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+          <NextActionCard />
           <ProgressCard />
           <TodayPractice />
         </div>

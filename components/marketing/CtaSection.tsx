@@ -32,10 +32,10 @@ export default function CtaSection() {
           18단계까지 무료입니다. 당신의 목소리가 어떻게 변하는지 직접 경험하세요.
         </p>
         <button
-          onClick={() => router.push('/diagnosis')}
+          onClick={() => router.push('/onboarding')}
           className="mt-8 inline-flex items-center gap-2 bg-[var(--accent)] text-white px-10 py-4 rounded-xl text-lg font-semibold shadow-[0_0_60px_var(--accent-glow)] hover:shadow-[0_0_80px_var(--accent-glow)] transition-all animate-[ctaGlow_3s_infinite]"
         >
-          무료 체험 시작
+          무료 상담 시작하기
         </button>
       </div>
     </section>

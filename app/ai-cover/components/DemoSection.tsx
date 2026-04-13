@@ -48,8 +48,8 @@ export default function DemoSection() {
         <p className="text-[1.05rem] text-[var(--text-primary)] mb-5">
           가입하면 내 목소리로 체험할 수 있습니다
         </p>
-        <Link href="/auth/login" className="inline-block py-3 px-8 bg-purple-600 text-white text-base font-semibold rounded-xl no-underline hover:opacity-90 transition-opacity">
-          무료로 시작하기
+        <Link href="/onboarding" className="inline-block py-3 px-8 bg-purple-600 text-white text-base font-semibold rounded-xl no-underline hover:opacity-90 transition-opacity">
+          무료 상담 시작하기
         </Link>
       </div>
     </div>

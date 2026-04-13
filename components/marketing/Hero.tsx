@@ -26,7 +26,7 @@ export default function Hero() {
           </em>
         </h1>
 
-        <p className="text-lg text-[var(--text-secondary)] mt-6 max-w-2xl mx-auto">
+        <p className="text-base md:text-lg text-[var(--text-secondary)] mt-6 max-w-2xl mx-auto leading-relaxed">
           후두·혀뿌리·턱의 긴장을 AI가 실시간으로 분석합니다.{' '}
           <br className="hidden md:inline" />
           원인을 알면, 달라집니다.
