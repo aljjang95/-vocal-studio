@@ -9,7 +9,8 @@ render();
 initLock();
 
 /* Firebase 초기화 — Firestore 실시간 동기화 시작 */
-if(typeof initFirebase==='function') initFirebase();
+window.__DBG_FB_BEFORE = typeof initFirebase;
+try { initFirebase(); window.__DBG_FB_CALLED = true; } catch(e) { window.__DBG_FB_ERR = e.message; }
 
 /* 설정 UI 동기화 */
 setTimeout(function(){
