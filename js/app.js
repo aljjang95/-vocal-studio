@@ -3,11 +3,13 @@
  * 모든 스크립트 로드 후 초기화 실행
  */
 
-window.__DBG={};
-try{renderSidebarToday();window.__DBG.sb=1;}catch(e){window.__DBG.sbE=e.message;}
-try{render();window.__DBG.rn=1;}catch(e){window.__DBG.rnE=e.message;}
-try{initLock();window.__DBG.lk=1;}catch(e){window.__DBG.lkE=e.message;}
-try{initFirebase();window.__DBG.fb=1;}catch(e){window.__DBG.fbE=e.message;}
+/* 초기 렌더링 + 잠금 */
+renderSidebarToday();
+render();
+initLock();
+
+/* Firebase 초기화 — Firestore 실시간 동기화 시작 */
+if(typeof initFirebase==='function') initFirebase();
 
 /* 설정 UI 동기화 */
 setTimeout(function(){

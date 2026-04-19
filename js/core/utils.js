@@ -12,6 +12,30 @@
 function ge(id){return document.getElementById(id);}
 
 /**
+ * DOM 엘리먼트 value 조회
+ * @param {string} id
+ * @returns {string}
+ */
+function gv(id){var el=ge(id);return el?el.value:'';}
+
+/**
+ * 레슨생 색상 조회 (COLORS 배열 기반)
+ * @param {object} s - 레슨생 객체
+ * @returns {string}
+ */
+function gc(s){var i=students.indexOf(s);return COLORS[i>=0?i%COLORS.length:0]||COLORS[0];}
+
+/**
+ * 반 라벨 (pro=발성전문반, hobby=취미반)
+ */
+function clsL(c){return c==='pro'?'발성전문반':'취미반';}
+
+/**
+ * 반 레슨 시간 (pro=1시간, hobby=50분)
+ */
+function clsD(c){return c==='pro'?'1시간':'50분';}
+
+/**
  * 고유 ID 생성 (타임스탬프 + 랜덤)
  * @returns {string}
  */
