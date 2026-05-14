@@ -3162,23 +3162,33 @@ function saveAll(){
 var KR_HOLIDAYS = {
   /* 2025 */
   '2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴',
-  '2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'대체공휴일','2025-06-06':'현충일',
-  '2025-08-15':'광복절','2025-10-03':'개천절','2025-10-05':'추석연휴','2025-10-06':'추석',
+  '2025-03-01':'삼일절','2025-03-03':'대체공휴일',
+  '2025-05-05':'어린이날·부처님오신날','2025-05-06':'대체공휴일',
+  '2025-06-06':'현충일','2025-08-15':'광복절',
+  '2025-10-03':'개천절','2025-10-05':'추석연휴','2025-10-06':'추석',
   '2025-10-07':'추석연휴','2025-10-08':'대체공휴일','2025-10-09':'한글날','2025-12-25':'성탄절',
   /* 2026 */
-  '2026-01-01':'신정','2026-01-28':'설날연휴','2026-01-29':'설날','2026-01-30':'설날연휴',
-  '2026-03-01':'삼일절','2026-03-02':'대체공휴일','2026-05-05':'어린이날','2026-06-06':'현충일',
-  '2026-08-17':'대체공휴일(광복절)','2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴',
-  '2026-10-03':'개천절','2026-10-09':'한글날','2026-12-25':'성탄절',
+  '2026-01-01':'신정',
+  '2026-02-16':'설날연휴','2026-02-17':'설날','2026-02-18':'설날연휴',
+  '2026-03-01':'삼일절','2026-03-02':'대체공휴일',
+  '2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-05-25':'대체공휴일',
+  '2026-06-06':'현충일',
+  '2026-08-15':'광복절','2026-08-17':'대체공휴일',
+  '2026-09-24':'추석연휴','2026-09-25':'추석','2026-09-26':'추석연휴','2026-09-28':'대체공휴일',
+  '2026-10-03':'개천절','2026-10-05':'대체공휴일','2026-10-09':'한글날','2026-12-25':'성탄절',
   /* 2027 */
   '2027-01-01':'신정','2027-02-06':'설날연휴','2027-02-07':'설날','2027-02-08':'설날연휴','2027-02-09':'대체공휴일',
   '2027-03-01':'삼일절','2027-05-05':'어린이날','2027-05-13':'부처님오신날','2027-06-06':'현충일','2027-06-07':'대체공휴일',
   '2027-08-15':'광복절','2027-08-16':'대체공휴일','2027-09-14':'추석연휴','2027-09-15':'추석','2027-09-16':'추석연휴',
-  '2027-10-03':'개천절','2027-10-04':'대체공휴일','2027-10-09':'한글날','2027-12-25':'성탄절','2027-12-27':'대체공휴일',
+  '2027-10-03':'개천절','2027-10-04':'대체공휴일',
+  '2027-10-09':'한글날','2027-10-11':'대체공휴일',
+  '2027-12-25':'성탄절','2027-12-27':'대체공휴일',
   /* 2028 */
   '2028-01-01':'신정','2028-01-26':'설날연휴','2028-01-27':'설날','2028-01-28':'설날연휴',
-  '2028-03-01':'삼일절','2028-05-02':'대체공휴일','2028-05-05':'어린이날','2028-06-06':'현충일',
-  '2028-08-15':'광복절','2028-10-01':'추석연휴','2028-10-02':'추석','2028-10-03':'추석연휴/개천절',
+  '2028-03-01':'삼일절',
+  '2028-05-02':'부처님오신날','2028-05-05':'어린이날',
+  '2028-06-06':'현충일','2028-08-15':'광복절',
+  '2028-10-02':'추석연휴','2028-10-03':'추석·개천절','2028-10-04':'추석연휴','2028-10-05':'대체공휴일',
   '2028-10-09':'한글날','2028-12-25':'성탄절'
 };
 
@@ -3205,7 +3215,11 @@ function loadHolidaysFromGoogle(year, cb){
       if(items&&items.length){
         items.forEach(function(item){
           var ds=item.start&&(item.start.date||item.start.dateTime);
-          if(ds) KR_HOLIDAYS[ds.slice(0,10)]=1;
+          if(!ds) return;
+          var key=ds.slice(0,10);
+          /* 내장 한국어 라벨이 있으면 보존, 없을 때만 구글 summary로 채움 */
+          if(typeof KR_HOLIDAYS[key]==='string') return;
+          KR_HOLIDAYS[key]=item.summary||'공휴일';
         });
       }
       _holidayLoaded[year]=true;
@@ -7386,6 +7400,7 @@ function checkSlotConflict(el,day){
   else{warn.textContent='';}
 }
 function saveStudent(){
+  try{
   var name=(gv('s-nm')).trim();if(!name){toast('이름을 입력해주세요','⚠️');return;}
   var days=Array.from(document.querySelectorAll('#s-dpick .dpb.on')).map(function(b){return b.textContent;});
   var times={};days.forEach(function(d){var el=ge('ts-'+d);if(el)times[d]=el.value;});
@@ -7414,8 +7429,14 @@ function saveStudent(){
     consultData:(old&&old.consultData)||null,
     createdAt:(old&&old.createdAt)||Date.now()
   };
-  if(editSid){var i=students.findIndex(function(s){return s.id===editSid;});students[i]=data;}
-  else students.push(data);
+  console.log('[saveStudent] 저장 시도', {editSid:editSid, pendingConvertId:pendingConvertId, name:data.name, id:data.id});
+  if(editSid){
+    var i=students.findIndex(function(s){return s.id===editSid;});
+    if(i>=0) students[i]=data;
+    else { console.warn('[saveStudent] editSid 매칭 실패 → push로 처리', editSid); students.push(data); }
+  } else {
+    students.push(data);
+  }
   if(pendingConvertId){
     var ci=consults.findIndex(function(c){return c.id===pendingConvertId;});
     if(ci>=0){
@@ -7453,7 +7474,18 @@ function saveStudent(){
       p.cycleNum=Math.floor((_totalAtTime-1)/_cycleSize)+1;
     });
   }
-  var _scrollY=editSid?window.scrollY:0;saveAll();cm('mS');renderSidebarToday();if(page==='eval')page='students';render();if(editSid&&_scrollY>0)setTimeout(function(){window.scrollTo(0,_scrollY);},50);
+  var _scrollY=editSid?window.scrollY:0;
+  saveAll();
+  /* 저장 후 검증 — 학생이 실제 students에 있는지 */
+  var _verify=students.findIndex(function(s){return s.id===data.id;});
+  console.log('[saveStudent] 저장 결과 — students 위치:', _verify, '총', students.length, '명');
+  if(_verify<0){toast('⚠️ 저장 실패: 학생이 목록에서 사라졌습니다','❌');return;}
+  cm('mS');renderSidebarToday();if(page==='eval')page='students';render();
+  if(editSid&&_scrollY>0)setTimeout(function(){window.scrollTo(0,_scrollY);},50);
+  }catch(e){
+    console.error('[saveStudent] 예외',e);
+    toast('저장 중 오류: '+(e&&e.message||e),'❌');
+  }
 }
 function delStudent(){
   var s=students.find(function(x){return x.id===editSid;});
