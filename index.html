@@ -3249,6 +3249,10 @@ function loadHolidaysForView(cb){
 /* 설정 로드 */
 var _cfg={monOff:true,customHolidays:[],sunCollapsed:false,monCollapsed:false,sunHidden:false,monHidden:false};
 try{var _craw=localStorage.getItem('vsC_cfg');if(_craw)_cfg=JSON.parse(_craw);}catch(e){}
+/* customHolidays 진단 — UI가 없으므로 옛 잔재 가능성. 콘솔에서 확인하고 한 줄로 정리 가능 */
+if(Array.isArray(_cfg.customHolidays)&&_cfg.customHolidays.length){
+  console.warn('[customHolidays] 사용자 추가 휴무일:',_cfg.customHolidays,'— 잘못된 항목이면 콘솔에서: _cfg.customHolidays=[];saveCfg();render();');
+}
 function saveCfg(){localStorage.setItem('vsC_cfg',JSON.stringify(_cfg));}
 
 function isHoliday(dateStr){
