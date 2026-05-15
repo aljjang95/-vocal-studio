@@ -188,7 +188,7 @@ body.is-mobile .main{margin-left:0!important;padding-bottom:calc(62px + env(safe
   box-shadow:0 1px 0 var(--season-border,rgba(220,185,120,.07)),0 6px 32px rgba(0,0,0,.45);
   transition:background .8s ease;
 }
-.pt{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:600;font-style:italic;letter-spacing:.02em;}
+.pt{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:600;font-style:italic;letter-spacing:.02em;white-space:nowrap;flex-shrink:0;}
 .ta{display:flex;gap:7px;align-items:center;}
 .content{padding:18px 22px;flex:1;}
 
@@ -3234,17 +3234,10 @@ function loadHolidaysFromGoogle(year, cb){
 }
 
 function loadHolidaysForView(cb){
-  var mon=getViewMon();
-  var years=[mon.getFullYear()];
-  var nextMon=addDays(mon,35);
-  if(nextMon.getFullYear()!==years[0]) years.push(nextMon.getFullYear());
-  var done=0;
-  years.forEach(function(y){
-    loadHolidaysFromGoogle(y,function(){
-      done++;
-      if(done===years.length&&cb)cb();
-    });
-  });
+  /* 구글 캘린더 한국 공휴일 = 기념일(스승의 날·어버이날 등) 포함 → 빨간날 오표시 원인
+   * 내장 KR_HOLIDAYS = 법정 공휴일 화이트리스트만 사용. 외부 fetch 무효화.
+   */
+  if(cb)cb();
 }
 
 /* 설정 로드 */
@@ -4248,7 +4241,7 @@ function buildTodaySchedule(){
     o+='<div style="font-size:12.5px;color:var(--tm)">'+item.h+' &nbsp;·&nbsp; '+clsL(s.cls)+' '+clsD(s.cls)+' &nbsp;·&nbsp; 제 '+wn+'회차';
     var ci2=getCycleInfo(s);
     var remCi=ci2.remainInCycle;
-    o+=' &nbsp;<span style="color:var(--a);font-size:11px;font-weight:600">'+ci2.totalLessons+'회차</span>';
+    o+=' &nbsp;<span style="color:var(--a);font-size:11px;font-weight:600" title="실제 출석 누적">누적 '+ci2.totalLessons+'회</span>';
     o+='</div>';
     o+='</div>';
 
@@ -8881,6 +8874,8 @@ function showEvalPage(cid){
   if(!c)return;
   try{localStorage.setItem('vsC_evalCid',cid);}catch(e){}
   page='eval';
+  if(ge('pt'))ge('pt').textContent='평가지';
+  document.querySelectorAll('.ni[data-p]').forEach(function(n){n.classList.toggle('on',n.dataset.p==='consult');});
 
   var beforeAudios=(c.audios||[]).filter(function(a){return a.type==='before';});
 
@@ -9214,6 +9209,11 @@ function ciCalcAge(el){
 function showConsultForm(cid){
   var DAYS=['월','화','수','목','금','토','일'];
   var editC=cid?consults.find(function(x){return x.id===cid;}):null; /* 수정 모드 */
+  /* 좌상단 페이지 타이틀 동기화 — 이전 페이지 잔재 방지
+   * page는 그대로 두고 (go() setTimeout 콜백이 buildConsultList로 덮어쓰지 않게)
+   * pt + 사이드바 active만 갱신 */
+  if(ge('pt'))ge('pt').textContent=cid?'상담 수정':'신규 상담';
+  document.querySelectorAll('.ni[data-p]').forEach(function(n){n.classList.toggle('on',n.dataset.p==='consult');});
   var REFS=['지인 소개','인스타그램','네이버 검색','유튜브','현수막','블로그','전단지','카카오맵','기타'];
   var GENRES=['팝','R&B','발라드','뮤지컬','CCM','트로트','재즈','장르 무관'];
   var VOICES=['없음','성대결절','역류성 식도염','성대폴립','성대마비','성대부종','기타'];
