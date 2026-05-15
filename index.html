@@ -7275,7 +7275,10 @@ function setSType(t){
   ge('s-fixed-wrap').style.display=t==='fixed'?'block':'none';
 }
 function openSModal(id){
-  editSid=id||null;pendingConvertId=null;
+  /* pendingConvertId 가 외부(convertFromProfile 등)에서 미리 세팅된 경우 보존.
+   * id 명시 = 수정 모드 → pendingConvertId 무효화. id 없음 + pendingConvertId 있음 = 상담→레슨생 변환 모드 */
+  editSid=id||null;
+  if(id) pendingConvertId=null;
   var isEdit=!!id;
   ge('mST').textContent=isEdit?'레슨생 수정':'레슨생 추가';
   /* 헤더 아바타·부제목 업데이트 */
@@ -7433,6 +7436,8 @@ function saveStudent(){
     memo:gv('s-memo'),status:gv('s-stat'),
     audios:(old&&old.audios)||[],videos:(old&&old.videos)||[],
     consultData:(old&&old.consultData)||null,
+    consentRec:(old&&old.consentRec)||null,
+    beforeMemo:(old&&old.beforeMemo)||'',
     createdAt:(old&&old.createdAt)||Date.now()
   };
   console.log('[saveStudent] 저장 시도', {editSid:editSid, pendingConvertId:pendingConvertId, name:data.name, id:data.id});
@@ -7452,6 +7457,18 @@ function saveStudent(){
         students[idx].consultData=JSON.parse(JSON.stringify(consults[ci]));
         students[idx].audios=(students[idx].audios||[]).concat(consults[ci].audios||[]);
         students[idx].videos=(students[idx].videos||[]).concat(consults[ci].videos||[]);
+        /* 사진 상속: 학생에 사진 없고 상담에 있으면 자동 매칭 */
+        if(!students[idx]._photoKey && consults[ci]._photoKey){
+          students[idx]._photoKey = consults[ci]._photoKey;
+        }
+        /* 동의 녹음 상속: 학생에 없고 상담에 있으면 그대로 이관 */
+        if(!students[idx].consentRec && consults[ci].consentRec){
+          students[idx].consentRec = consults[ci].consentRec;
+        }
+        /* Before 메모 상속 (prob/impr 합본) */
+        if(!students[idx].beforeMemo && consults[ci].beforeMemo){
+          students[idx].beforeMemo = consults[ci].beforeMemo;
+        }
       }
     }
     pendingConvertId=null;
@@ -8622,6 +8639,12 @@ function ciRestoreDraft(){
   sv('ci-goal-s',draft.goalS);sv('ci-goal-l',draft.goalL);
   sv('ci-time',draft.time);sv('ci-when',draft.when);
   sv('ci-vdetail',draft.vdetail);sv('ci-prev',draft.prev);sv('ci-memo',draft.memo);
+  /* 트레이너 피드백 + 스케줄 세부 — 자동저장 누락 복원 */
+  sv('ci-prob',draft.prob);sv('ci-impr',draft.impr);
+  sv('ci-first-date',draft.firstDate);sv('ci-first-time',draft.firstTime);
+  sv('ci-sched-fixed',draft.schedFixed);sv('ci-sched-flex',draft.schedFlex);
+  sv('ci-time2',draft.schedTime2);sv('ci-flex-freq',draft.flexFreq);
+  if(draft.flexDays)draft.flexDays.forEach(function(d){document.querySelectorAll('#ci-flex-dpick .dpb').forEach(function(b){if(b.textContent===d)b.classList.add('on');});});
   if(draft.photo){
     sv('ci-photo-data',draft.photo);
     var pp=ge('ci-photo-preview');
@@ -8668,6 +8691,14 @@ function ciSaveDraft(){
       exp:gv('ci-exp'),prevType:gv('ci-prev-type'),prev:gv('ci-prev'),
       smoke:(gv('ci-smoke')+(gv('ci-smoke-amount')?' ('+gv('ci-smoke-amount')+')':'')),drink:(gv('ci-drink')+(gv('ci-drink-amount')?' ('+gv('ci-drink-amount')+')':'')),health:gv('ci-health'),
       memo:gv('ci-memo'),
+      /* 트레이너 피드백 — 작성 중 다른 곳 클릭 시 손실되던 필드 */
+      prob:gv('ci-prob'),impr:gv('ci-impr'),
+      firstDate:(ge('ci-first-date')&&ge('ci-first-date').value)||'',
+      firstTime:gv('ci-first-time'),
+      schedFixed:gv('ci-sched-fixed'),schedFlex:gv('ci-sched-flex'),
+      schedTime2:gv('ci-time2'),
+      flexDays:Array.from(document.querySelectorAll('#ci-flex-dpick .dpb.on')||[]).map(function(b){return b.textContent;}),
+      flexFreq:gv('ci-flex-freq'),
       photo:'',
       _draftPhotoKey:(function(){
         if(_photo&&_photo.length>100){
@@ -8692,18 +8723,29 @@ function ciSaveDraft(){
   }catch(e){}
 }
 function ciStartAutoSave(){
-  /* 폼 내 모든 input/textarea/select 변경 시 3초 후 자동저장 */
+  /* 폼 내 모든 input/textarea/select 변경 시 0.6초 후 자동저장
+   * (1.5초였을 때 작성 중 다른 곳 클릭 시 미저장 분 손실 사고 보고됨)
+   * blur(포커스 잃을 때)는 즉시 저장 — 클릭으로 빠져나가는 케이스 보호 */
   var content=ge('content');
   if(!content)return;
   content.addEventListener('input',function(){
     clearTimeout(_ciDraftTimer);
     _ciDraftTimer=setTimeout(function(){
       if(page==='consult'&&ge('ci-nm'))ciSaveDraft();
-    },1500);
+    },600);
   });
   content.addEventListener('change',function(){
     if(page==='consult'&&ge('ci-nm'))ciSaveDraft();
   });
+  /* 포커스 잃기 즉시 저장 — input/textarea 모두 */
+  content.addEventListener('blur',function(ev){
+    var t=ev.target;
+    if(!t||(t.tagName!=='INPUT'&&t.tagName!=='TEXTAREA'&&t.tagName!=='SELECT'))return;
+    if(page==='consult'&&ge('ci-nm')){
+      clearTimeout(_ciDraftTimer);
+      ciSaveDraft();
+    }
+  },true);
 }
 
 function saveConsult(){
