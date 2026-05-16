@@ -4149,7 +4149,97 @@ function markTodayStatus(sid,h,wk,status){
     }
   });
 }
+/* ── 자동 출석 채움 ──
+ * 마스터 정책: 결석/취소가 명시되지 않은 과거 슬롯은 '출석'으로 자동 카운트.
+ * 호출 시점: buildTodaySchedule 진입 시 — lastFill 박제로 하루 1회만.
+ * 안전장치: 오늘은 건드리지 않음 (사용자가 결석/취소 의사결정 가능). 미래 X.
+ *           휴일·정기휴무는 건너뜀. 이미 logs entry 있으면 건드리지 않음.
+ *           자동 entry는 note='(자동)'로 마킹.
+ */
+function autoFillPastAttendance(){
+  try{
+    var lastFillKey='vsC_lastAutoFill';
+    var lastFillStr='';
+    try{lastFillStr=localStorage.getItem(lastFillKey)||'';}catch(e){}
+    var today=new Date();today.setHours(0,0,0,0);
+    var todayStr=toDS(today);
+    if(lastFillStr===todayStr)return 0; /* 오늘 이미 채움 */
+
+    var startDate;
+    if(lastFillStr){
+      startDate=new Date(lastFillStr);startDate.setDate(startDate.getDate()+1);
+    } else {
+      /* 처음 호출: 최근 30일까지만 소급 (이전 데이터 오염 방지) */
+      startDate=new Date(today);startDate.setDate(today.getDate()-30);
+    }
+    var endDate=new Date(today);endDate.setDate(today.getDate()-1); /* 어제까지 */
+    if(startDate>endDate){
+      try{localStorage.setItem(lastFillKey,todayStr);}catch(e){}
+      return 0;
+    }
+
+    var added=0;
+    var d=new Date(startDate);
+    while(d<=endDate){
+      var ds=toDS(d);
+      var skipDay=(typeof isOffDay==='function'&&isOffDay(ds))||(typeof isHoliday==='function'&&isHoliday(ds));
+      if(skipDay){d.setDate(d.getDate()+1);continue;}
+      var dow=JSDOW[d.getDay()];
+      var wk=getWK(getMon(d));
+
+      students.forEach(function(s){
+        if(s.status!=='수강중')return;
+        /* 그 날의 슬롯 결정: weekOvr 우선, 없으면 fixed days */
+        var slots=[];
+        if(weekOvr[wk]&&weekOvr[wk][s.id]&&weekOvr[wk][s.id].length>0){
+          weekOvr[wk][s.id].forEach(function(sl){
+            if(sl.day===dow&&!sl.absent)slots.push(sl.time||'10:00');
+          });
+        } else if(s.days&&s.days.indexOf(dow)>=0){
+          var t=(s.times&&s.times[dow])||'10:00';
+          slots.push(t);
+        }
+        if(!slots.length)return;
+        /* 이미 그 날 logs entry 있으면 건너뜀 (출/결/취 모두 보존) */
+        var existing=logs.find(function(l){return l.sid===s.id&&l.date===ds;});
+        if(existing)return;
+        /* 자동 출석 1건 추가 (한 날 다중 슬롯이라도 1 entry로 단순화 — 운영상 회차는 1/일) */
+        var wn=logs.filter(function(l){return l.sid===s.id&&new Date(l.date)<=new Date(ds);}).length+1+(typeof getSOffset==='function'?getSOffset(s.id):0);
+        logs.unshift({
+          id:uid(),sid:s.id,sn:s.name,date:ds,att:'출석',
+          ct:'',fb:'',hw:'',rt:'',note:'(자동)',
+          wn:wn,createdAt:Date.now(),_auto:true
+        });
+        added++;
+      });
+
+      d.setDate(d.getDate()+1);
+    }
+
+    try{localStorage.setItem(lastFillKey,todayStr);}catch(e){}
+    if(added>0){
+      try{saveAll();}catch(e){}
+      console.log('[autoFillPastAttendance] '+added+'건 자동 출석 처리');
+    }
+    return added;
+  }catch(e){console.error('[autoFillPastAttendance]',e);return -1;}
+}
+
+/* ── 오늘 스케줄 보안 모드 ──
+ * focus = 현재 시간 가까운 1명만 노출 (학원 노출 보안)
+ * all   = 전체 노출
+ */
+var _todayPrivacy='focus';
+try{_todayPrivacy=localStorage.getItem('vsC_todayPrivacy')||'focus';}catch(e){}
+function setTodayPrivacy(m){
+  _todayPrivacy=m;
+  try{localStorage.setItem('vsC_todayPrivacy',m);}catch(e){}
+  if(page==='today')render();
+}
+
 function buildTodaySchedule(){
+  /* 자동 출석 1회 (과거 미기록 슬롯만) */
+  autoFillPastAttendance();
   var now=new Date();
   var todayDay=JSDOW[now.getDay()];
   var mon=getMon(now);
@@ -4197,7 +4287,7 @@ function buildTodaySchedule(){
   o+='</div>';
 
   /* 통화 매뉴얼 + 초기화 버튼 */
-  o+='<div style="display:flex;gap:8px;margin-bottom:14px">';
+  o+='<div style="display:flex;gap:8px;margin-bottom:10px">';
   o+='<button onclick="om(\'mManual\')" style="flex:1;background:var(--season-hover,var(--ag));border:1px solid var(--b2);border-radius:10px;padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--season-accent,var(--a));font-family:inherit">';
   o+='<span style="font-size:15px">📞</span>';
   o+='<span>통화 매뉴얼</span>';
@@ -4205,12 +4295,41 @@ function buildTodaySchedule(){
   o+='<button onclick="resetAllData()" style="background:rgba(200,114,114,.08);border:1px solid rgba(200,114,114,.18);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--r);font-family:inherit;white-space:nowrap">🗑 초기화</button>';
   o+='</div>';
 
+  /* 보안 모드 토글 — 기본 'focus' (현재 1명만), 'all' (전체 노출) */
+  var pmFocus=_todayPrivacy==='focus';
+  o+='<div style="display:flex;gap:6px;margin-bottom:14px;background:rgba(255,255,255,.03);border:1px solid var(--b);border-radius:10px;padding:4px">';
+  o+='<button onclick="setTodayPrivacy(\'focus\')" style="flex:1;border:none;border-radius:7px;padding:8px 10px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;background:'+(pmFocus?'var(--a)':'transparent')+';color:'+(pmFocus?'#08080d':'var(--tm)')+'">🔒 현재 1명만 보기</button>';
+  o+='<button onclick="setTodayPrivacy(\'all\')" style="flex:1;border:none;border-radius:7px;padding:8px 10px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;background:'+(!pmFocus?'var(--a)':'transparent')+';color:'+(!pmFocus?'#08080d':'var(--tm)')+'">👥 오늘 전체 ('+allSlots.length+'명)</button>';
+  o+='</div>';
+
   if(!allSlots.length){
     o+='<div class="empty"><div class="ei">⏰</div><div class="et">오늘 예정된 레슨이 없습니다</div></div>';
     o+='</div>';return o;
   }
 
-  allSlots.forEach(function(item){
+  /* focus 모드: 현재 시간 가장 가까운 슬롯 1개만 노출 */
+  var displaySlots=allSlots;
+  var hiddenCount=0;
+  if(pmFocus&&allSlots.length>0){
+    var bestIdx=-1,bestAbs=99999;
+    allSlots.forEach(function(slot,i){
+      var sm=parseInt(slot.h.split(':')[0])*60+parseInt(slot.h.split(':')[1]||0);
+      var d=Math.abs(sm-nowMins);
+      /* 우선순위: 현재(±65분) → 다가오는 가장 가까운 → 가장 가까운 과거 */
+      if(d<bestAbs){bestAbs=d;bestIdx=i;}
+    });
+    if(bestIdx>=0){
+      displaySlots=[allSlots[bestIdx]];
+      hiddenCount=allSlots.length-1;
+    }
+    if(hiddenCount>0){
+      o+='<div style="background:rgba(110,163,200,.06);border:1px dashed rgba(110,163,200,.25);border-radius:10px;padding:9px 14px;margin-bottom:12px;font-size:12px;color:var(--bl);display:flex;align-items:center;gap:8px">';
+      o+='<span>🔒</span><span><b>'+hiddenCount+'명</b> 숨김 — 다른 시간대 레슨생 정보가 노출되지 않습니다. 전체 보려면 위 \'오늘 전체\' 탭 클릭.</span>';
+      o+='</div>';
+    }
+  }
+
+  displaySlots.forEach(function(item){
     var s=item.s;var c=gc(s);
     var hp=item.h.split(':');
     var slotMins=parseInt(hp[0])*60+parseInt(hp[1]||0);
